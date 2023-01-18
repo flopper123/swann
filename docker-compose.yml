@@ -1,0 +1,6 @@
+services:
+  swann:
+    build: .
+    volumes:
+      - ./build:/swann/build
+      - ./data:/swann/data
