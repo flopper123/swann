@@ -1,8 +1,21 @@
-# swann
+# SWANN
+
 Searching With Approximate Nearest Neighbor
 
+## Running
 
-# Running
-Run with:
+If you want to compile, test and run:
 
-```docker compose up```
+```$ docker compose up```
+
+If you want to only compile write:
+
+```$ docker compose up compile```
+
+If you want to only compile and test write:
+
+```$ docker compose up test```
+
+If you want to compile and run without tests:
+
+```$ docker compose up swann```

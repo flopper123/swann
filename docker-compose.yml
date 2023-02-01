@@ -1,6 +1,24 @@
 services:
+  compile:
+    build: .
+    volumes:
+      - ./src:/swann/src
+      - ./build:/swann/build
+    command: bash -c "cd /swann/src && cmake -S . -B build && cmake --build build && cp /swann/bin/* /swann/build"
   swann:
     build: .
+    command: /swann/build/swann
     volumes:
       - ./build:/swann/build
       - ./data:/swann/data
+    depends_on:
+      compile:
+        condition: service_completed_successfully
+  test:
+    build: .
+    command: /swann/build/hello_test
+    volumes:
+      - ./build:/swann/build
+    depends_on:
+      compile:
+        condition: service_completed_successfully
