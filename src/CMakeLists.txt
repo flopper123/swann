@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.13)  # CMake version check
 project(swann)                        # Create project "swann"
 set(CMAKE_CXX_STANDARD 20)            # Enable c++20 standard
 
-
-
-
-
-
 # Add main.cpp file of project root directory as source file
 set(SOURCE_FILES main.cpp)
 
@@ -17,13 +12,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /swann/bin)
 add_executable(swann ${SOURCE_FILES})
 
 
-
-# include(FetchContent)
-# FetchContent_Declare(
-#   googletest
-#   URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-# )
-
+# Testing
 include(FetchContent)
 FetchContent_Declare(
     googletest
@@ -32,8 +21,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 enable_testing()
 
-# Testing
-enable_testing()
 include(GoogleTest)
  
 add_executable(
