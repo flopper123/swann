@@ -3,7 +3,13 @@ project(swann)                        # Create project "swann"
 set(CMAKE_CXX_STANDARD 20)            # Enable c++20 standard
 
 # Add main.cpp file of project root directory as source file
-set(SOURCE_FILES main.cpp)
+file( GLOB SOURCE_FILES
+  "util/*.hpp"
+  "index/*.hpp"
+  "dataset/*.hpp"
+  "*.hpp"
+  "main.cpp"
+)
 
 # Add output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /swann/bin)
@@ -24,7 +30,9 @@ include(GoogleTest)
  
 add_executable(
   hello_test
-  test/test.cc
+  ${SOURCE_FILES}
+  "test/test.cc"
+  "test/index/bfindex.cc"
 )
 target_link_libraries(
   hello_test
