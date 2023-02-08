@@ -11,7 +11,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /swann/bin)
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(swann ${SOURCE_FILES})
 
-
 # Testing
 include(FetchContent)
 FetchContent_Declare(
@@ -25,7 +24,7 @@ include(GoogleTest)
  
 add_executable(
   hello_test
-  test.cc
+  test/test.cc
 )
 target_link_libraries(
   hello_test
