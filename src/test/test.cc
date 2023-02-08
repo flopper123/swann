@@ -1,7 +1,4 @@
-
 #include <gtest/gtest.h>
-
-// Testing framework does not work yet
 
 TEST(Test, BasicAssertions) {
 
