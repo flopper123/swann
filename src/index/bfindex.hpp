@@ -32,7 +32,7 @@ class BFIndex : Index<D> {
 
       // Find Hamming distance to all points
       for (ui32 i = 0; i < this->size(); i++) {
-        distance.emplace_back(Point<D>.distance(point, this->points[i]), i);
+        distance.emplace_back(this->points[i].distance(point), i);
       }
       
       // Sort list
@@ -42,8 +42,9 @@ class BFIndex : Index<D> {
       std::vector<ui32> ret;
       std::transform(distance.begin(), distance.begin() + k,
                      ret.begin(),
-                     [](const pair<ui32, ui32> &dist) -> ui32
-                     { return dist.second; });
+                     [](const std::pair<ui32, ui32> &dist)
+                     { return dist.second; }
+      );
       return ret;
     }
 

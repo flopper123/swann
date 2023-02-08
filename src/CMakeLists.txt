@@ -8,14 +8,13 @@ file( GLOB SOURCE_FILES
   "index/*.hpp"
   "dataset/*.hpp"
   "*.hpp"
-  "main.cpp"
 )
 
 # Add output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /swann/bin)
 
 # Add executable target with source files listed in SOURCE_FILES variable
-add_executable(swann ${SOURCE_FILES})
+add_executable(swann ${SOURCE_FILES} "main.cpp")
 
 # Testing
 include(FetchContent)

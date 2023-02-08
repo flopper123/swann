@@ -6,8 +6,9 @@
 #include <string>
 #include <vector>
 
-template<int D>
-std::vector<std::pair<std::string, Point<D>>> parse_word_vec(istream& is) {
+template <int D>
+std::vector<std::pair<std::string, Point<D>>> parse_word_vec(std::istream& is)
+{
   ui32 N, d;
   is >> N >> d;
   std::vector<std::pair<std::string, Point<D>>> ret;
