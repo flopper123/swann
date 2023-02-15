@@ -1,6 +1,4 @@
-
 #include <gtest/gtest.h>
-// #include "util/stream.hpp"
 #include "../../index/bfindex.hpp"
 #include "../../dataset/parse.hpp"
 
@@ -24,4 +22,28 @@ TEST(BFIndexTest, IndexSizeReturnsSize) {
 TEST(BFIndexTest, LargeTest32D){
 
   ASSERT_TRUE(true);
+}
+
+TEST(BFIndexTest, ReturnsTrueKNN) {
+  // Arrange
+  std::vector<Point<4>> input = {
+      Point<4>(0b1100),
+      Point<4>(0b1110),
+      Point<4>(0b0001),
+      Point<4>(0b0010),
+  };
+  BFIndex<4> index(input);
+
+  Point<4> query(0b0011);
+  std::vector<ui32> exp = {2, 3};
+  const int k = 2;
+
+  // Act
+  auto actual = index.query(query, k);
+  std::sort(ALL(actual));
+  std::sort(ALL(exp));
+
+  std::cerr << "Running assertion" << std::endl;
+  // Assert
+  ASSERT_TRUE(std::equal(ALL(actual), ALL(exp)));
 }

@@ -9,8 +9,6 @@
 template<int D>
 class Index {
   public:
-    // virtual Index() = 0;
-    // virtual Index(std::vector<Point<D>>& points) = 0;
     virtual ui32 size() = 0;
     virtual void build() = 0;
     virtual void insert(Point<D>& point) = 0;

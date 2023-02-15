@@ -7,12 +7,9 @@ class BFIndex : Index<D> {
   std::vector<Point<D>> points;
 
   public:
-    BFIndex() {
-      std::cout << "I am building\n";
-    }
+    BFIndex() {}
 
     BFIndex(std::vector<Point<D>>& points) {
-      std::cout << "I am building\n";
       this->points = points;
     }
     
@@ -39,7 +36,7 @@ class BFIndex : Index<D> {
       std::sort(ALL(distance));
 
       // Take k elements with lowest distance
-      std::vector<ui32> ret;
+      std::vector<ui32> ret(k, 0x0);
       std::transform(distance.begin(), distance.begin() + k,
                      ret.begin(),
                      [](const std::pair<ui32, ui32> &dist)
