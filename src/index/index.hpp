@@ -6,7 +6,7 @@
 #include "../global.hpp"
 #include "point.hpp"
 
-template<int D>
+template<ui32 D>
 class Index {
   public:
     virtual ui32 size() = 0;

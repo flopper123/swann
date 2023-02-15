@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include "../../index/bfindex.hpp"
-#include "../../dataset/parse.hpp"
 
 TEST(BFIndexTest, IndexSizeReturnsSize) {
   std::vector<Point<4>> input = {
@@ -19,10 +18,6 @@ TEST(BFIndexTest, IndexSizeReturnsSize) {
   ASSERT_EQ(5, index.size());
 }
 
-TEST(BFIndexTest, LargeTest32D){
-
-  ASSERT_TRUE(true);
-}
 
 TEST(BFIndexTest, ReturnsTrueKNN) {
   // Arrange

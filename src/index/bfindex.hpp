@@ -2,7 +2,7 @@
 
 #include "index.hpp"
 
-template<int D>
+template<ui32 D>
 class BFIndex : Index<D> {
   std::vector<Point<D>> points;
 
@@ -26,6 +26,9 @@ class BFIndex : Index<D> {
     std::vector<ui32> query(const Point<D>& point, int k) {
       // Create distance vector
       std::vector<std::pair<ui32, ui32>> distance;
+      
+      if (k > this->size())
+        k = this->size();
 
       // Find Hamming distance to all points
       for (ui32 i = 0; i < this->size(); i++) {

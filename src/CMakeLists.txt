@@ -32,6 +32,7 @@ add_executable(
   ${SOURCE_FILES}
   "test/test.cc"
   "test/index/bfindex.cc"
+  "test/index/lshtrie.cc"
 )
 target_link_libraries(
   hello_test
