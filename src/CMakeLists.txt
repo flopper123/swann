@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)            # Enable c++20 standard
 # Add main.cpp file of project root directory as source file
 file( GLOB SOURCE_FILES
   "util/*.hpp"
+  "hash/*.hpp"
   "index/*.hpp"
   "dataset/*.hpp"
   "*.hpp"
@@ -33,6 +34,7 @@ add_executable(
   "test/test.cc"
   "test/index/bfindex.cc"
   "test/index/lshtrie.cc"
+  "test/hash/hashfamily.cc"
 )
 target_link_libraries(
   hello_test

@@ -7,3 +7,4 @@
 #define hmap std::unordered_map
 
 typedef uint32_t ui32;
+typedef uint64_t ui64;
