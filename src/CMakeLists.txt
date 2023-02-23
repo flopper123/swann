@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.13)  # CMake version check
+cmake_minimum_required(VERSION 3.20)  # CMake version check
 project(swann)                        # Create project "swann"
-set(CMAKE_CXX_STANDARD 20)            # Enable c++20 standard
+set(CMAKE_CXX_STANDARD 23)            # Enable c++23 standard
 
 # Add main.cpp file of project root directory as source file
 file( GLOB SOURCE_FILES
