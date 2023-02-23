@@ -9,6 +9,11 @@ typedef ui32 hash_idx;
 template<ui32 D>
 class LSHMap {
 
+public:
+  HashFamily<D> hashes;
+
+  LSHMap(HashFamily<D>& hashFamily) : hashes(hashFamily) {}
+
   /**
    * @returns Number of hash-functions in the chain
    **/

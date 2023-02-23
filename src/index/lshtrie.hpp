@@ -95,11 +95,3 @@ private:
   HashFamily<D> hashes;
   ui32 index = 0;
 };
-
-// template<ui32 D>
-// class LSHForest {
-//   // The number of inserted nodes
-//   ui32 index_count = 0;
-// public:
-//   std::vector<LSHTrie*> tries;
-// };

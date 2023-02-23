@@ -3,22 +3,21 @@
 #include "lshmap.hpp"
 
 template <ui32 D>
-class LSHArrayMap : LSHMap<D> {
+class LSHArrayMap : public LSHMap<D> {
 
 public:
-  LSHArrayMap(HashFamily<D>& hf) : 
-    hashes(hf), 
-    buckets(
-      1ULL << hf.size(), // Number of buckets is 2^number_of_hashes
-      bucket()
-    ),
-    count(0)
-  {}
+  LSHArrayMap(HashFamily<D>& hf)
+      : LSHMap<D>(hf),
+        buckets(
+            1ULL << hf.size(), // Number of buckets is 2^number_of_hashes
+            bucket()),
+        count(0)
+  { }
 
   /**
    * @returns Number of hash-functions in the chain
    */
-  ui32 depth() { return hashes.size(); };
+  ui32 depth() { return this->hashes.size(); };
 
   /**
    * Inserts a point into the map
@@ -41,7 +40,7 @@ public:
    * @returns The hash (index) of the bucket the point belongs to
    */
   hash_idx hash(const Point<D>& point) {
-    return hashes(point);
+    return this->hashes(point);
   };
 
   /**
@@ -82,6 +81,5 @@ public:
   
 private:
   std::vector<bucket> buckets;
-  HashFamily<D> hashes;
   ui64 count;
 };
