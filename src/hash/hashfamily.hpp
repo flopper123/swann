@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <functional>
-
 #include "../index/point.hpp"
 
 template<ui32 D>
@@ -29,5 +28,28 @@ public:
       ret |= ((ui64) (*this)[i](p)) << i;
     return ret;
   }
+  
+  //! TO:DO consider changing to std::sample
+  /**
+   * @param depth the number of hashfamilies to sample
+   * @returns A subset hash family containing @depth randomly chosen 
+   *          hash functions from this.
+   **/
+  HashFamily<D> subset(ui32 depth) {
+    assert(this->size() >= depth);
+    
+    // Select random indices
+    std::vector<ui32> indices(this->size());
+    std::iota(indices.begin(), indices.end(), 0);
+    std::random_shuffle(indices.begin(), indices.end());
+
+    // Select subset
+    HashFamily<D> ret;
+    for (ui32 i = 0; i < depth; ++i) {
+      ret.push_back((*this)[indices[i]]);
+    }
+    return ret;
+  }
+
 };
 

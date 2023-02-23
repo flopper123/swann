@@ -28,14 +28,21 @@ enable_testing()
 
 include(GoogleTest)
  
+file(GLOB TEST_UTIL_FILES
+  "test/index/util.hpp"
+)
+
 add_executable(
   hello_test
   ${SOURCE_FILES}
+  ${TEST_UTIL_FILES}
   "test/test.cc"
   "test/index/bfindex.cc"
   "test/index/lshtrie.cc"
   "test/hash/hashfamily.cc"
+  "test/index/lsharraymap.cc"
 )
+
 target_link_libraries(
   hello_test
   gtest

@@ -2,6 +2,10 @@
 
 #include <stdint.h>
 #include <unordered_map>
+#include <bitset>
+#include <vector>
+#include <numeric>
+#include <algorithm> 
 
 #define ALL(o) (o).begin(), (o).end()
 #define hmap std::unordered_map

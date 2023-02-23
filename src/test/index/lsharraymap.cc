@@ -1,11 +1,10 @@
 #include <gtest/gtest.h>
 
 #include "util.hpp"
-
-#include "../../index/lshtrie.hpp"
+#include "../../index/lsharraymap.hpp"
 
 // Add
-TEST(LSHTrieTest, CanAddSinglePoint) {
+TEST(LSHArrayMapTest, CanAddSinglePoint) {
   // Arrange
   std::vector<Point<D>> input = {
       Point<D>(0b000),
@@ -14,18 +13,18 @@ TEST(LSHTrieTest, CanAddSinglePoint) {
       Point<D>(0b011),
       Point<D>(0b100),
   };
-  LSHTrie<D> trie(H);
+  LSHArrayMap<D> mp(H);
   
   // Act
   for (auto& point : input) {
-    trie.add(point);
+    mp.add(point);
   }
 
   // Assert
-  ASSERT_EQ(input.size(), trie.size());
+  ASSERT_EQ(input.size(), mp.size());
 }
 
-TEST(LSHTrieTest, CanAddBatchOfPoints) {
+TEST(LSHArrayMapTest, CanAddBatchOfPoints) {
   // Arrange
   std::vector<Point<D>> input = {
       Point<D>(0b000),
@@ -34,27 +33,29 @@ TEST(LSHTrieTest, CanAddBatchOfPoints) {
       Point<D>(0b011),
       Point<D>(0b100),
   };
-  LSHTrie<D> trie(H);
+  LSHArrayMap<D> mp(H);
   
   // Act
-  trie.add(input);
+  mp.add(input);
   
   // Assert
-  ASSERT_EQ(input.size(), trie.size());
+  ASSERT_EQ(input.size(), mp.size());
 }
 
 // Query
-TEST(LSHTrieTest, CanQueryOnTrie) {
+TEST(LSHArrayMapTest, CanQueryForExactMatch) {
   // Arrange
-  LSHTrie<D> trie(H);
+  LSHArrayMap<D> mp(H);
   auto input = createCompleteInput();
-  trie.add(input);
+  mp.add(input);
   
   for(int i = 0; i < input.size(); ++i) {
     // Act
-    auto act = trie.query(input[i]);
+    hash_idx bucket = mp.hash(input[i]);
+    auto act = mp.query(bucket);
 
     // Assert
+    ASSERT_EQ(act.front(), bucket);
     ASSERT_EQ(act.size(), 1) << "Expected 1 element in bucket but found " << act.size();
     ASSERT_EQ(act.front(), i) << "Expected bucket to contain index " << i 
                               << " but found index " << act.front();
@@ -62,22 +63,20 @@ TEST(LSHTrieTest, CanQueryOnTrie) {
 }
 
 // Query 
-TEST(LSHTrieTest, LeafNodeCanContainMultiplePoints) {
+TEST(LSHArrayMapTest, BucketCanContainMultiplePoints) {
   // Arrange
-  LSHTrie<D> trie(H);
+  LSHArrayMap<D> mp(H);
   auto input = createCompleteInput();
-  trie.add(input);
+  mp.add(input);
   
   // Act
-  trie.add(Point<D>(0b101));
-  std::vector<ui32> actual = trie.query(Point<D>(0b101));
+  mp.add(Point<D>(0b101));
+  auto bucket_hash = mp.hash(Point<D>(0b101));
+  std::vector<ui32> bucket = mp.query(bucket_hash);
+  
+  auto actual = mp[bucket.front()];
 
   // Assert
   std::vector<ui32> expected = { 5, 8 };
   ASSERT_EQ(actual, expected);
 }
-
-//! TODO: Index mapping
-
-
-// Multiple points in same bucket is returned
