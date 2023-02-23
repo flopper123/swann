@@ -3,10 +3,11 @@
 #include "index.hpp"
 #include "../hash/hashfamily.hpp"
 
+typedef std::vector<ui32> bucket; // index bucket
+typedef ui32 hash_idx;
+
 template<ui32 D>
 class LSHMap {
-  typedef vec<ui32> bucket; // index bucket
-  typedef hash_idx ui32;
 
   /**
    * @returns Number of hash-functions in the chain
@@ -16,7 +17,7 @@ class LSHMap {
   /**
    * Inserts a point into the map
    */
-  virtual void add(Point<D> &point) = 0;
+  virtual void add(const Point<D> &point) = 0;
 
   /**
    * Inserts a vector of points into the map
@@ -30,12 +31,11 @@ class LSHMap {
 
   /**
    * @param bidx starting index of the bucket
-   * @param hdist the hamming distance of the buckets to retrieve 
-   * @param k maximum number of matches in the buckets
+   * @param hdist the hamming distance of the buckets to retrieve
    * @returns Returns a vector containing all other bucket indices with 
    *          hamming distance of dist
    */
-  virtual vec<hash_idx> query(hash_idx bidx, ui32 hdist = 0, ui32 k = UINT32_MAX) = 0;
+  virtual std::vector<hash_idx> query(hash_idx bidx, ui32 hdist = 0) = 0;
 
   /**
    * @returns Returns the bucket at index bidx
