@@ -1,9 +1,10 @@
 FROM gcc:12.2
 
-# Install
+# Install c++ 23
 RUN apt update -y && apt upgrade -y
-RUN apt-get install build-essential
+RUN apt-get install -y build-essential
 
-RUN wget https://cmake.org/files/v3.25/cmake-3.25.0.tar.gz
-RUN tar xf cmake-3.25.0.tar.gz
-RUN cd cmake-3.25.0 && ./configure && make && make install
+# Install cmake
+RUN apt install python3-pip -y 
+RUN pip3 install cmake
+
