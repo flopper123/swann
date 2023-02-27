@@ -11,11 +11,33 @@ file( GLOB SOURCE_FILES
   "*.hpp"
 )
 
+# Link to HDF5
+find_package(HDF5 REQUIRED COMPONENTS C CXX HL)
+
 # Add output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /swann/bin)
 
+
+include_directories(
+  ON
+  /usr/lib/x86_64-linux-gnu/hdf5/serial/
+  /usr/include/hdf5/serial
+)
+
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(swann ${SOURCE_FILES} "main.cpp")
+
+target_link_libraries(
+  swann
+  ${HDF5_LIBRARIES}
+  ${HDF5_CXX_LIBRARIES}
+  ${HDF5_HL_LIBRARIES}
+  ${HDF5_CXX_HL_LIBRARIES}
+  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5_cpp.so
+  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so
+  /usr/include/hdf5/serial/hdf5.h
+)
+
 
 # Testing
 include(FetchContent)
@@ -48,6 +70,7 @@ target_link_libraries(
   hello_test
   gtest
   gtest_main
+  ${HDF5_LIBRARIES}
 )
 
 gtest_discover_tests(hello_test)

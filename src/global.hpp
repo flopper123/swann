@@ -6,6 +6,7 @@
 #include <vector>
 #include <numeric>
 #include <algorithm> 
+#include <cassert>
 
 #define ALL(o) (o).begin(), (o).end()
 #define hmap std::unordered_map

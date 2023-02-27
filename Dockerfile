@@ -8,3 +8,5 @@ RUN apt-get install -y build-essential
 RUN apt install python3-pip -y 
 RUN pip3 install cmake
 
+# Install HDF5
+RUN apt install -y libhdf5-dev
