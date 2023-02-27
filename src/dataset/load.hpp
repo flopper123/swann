@@ -25,7 +25,7 @@ std::string download_laion2B_dataset(DataSize size) {
   assert(system(NULL)); 
   
   // Make the path of the python script relative to the directory
-  const std::string laion2b_path = "./data/laion2B-en/";
+  const std::string laion2b_path = "/swann/data/laion2B-en/";
   const std::string command = laion2b_path + "download.sh " + DATA_SIZES_LIST[size];
 
   // Execute download script
@@ -41,20 +41,29 @@ std::string download_laion2B_dataset(DataSize size) {
  * @returns 
 */
 Dataset load_hdf5(DataSize size) {
-  std::string filePath = download_laion2B_dataset(size);
-  
+  const std::string filePath = download_laion2B_dataset(size),
+                    groupName = "/",
+                    datasetName = "hamming";
+  auto dataType = H5::PredType::NATIVE_UINT64;
+
   assert(!filePath.empty());
-  
+
   // Open the file and get the dataset
-  H5::H5File file(filePath, H5F_ACC_RDONLY );
-  
-  H5::Group group = file.openGroup("data");
-  
-  H5::DataSet dataset = group.openDataSet("data");
+  // swann-swann-1  | HDF5 "/swann/data/laion2B-en/hdf5/laion2B-en-hamming-n=100K.h5" {
+  // swann-swann-1  | GROUP "/" {
+  // swann-swann-1  |    DATASET "hamming" {
+  // swann-swann-1  |       DATATYPE  H5T_STD_U64LE
+  // swann-swann-1  |       DATASPACE  SIMPLE { ( 100000, 16 ) / ( 100000, 16 ) }
+  // swann-swann-1  |    }
+  // swann-swann-1  | }
+  // swann-swann-1  | }H5T_STD_U64LE
+  H5::H5File file(filePath, H5F_ACC_RDONLY);
+
+  H5::Group group = file.openGroup(groupName);
+
+  H5::DataSet dataset = group.openDataSet(datasetName);
 
   H5::DataSpace dataspace = dataset.getSpace();
-  
-  //!
   std::cout << "Typeof dataset is: " << dataset.getTypeClass() << std::endl;
 
   // Get the number of vectors and the dimensionality
@@ -62,22 +71,22 @@ Dataset load_hdf5(DataSize size) {
   dataspace.getSimpleExtentDims(data_dims_out, NULL);
 
   // TO:DO: Optimize later when bigger datasets are used
-  std::vector<ui32> data_output(data_dims_out[0] * data_dims_out[1]);
+  std::vector<ui64> data_output(data_dims_out[0] * data_dims_out[1]);
 
-  dataset.read(&data_output[0], H5::PredType::NATIVE_UINT32);
+  dataset.read(&data_output[0], dataType);
 
   std::cout << "data_dims_out[0]::" << data_dims_out[0] << "  data_dims_out[1]::" << data_dims_out[1] << std::endl;
   // Convert to Point<D> format
-  // std::vector<Point<D>> points(data_dims_out[0]);
-  //! 1024/32 => Number of ui32 elements in a Point<D>
-  //! data_dims_out[0] : Number of points in dataset 
-  //! data_dims_out[1] : Number of dimension of points 1024/32
-  // for (int i = 0; i < data_dims_out[0]; ++i)
-  // {
-  //   Point<D> point;
-  //   for (int j = 0; j < data_dims_out[1]; j++) {
-      
-  //   }
-  // }
+  // // std::vector<Point<D>> points(data_dims_out[0]);
+  // //! 1024/32 => Number of ui32 elements in a Point<D>
+  // //! data_dims_out[0] : Number of points in dataset
+  // //! data_dims_out[1] : Number of dimension of points 1024/32
+  // // for (int i = 0; i < data_dims_out[0]; ++i)
+  // // {
+  // //   Point<D> point;
+  // //   for (int j = 0; j < data_dims_out[1]; j++) {
+
+  // //   }
+  // // }
   return Dataset();
 }

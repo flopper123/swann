@@ -51,7 +51,7 @@ function extract_dataset() {
 if [[ -z "$1" ]]; then
   echo "[-] download.sh - Expected a single parameter, received none"
 
-elif [$1 = 'all']; then
+elif [[ $1 = 'all' ]]; then
 	echo "[+] Starting extraction of all the bit-vectors.."
   for n in 100M 30M 10M 300K 100K;
   do
