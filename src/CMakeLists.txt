@@ -40,6 +40,7 @@ add_executable(
   "test/index/bfindex.cc"
   "test/index/lshtrie.cc"
   "test/hash/hashfamily.cc"
+  "test/hash/random.cc"
   "test/index/lsharraymap.cc"
 )
 
