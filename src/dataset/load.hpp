@@ -1,15 +1,17 @@
 #pragma once
 
-#include <H5Cpp.h>
-
 #include "../global.hpp"
 #include "../index/point.hpp"
+
+#include <H5Cpp.h>
+#include <sstream>
 
 enum DataSize {XS, S, M, L, XL};
 std::string DATA_SIZES_LIST[] = {"100K", "300K", "10M", "30M", "100M"};
 
 constexpr ui32 D = 1024;
 
+//! TO:DO Load and store queries
 class Dataset : public std::vector<Point<D>> {
   using std::vector<Point<D>>::vector;
 };
@@ -37,56 +39,44 @@ std::string download_laion2B_dataset(DataSize size) {
 
 /**
  * @brief Load a hdf5 dataset
+ * @param src The dataset to load into. 
+ *            The points in the dataset will be pushed back
  * @param size Number of vectors to download
- * @returns 
 */
-Dataset load_hdf5(DataSize size) {
+void load_hdf5(Dataset& src, DataSize size) {
+  const int start_size = src.size();
   const std::string filePath = download_laion2B_dataset(size),
                     groupName = "/",
                     datasetName = "hamming";
-  auto dataType = H5::PredType::NATIVE_UINT64;
-
   assert(!filePath.empty());
 
-  // Open the file and get the dataset
-  // swann-swann-1  | HDF5 "/swann/data/laion2B-en/hdf5/laion2B-en-hamming-n=100K.h5" {
-  // swann-swann-1  | GROUP "/" {
-  // swann-swann-1  |    DATASET "hamming" {
-  // swann-swann-1  |       DATATYPE  H5T_STD_U64LE
-  // swann-swann-1  |       DATASPACE  SIMPLE { ( 100000, 16 ) / ( 100000, 16 ) }
-  // swann-swann-1  |    }
-  // swann-swann-1  | }
-  // swann-swann-1  | }H5T_STD_U64LE
   H5::H5File file(filePath, H5F_ACC_RDONLY);
-
   H5::Group group = file.openGroup(groupName);
-
   H5::DataSet dataset = group.openDataSet(datasetName);
-
   H5::DataSpace dataspace = dataset.getSpace();
-  std::cout << "Typeof dataset is: " << dataset.getTypeClass() << std::endl;
 
   // Get the number of vectors and the dimensionality
   hsize_t data_dims_out[2];
   dataspace.getSimpleExtentDims(data_dims_out, NULL);
 
-  // TO:DO: Optimize later when bigger datasets are used
+  //! TO:DO: Optimize later when bigger datasets are used, ideally we should operate on a Dataset pointer
   std::vector<ui64> data_output(data_dims_out[0] * data_dims_out[1]);
+  dataset.read(&data_output[0], H5::PredType::NATIVE_UINT64);
 
-  dataset.read(&data_output[0], dataType);
+  const int R = data_dims_out[0],  // Number of points in dataset, 
+            C = data_dims_out[1];  // Number of ui64 to make up a single Point in dataset
+  assert(D/C == 64);
+ 
+  for (int r = 0; r < R; ++r) {
+    std::stringstream ss;
 
-  std::cout << "data_dims_out[0]::" << data_dims_out[0] << "  data_dims_out[1]::" << data_dims_out[1] << std::endl;
-  // Convert to Point<D> format
-  // // std::vector<Point<D>> points(data_dims_out[0]);
-  // //! 1024/32 => Number of ui32 elements in a Point<D>
-  // //! data_dims_out[0] : Number of points in dataset
-  // //! data_dims_out[1] : Number of dimension of points 1024/32
-  // // for (int i = 0; i < data_dims_out[0]; ++i)
-  // // {
-  // //   Point<D> point;
-  // //   for (int j = 0; j < data_dims_out[1]; j++) {
+    //! TO:DO write check of order : I fear bitsets might be constructed 
+    //!       in inverse order due to the way they are printed
+    for (int c = 0; c < C; ++c)
+      ss << std::bitset<64>(data_output[r*C+c]); 
 
-  // //   }
-  // // }
-  return Dataset();
+    src.emplace_back(ss.str()); // construct point from bitstring
+  }
+
+  assert(src.size()-start_size == R);
 }
