@@ -31,8 +31,6 @@ std::string download_laion2B_dataset(DataSize size) {
   const std::string command = laion2b_path + "download.sh " + DATA_SIZES_LIST[size];
 
   // Execute download script
-  const std::string test = "cd /swann/data/laion2B-en/ && chmod +x download.sh && ./download.sh 100K";
-  std::system(test.c_str());
   std::system(command.c_str());
 
   const std::string file_name = laion2b_path + "hdf5/laion2B-en-hamming-n=" + DATA_SIZES_LIST[size] + ".h5";
