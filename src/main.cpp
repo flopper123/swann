@@ -1,6 +1,14 @@
 #include <iostream>
 
+#include "./dataset/load.hpp"
+
+Dataset in;
+
 int main() {
-  std::cout << "Skrrrrt!" << std::endl;
+  load_hdf5(in, DataSize::XS);
+  
+  for (int i = 0; i < 64; ++i) {
+    std::cout << "Bitset[" << i << "]: " << in[i] << std::endl;
+  }
   return 0;
 }
