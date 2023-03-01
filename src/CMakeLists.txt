@@ -20,7 +20,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /swann/bin)
 
 include_directories(
   ON
-  /usr/lib/x86_64-linux-gnu/hdf5/serial/
   /usr/include/hdf5/serial
 )
 
@@ -33,8 +32,6 @@ target_link_libraries(
   ${HDF5_CXX_LIBRARIES}
   ${HDF5_HL_LIBRARIES}
   ${HDF5_CXX_HL_LIBRARIES}
-  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5_cpp.so
-  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so
   /usr/include/hdf5/serial/hdf5.h
 )
 

@@ -22,7 +22,7 @@ services:
     profiles: [ "test" ]
     volumes:
       - ./build:/swann/build
-      - ./data:/swann/data
+      # - ./data:/swann/data
     depends_on:
       compile:
         condition: service_completed_successfully
@@ -33,7 +33,7 @@ services:
     profiles: [ "benchmark" ]
     volumes:
       - ./build:/swann/build
-      - ./data:/swann/data
+      # - ./data:/swann/data
       - ./benchmark:/swann/benchmark
       - ./scripts:/swann/scripts
     depends_on:
