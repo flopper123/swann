@@ -10,3 +10,11 @@ RUN pip3 install cmake
 
 # Install HDF5
 RUN apt install -y libhdf5-dev
+
+# Install Google Benchmark
+RUN git clone https://github.com/google/benchmark.git \
+    && cd benchmark \
+    && git checkout v1.7.1 \
+    && cmake -E make_directory "build" \
+    && cmake -E chdir "build" cmake -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release ../ \
+    && cmake --build "build" --config Release --target install

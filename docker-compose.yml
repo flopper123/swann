@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   compile:
     build: .
@@ -17,8 +19,21 @@ services:
   test:
     build: .
     command: /swann/build/hello_test
+    profiles: [ "test" ]
     volumes:
       - ./build:/swann/build
+    depends_on:
+      compile:
+        condition: service_completed_successfully
+
+  benchmark:
+    build: .
+    command: /swann/scripts/run_benchmark.sh
+    profiles: [ "benchmark" ]
+    volumes:
+      - ./build:/swann/build
+      - ./benchmark:/swann/benchmark
+      - ./scripts:/swann/scripts
     depends_on:
       compile:
         condition: service_completed_successfully

@@ -74,3 +74,23 @@ target_link_libraries(
 )
 
 gtest_discover_tests(hello_test)
+
+
+# Benchmarking
+file(GLOB BENCHMARK_FILES
+  "benchmark/*.cc"
+)
+
+find_package(benchmark REQUIRED)
+
+add_executable(
+  benchmark
+  ${SOURCE_FILES}
+  ${BENCHMARK_FILES}
+)
+
+target_link_libraries(
+  benchmark
+  benchmark::benchmark
+  ${HDF5_LIBRARIES}
+)
