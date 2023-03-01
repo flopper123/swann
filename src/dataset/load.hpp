@@ -24,7 +24,7 @@ class Dataset : public std::vector<Point<D>> {
  **/
 std::string download_laion2B_dataset(DataSize size) {
   // Assert system call is available
-  assert(system(NULL)); 
+  assert(std::system(NULL)); 
   
   // Make the path of the python script relative to the directory
   const std::string laion2b_path = "/swann/data/laion2B-en/";
