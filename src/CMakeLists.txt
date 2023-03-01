@@ -28,6 +28,7 @@ add_executable(swann ${SOURCE_FILES} "main.cpp")
 
 target_link_libraries(
   swann
+  ${HDF5}
   ${HDF5_LIBRARIES}
   ${HDF5_CXX_LIBRARIES}
   ${HDF5_HL_LIBRARIES}

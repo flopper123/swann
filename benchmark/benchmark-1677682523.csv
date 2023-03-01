@@ -1,0 +1,14 @@
+2023-03-01T14:55:23+00:00
+Running /swann/build/benchmark
+Run on (4 X 1996.25 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x4)
+  L1 Instruction 32 KiB (x4)
+  L2 Unified 512 KiB (x4)
+  L3 Unified 4096 KiB (x1)
+Load Average: 0.56, 0.39, 0.26
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message
+"BM_load_XS_dataset",1,2.64985e+09,2.58719e+09,ns,,,,,
+"BM_parse_XS_dataset",1,2.54176e+09,2.54128e+09,ns,,,,,
+"BM_StringCreation",15502166,45.3209,45.3204,ns,,,,,
+"BM_StringCopy",9422521,67.5904,67.5911,ns,,,,,
