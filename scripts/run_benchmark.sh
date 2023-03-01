@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 datetime=$(date +'%s')
 outputfile=/swann/benchmark/benchmark-$datetime.csv
 
