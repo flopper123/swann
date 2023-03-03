@@ -46,6 +46,8 @@ public:
       this->depth = std::min(this->depth, map->depth());
     }
   };
+  
+  std::vector<LSHMap<D>*>& getMaps() { return maps; }
 
   ui32 size() { return points.size(); };
   
