@@ -3,7 +3,6 @@
 #include <random>
 #include "hashfamily.hpp"
 
-
 /** 
  * @brief BinaryHashFunction - Checks if a random bit is set in the point
  **/

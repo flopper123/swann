@@ -11,7 +11,7 @@ class Point : public std::bitset<D> {
     using std::bitset<D>::bitset;
 
     // Computes the Hamming distance between to points
-    ui32 distance(const Point<D>& p2) {
+    ui32 distance(const Point<D>& p2) const {
       return (*this ^ p2).count();
     }
 };
