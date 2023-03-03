@@ -39,3 +39,17 @@ services:
     depends_on:
       compile:
         condition: service_completed_successfully
+
+  notebooks:
+    build: ./notebooks
+    profiles: [ "analyse" ]
+    ports:
+      - 8888:8888
+    volumes:
+      - ./data:/swann/data
+      - ./benchmark:/swann/benchmark
+      - ./notebooks/notebooks:/swann/notebooks
+
+
+    
+    
