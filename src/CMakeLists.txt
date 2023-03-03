@@ -20,7 +20,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /swann/bin)
 
 include_directories(
   ON
-  /usr/lib/x86_64-linux-gnu/hdf5/serial/
   /usr/include/hdf5/serial
 )
 
@@ -29,12 +28,11 @@ add_executable(swann ${SOURCE_FILES} "main.cpp")
 
 target_link_libraries(
   swann
+  ${HDF5}
   ${HDF5_LIBRARIES}
   ${HDF5_CXX_LIBRARIES}
   ${HDF5_HL_LIBRARIES}
   ${HDF5_CXX_HL_LIBRARIES}
-  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5_cpp.so
-  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so
   /usr/include/hdf5/serial/hdf5.h
 )
 
@@ -74,3 +72,23 @@ target_link_libraries(
 )
 
 gtest_discover_tests(hello_test)
+
+
+# Benchmarking
+file(GLOB BENCHMARK_FILES
+  "benchmark/*.cc"
+)
+
+find_package(benchmark REQUIRED)
+
+add_executable(
+  benchmark
+  ${SOURCE_FILES}
+  ${BENCHMARK_FILES}
+)
+
+target_link_libraries(
+  benchmark
+  benchmark::benchmark
+  ${HDF5_LIBRARIES}
+)
