@@ -1,0 +1,14 @@
+2023-03-03T12:07:58+00:00
+Running /swann/build/benchmark
+Run on (4 X 1996.26 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x4)
+  L1 Instruction 32 KiB (x4)
+  L2 Unified 512 KiB (x4)
+  L3 Unified 4096 KiB (x1)
+Load Average: 0.48, 0.14, 0.08
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"input_size"
+"LoadDatasets/100000",1,2602.41,2532.48,ms,,,,,,100000
+"LoadDatasets/300000",1,7749.27,7604.63,ms,,,,,,300000
+"ParseDatasets/100000",1,2538.79,2520.52,ms,,,,,,100000
+"ParseDatasets/300000",1,7710.79,7691.85,ms,,,,,,300000
