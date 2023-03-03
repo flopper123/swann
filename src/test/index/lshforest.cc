@@ -4,35 +4,34 @@
 #include "../../index/lsharraymap.hpp"
 #include "../../index/lshforest.hpp"
 
-TEST(LSHForestInit, CanInstantiateFromMap) {
+TEST(LSHForestInit, CanInstantiateFromMaps) {
   // Arrange
   LSHArrayMap<D>* mp = new LSHArrayMap<D>(H);
   std::vector<LSHMap<D>*> maps(1, mp);
   LSHForest<D> forest(maps);
-  
+
   // Assert
   ASSERT_EQ(forest.size(), 0);
 }
 
-TEST(LSHForestInit, CanInstantiateFromMapAndPoints) {
+TEST(LSHForestInit, CanInstantiateFromMapsAndPoints) {
   // Arrange
   LSHArrayMap<D>* mp = new LSHArrayMap<D>(H);
   std::vector<LSHMap<D>*> maps(1, mp);
   std::vector<Point<D>> points = createCompleteInput();
-  
+
   LSHForest<D> forest(maps, points);
-  
+
   // Assert
   ASSERT_EQ(forest.size(), points.size());
 }
-
 
 TEST(LSHForestBuild, CanBuild) {
   // Arrange
   LSHArrayMap<D>* mp = new LSHArrayMap<D>(H);
   std::vector<LSHMap<D>*> maps(1, mp);
   std::vector<Point<D>> points = createCompleteInput();
-  
+
   LSHForest<D> forest(maps, points);
   forest.build();
 
@@ -44,7 +43,7 @@ TEST(LSHForestBuild, BuildInsertPointsIntoAllMaps) {
   // Arrange
   std::vector<LSHMap<D> *> maps { new LSHArrayMap<D>(H), new LSHArrayMap<D>(H) };
   std::vector<Point<D>> points = createCompleteInput();
-  
+
   LSHForest<D> forest(maps, points);
   forest.build();
 
@@ -53,8 +52,31 @@ TEST(LSHForestBuild, BuildInsertPointsIntoAllMaps) {
     ASSERT_EQ(mp->size(), points.size());
 }
 
-// // Assuming there is atleast K points added to the map
-// TEST(LSHForestQuery, QueryReturnsExcatlyKResults) {
-//   auto in = createCompleteInput(); // Input consists of all combinations of points
-//   LSHArrayMap<D>* mp = new LSHArrayMap<D>(H);
-// }
+// Expect excatly K results and correct distance
+TEST(LSHForestQuery, QueryReturnsCorrectResults) {
+  // Arrange : Build all maps on all combinations of points  
+  std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, H.size(), 5);
+  std::vector<Point<D>> points = createCompleteInput();
+  LSHForest<D> forest(maps, points);
+  forest.build();
+  
+  // Act : Query for the single nearest neighbour for all points inserted 
+  for (auto& p : points) 
+  {
+    ui32 k = 1;
+    for (ui32 bits = 0; bits < D; ++bits) {
+      k += bits ? 0 : (1UL << bits);
+      auto act = forest.query(p, k);
+
+      ASSERT_EQ(act.size(), k);
+
+      for (auto &pidx : act)
+      {
+        auto p2 = forest[pidx];
+        ASSERT_LE(p.distance(p2), bits+1) << "Query(" << p << ", " << k << ") :: Found " << act.size() << " results\n"
+                                        << "Expected hamming distance of " << bits << ". "
+                                        << "Received << " << p.distance(p2) << std::endl;
+      }
+    }
+  }
+}

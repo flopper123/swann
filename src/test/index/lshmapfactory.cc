@@ -4,9 +4,6 @@
 #include "../../index/lshmap.hpp"
 #include "../../index/lshmapfactory.hpp"
 
-// LSHMap<D> create(HashFamily<D>& H, ui32 depth)
-// std::vector<LSHMap<D>> create(HashFamily<D>& H, ui32 depth, ui32 k)
-
 // Add
 TEST(LSHMapFactoryInit, CanCreateSingleMap) {
   LSHMap<D>* map = LSHMapFactory<D>::create(H, 1);

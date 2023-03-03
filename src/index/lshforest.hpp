@@ -62,10 +62,9 @@ public:
 
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) 
   {
-    // std::cerr << point << ' ' << k << recall << std::endl;
     std::set<ui32> found;                                // A set containing all found points so far from the maps
     std::vector<ui32> hash_idx(this->maps.size()), ret;  // hash[m] : contains the hash of point in map[m]
-    std::vector<std::pair<ui32, ui32>> pdist; // A vector containing pairs of (point idx, distance)
+    std::vector<std::pair<ui32, ui32>> pdist;            // A vector containing pairs of (dist, idx)
     const ui32 M = this->maps.size();
 
     for (ui32 m = 0; m < M; ++m)
@@ -74,21 +73,20 @@ public:
     // Loop through all buckets within hamming distance of hdist of point
     for (ui32 hdist = 0;
          hdist < this->depth && !stop_query(recall, hdist, found.size(), k);
-         ++hdist) 
+         ++hdist)
     {
       // Loop through all maps
       for (ui32 m = 0; m < M; ++m)
       {
         // Loop through all buckets with hamming distance of hdist to point
-        for (ui32 bi : maps[m]->query(hash_idx[m], hdist))
+        for (ui32 bucket_i : maps[m]->query(hash_idx[m], hdist))
         {
-          auto buckets = (*maps[m])[bi];
-          found.insert(ALL(buckets));
+          found.insert(ALL((*maps[m])[bucket_i]));
         }
       }
     }
     
-    // Transform all found points into pairs of (point idx, distance)
+    // Transform all found points into pairs of (distance, point idx)
     std::transform(ALL(found), std::back_inserter(pdist), [this, point](ui32 pi) -> std::pair<ui32,ui32> { 
       return { point.distance(this->points[pi]), pi}; });
 

@@ -13,7 +13,7 @@ public:
     auto hf = H.subset(depth);
     return new LSHArrayMap<D>(hf);
   }
-  
+
   /** 
    * @brief Construct a @k LSHMaps with @depth hashfunctions chosen @H 
    * @param depth number of hash functions per map 
