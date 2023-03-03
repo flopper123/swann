@@ -57,11 +57,13 @@ add_executable(
   ${SOURCE_FILES}
   ${TEST_UTIL_FILES}
   "test/test.cc"
+  "test/index/lshforest.cc"
   "test/index/bfindex.cc"
   "test/index/lshtrie.cc"
   "test/hash/hashfamily.cc"
   "test/hash/random.cc"
   "test/index/lsharraymap.cc"
+  "test/index/lshmapfactory.cc"
 )
 
 target_link_libraries(

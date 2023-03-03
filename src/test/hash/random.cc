@@ -15,7 +15,7 @@ auto make_point1b = []() -> Point<D>
  **/
 TEST(RandomBitHash, HashChecksASingleBit) {
   // Arrange
-  constexpr ui32 H_SIZE = 10, D = 5, N = 100;
+  constexpr ui32 H_SIZE = 10, D = 3, N = 100;
   HashFamily<D> hashes;
   std::vector<Point<D>> in;
   

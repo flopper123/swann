@@ -18,6 +18,11 @@ public:
    * @returns Number of hash-functions in the chain
    */
   ui32 depth() { return this->hashes.size(); };
+  
+  /**
+   * @returns Number of hash-functions in the chain
+   */
+  ui32 size() { return this->count; };
 
   /**
    * Inserts a point into the map
@@ -75,9 +80,6 @@ public:
   bucket& operator[](hash_idx bidx) {
     return this->buckets[bidx];
   }
-
-  /** @returns count of inserted points */
-  ui32 size() { return count; }
   
 private:
   std::vector<bucket> buckets;

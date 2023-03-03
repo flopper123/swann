@@ -15,8 +15,13 @@ public:
   LSHMap(HashFamily<D>& hashFamily) : hashes(hashFamily) {}
 
   /**
+   * @returns Number of points in the map
+   */
+  virtual ui32 size() = 0;
+
+  /**
    * @returns Number of hash-functions in the chain
-   **/
+   */
   virtual ui32 depth() = 0;
 
   /**

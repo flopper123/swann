@@ -73,7 +73,7 @@ TEST(LSHTrieTest, LeafNodeCanContainMultiplePoints) {
   std::vector<ui32> actual = trie.query(Point<D>(0b101));
 
   // Assert
-  std::vector<ui32> expected = { 5, 8 };
+  std::vector<ui32> expected = { 5, (ui32) input.size() };
   ASSERT_EQ(actual, expected);
 }
 

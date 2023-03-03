@@ -26,7 +26,7 @@ class Index {
      * @param point Point to insert into the index
      * @param k number of nearest neighbors to return
      */
-    virtual std::vector<ui32> query(const Point<D>& point, int k) = 0;
+    virtual std::vector<ui32> query(const Point<D>& point, int k, float recall) = 0;
 
     /**
      * @param i index of the point to return
