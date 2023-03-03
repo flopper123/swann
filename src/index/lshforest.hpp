@@ -66,9 +66,10 @@ public:
     std::vector<ui32> hash_idx(this->maps.size()), ret;  // hash[m] : contains the hash of point in map[m]
     std::vector<std::pair<ui32, ui32>> pdist;            // A vector containing pairs of (dist, idx)
     const ui32 M = this->maps.size();
-
-    for (ui32 m = 0; m < M; ++m)
+  
+    for (ui32 m = 0; m < M; ++m) {
       hash_idx[m] = maps[m]->hash(point);
+    }
     
     // Loop through all buckets within hamming distance of hdist of point
     for (ui32 hdist = 0;
@@ -94,9 +95,9 @@ public:
     std::sort(ALL(pdist), std::less<std::pair<ui32,ui32>>()); 
     
     // Copy the first k points into the return vector
-    std::transform(pdist.begin(), pdist.begin() + k, std::back_inserter(ret), [](auto &p)
-              { return p.second; });
-
+    std::transform(pdist.begin(), pdist.begin() + k, 
+                   std::back_inserter(ret), 
+                   [](auto &p){ return p.second; });
     return ret;
   }
 

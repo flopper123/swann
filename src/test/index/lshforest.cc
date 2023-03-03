@@ -63,20 +63,45 @@ TEST(LSHForestQuery, QueryReturnsCorrectResults) {
   // Act : Query for the single nearest neighbour for all points inserted 
   for (auto& p : points) 
   {
-    ui32 k = 1;
+    ui32 k = 0;
     for (ui32 bits = 0; bits < D; ++bits) {
-      k += bits ? 0 : (1UL << bits);
-      auto act = forest.query(p, k);
+      k += (1UL << bits);
+      auto kNearestNeighbours = forest.query(p, k);
 
-      ASSERT_EQ(act.size(), k);
+      ASSERT_EQ(kNearestNeighbours.size(), k);
 
-      for (auto &pidx : act)
+      for (auto &pidx : kNearestNeighbours)
       {
         auto p2 = forest[pidx];
-        ASSERT_LE(p.distance(p2), bits+1) << "Query(" << p << ", " << k << ") :: Found " << act.size() << " results\n"
-                                        << "Expected hamming distance of " << bits << ". "
-                                        << "Received << " << p.distance(p2) << std::endl;
+        ASSERT_LE(p.distance(p2), bits+1) << "Query(" << p << ", " << k << ") :: Found " << kNearestNeighbours.size() << " results\n"
+                                          << "Expected hamming distance of " << bits << ". "
+                                          << "Received << " << p.distance(p2) << std::endl;
       }
+    }
+  }
+}
+
+// Expect excatly K results and correct distance
+TEST(LSHForestQuery, QueryReturnsElementsWithCorrectDistance) {
+  // Arrange : Build all maps on all combinations of points  
+  std::vector<LSHMap<4>*> maps = LSHMapFactory<4>::create(H, H.size(), 5);
+  std::vector<Point<4>> points = createCompleteInput();
+  LSHForest<4> forest(maps, points);
+  forest.build();
+  
+  // Act : Query for the single nearest neighbour for all points inserted
+  Point<4> rootPoint(0);
+  int pointsWithMaxDistance[] = { 1, 5, 11, 15, 16 };
+
+  for (int i = 0; i <= 4; i++) {
+    int k = pointsWithMaxDistance[i];
+
+    auto kNearestNeighbours = forest.query(rootPoint, k);
+    ASSERT_EQ(kNearestNeighbours.size(), k);
+
+    for (auto &pidx : kNearestNeighbours) {
+      auto p = forest[pidx];
+      ASSERT_LE(p.distance(rootPoint), i);
     }
   }
 }
