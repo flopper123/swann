@@ -30,7 +30,7 @@
 # ---------------------------------------------------------------------------------------
 
 N="${1}" 
-DEST="$(dirname ${BASH_SOURCE})/hdf5/"
+DEST="$(dirname ${BASH_SOURCE})/hdf5"
 
 function extract_dataset() {
   count=$1 # Denotes N:the dataset to extract

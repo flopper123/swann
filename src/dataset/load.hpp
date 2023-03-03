@@ -37,46 +37,63 @@ std::string download_laion2B_dataset(DataSize size) {
   return file_name;
 }
 
-/**
- * @brief Load a hdf5 dataset
- * @param src The dataset to load into. 
- *            The points in the dataset will be pushed back
- * @param size Number of vectors to download
-*/
-void load_hdf5(Dataset& src, DataSize size) {
-  const int start_size = src.size();
-  const std::string filePath = download_laion2B_dataset(size),
-                    groupName = "/",
-                    datasetName = "hamming";
-  assert(!filePath.empty());
 
-  H5::H5File file(filePath, H5F_ACC_RDONLY);
-  H5::Group group = file.openGroup(groupName);
-  H5::DataSet dataset = group.openDataSet(datasetName);
+Dataset parse_dataset(std::vector<ui64>& in, const int rows, const int cols) {
+  Dataset src;
+
+  assert(D / cols == 64);
+  for (int r = 0; r < rows; ++r) {
+    std::stringstream ss;
+
+    for (int c = 0; c < cols; ++c)
+      ss << std::bitset<64>(in[r * cols + c]);
+
+    src.emplace_back(ss.str()); // construct point from bitstring
+  }
+
+  assert(src.size() == rows);
+
+  return src;
+}
+
+/** @returns A pair containing the number of rows and cols of the dataset */
+std::pair<int, int> get_dataset_dimensions(H5::DataSet &dataset)
+{
   H5::DataSpace dataspace = dataset.getSpace();
 
   // Get the number of vectors and the dimensionality
   hsize_t data_dims_out[2];
   dataspace.getSimpleExtentDims(data_dims_out, NULL);
 
-  //! TO:DO: Optimize later when bigger datasets are used, ideally we should operate on a Dataset pointer
-  std::vector<ui64> data_output(data_dims_out[0] * data_dims_out[1]);
+  return {(int)data_dims_out[0], (int)data_dims_out[1]};
+}
+
+H5::DataSet fetch_dataset(DataSize size) {
+  const std::string filePath = download_laion2B_dataset(size),
+                    groupName = "/",
+                    datasetName = "hamming";
+  assert(!filePath.empty());
+  
+  H5::H5File file(filePath, H5F_ACC_RDONLY);
+  H5::Group group = file.openGroup(groupName);
+  return group.openDataSet(datasetName);
+}
+
+/**
+ * @brief Load a hdf5 dataset
+ * @param src The dataset to load into.
+ *            The points in the dataset will be pushed back
+ * @param size Number of vectors to download
+ */
+Dataset load_hdf5(DataSize size) {
+
+  H5::DataSet dataset = fetch_dataset(size);
+
+  auto [rows, cols] = get_dataset_dimensions(dataset);
+
+  std::vector<ui64> data_output(rows * cols);
+
   dataset.read(&data_output[0], H5::PredType::NATIVE_UINT64);
 
-  const int R = data_dims_out[0],  // Number of points in dataset, 
-            C = data_dims_out[1];  // Number of ui64 to make up a single Point in dataset
-  assert(D/C == 64);
- 
-  for (int r = 0; r < R; ++r) {
-    std::stringstream ss;
-
-    //! TO:DO write check of order : I fear bitsets might be constructed 
-    //!       in inverse order due to the way they are printed
-    for (int c = 0; c < C; ++c)
-      ss << std::bitset<64>(data_output[r*C+c]); 
-
-    src.emplace_back(ss.str()); // construct point from bitstring
-  }
-
-  assert(src.size()-start_size == R);
+  return parse_dataset(data_output, rows, cols);
 }
