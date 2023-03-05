@@ -14,7 +14,12 @@ template <ui32 D>
 class HashFamily : public std::vector<BinaryHash<D>> {
 public:
   using std::vector<BinaryHash<D>>::vector;
-  
+
+  HashFamily& operator+=(const HashFamily& rhs) {
+    this->insert(this->end(), ALL(rhs));
+    return *this;
+  }
+
   /** 
    * @brief Apply all hashes in chain
    * @returns an unsigned 64 bit integer where the i'th bit 
