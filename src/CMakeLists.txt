@@ -63,7 +63,6 @@ add_executable(
   "test/hash/hashfamily.cc"
   "test/hash/hashpool.cc"
   "test/hash/hashfamilyfactory.cc"
-  "test/hash/random.cc"
   "test/index/lsharraymap.cc"
   "test/index/lshmapfactory.cc"
 )

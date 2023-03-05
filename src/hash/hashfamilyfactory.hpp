@@ -1,4 +1,5 @@
 #pragma once
+
 #include <random>
 #include "hashfamily.hpp"
 #include "hashtype.hpp"
