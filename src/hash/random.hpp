@@ -11,6 +11,7 @@ class RandomBit {
   const ui32 bit;
 
 public:
+  RandomBit(ui32 i) : bit(i) { assert(i >= 0 && i < D); }
   RandomBit() : bit(rand() % D) { }
   
   bool operator()(const Point<D>& p) const {
