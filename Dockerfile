@@ -20,4 +20,5 @@ RUN mkdir /google \
 
 # Install HDF5
 RUN apt install -y libhdf5-dev
-RUN pip3 install cython numpy h5py
+RUN pip3 install cython numpy h5py 
+RUN pip3 install -U scikit-learn
