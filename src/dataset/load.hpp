@@ -34,7 +34,7 @@ inline static std::string download_laion2B_dataset(DataSize size)
   // Execute download script
   std::system(command.c_str());
 
-  const std::string file_name = laion2b_path + "hdf5/laion2B-en-hamming-n=" + DATA_SIZES_LIST[size] + ".h5";
+  const std::string file_name = laion2b_path + "hdf5/laion2B-" + DATA_SIZES_LIST[size] + ".h5";
   return file_name;
 }
 
