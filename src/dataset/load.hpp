@@ -7,7 +7,7 @@
 #include <sstream>
 
 enum DataSize {XS, S, M, L, XL};
-std::string DATA_SIZES_LIST[] = {"100K", "300K", "10M", "30M", "100M"};
+static inline std::string DATA_SIZES_LIST[] = {"100K", "300K", "10M", "30M", "100M"};
 
 constexpr ui32 D = 1024;
 
@@ -22,7 +22,8 @@ class Dataset : public std::vector<Point<D>> {
  * @param size: The size of the input
  * @returns A string holding the path to the dataset
  **/
-std::string download_laion2B_dataset(DataSize size) {
+inline static std::string download_laion2B_dataset(DataSize size)
+{
   // Assert system call is available
   assert(std::system(NULL)); 
   
@@ -37,8 +38,8 @@ std::string download_laion2B_dataset(DataSize size) {
   return file_name;
 }
 
-
-Dataset parse_dataset(std::vector<ui64>& in, const int rows, const int cols) {
+inline static Dataset parse_dataset(std::vector<ui64> &in, const int rows, const int cols)
+{
   Dataset src;
 
   assert(D / cols == 64);
@@ -57,7 +58,7 @@ Dataset parse_dataset(std::vector<ui64>& in, const int rows, const int cols) {
 }
 
 /** @returns A pair containing the number of rows and cols of the dataset */
-std::pair<int, int> get_dataset_dimensions(H5::DataSet &dataset)
+inline static std::pair<int, int> get_dataset_dimensions(H5::DataSet &dataset)
 {
   H5::DataSpace dataspace = dataset.getSpace();
 
@@ -68,7 +69,8 @@ std::pair<int, int> get_dataset_dimensions(H5::DataSet &dataset)
   return {(int)data_dims_out[0], (int)data_dims_out[1]};
 }
 
-H5::DataSet fetch_dataset(DataSize size) {
+inline static H5::DataSet fetch_dataset(DataSize size)
+{
   const std::string filePath = download_laion2B_dataset(size),
                     groupName = "/",
                     datasetName = "hamming";
@@ -85,7 +87,7 @@ H5::DataSet fetch_dataset(DataSize size) {
  *            The points in the dataset will be pushed back
  * @param size Number of vectors to download
  */
-Dataset load_hdf5(DataSize size) {
+inline static Dataset load_hdf5(DataSize size) {
 
   H5::DataSet dataset = fetch_dataset(size);
 

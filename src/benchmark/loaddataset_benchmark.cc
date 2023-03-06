@@ -51,6 +51,6 @@ static void DoSetup(const benchmark::State &state)
 }
 
 // Add to benchmarks
-BENCHMARK(BM_load_datasets)->Name("LoadDatasets")->Arg(100000)->Arg(300000)->Unit(benchmark::kMillisecond)->Setup(DoSetup);
+// BENCHMARK(BM_load_datasets)->Name("LoadDatasets")->Arg(100000)->Arg(300000)->Unit(benchmark::kMillisecond)->Setup(DoSetup);
 
-BENCHMARK(BM_parse_datasets)->Name("ParseDatasets")->Arg(100000)->Arg(300000)->Unit(benchmark::kMillisecond)->Setup(DoSetup);
+// BENCHMARK(BM_parse_datasets)->Name("ParseDatasets")->Arg(100000)->Arg(300000)->Unit(benchmark::kMillisecond)->Setup(DoSetup);
