@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include "index.hpp"
 #include "lshmap.hpp"
 #include "lshmapfactory.hpp"
