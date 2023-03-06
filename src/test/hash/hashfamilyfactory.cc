@@ -40,3 +40,16 @@ TEST(HashFamilyFactoryCreateRandomMasks, ConstructsHFContaining_RandomMasks)
   ASSERT_EQ(HF_ALL(random_point<D>(1.0)), 0b1111111111);
   ASSERT_EQ(HF_NONE(random_point<D>(0.0)), 0b1111111111);
 }
+
+TEST(HashFamilyFactoryCreateHDist, ConstructsHFContaining_SizeHashFunctions)
+{
+  auto HF = HashFamilyFactory<D>::createRandomHDist(0);
+  ASSERT_EQ(HF.size(), 0);
+
+  // Arrange
+  const ui32 N = 10;
+  // Act
+  HF = HashFamilyFactory<D>::createRandomHDist(N);
+  // Assert
+  ASSERT_EQ(HF.size(), N);
+}

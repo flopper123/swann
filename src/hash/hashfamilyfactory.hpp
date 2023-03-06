@@ -25,4 +25,19 @@ public:
     }
     return HF;
   }
+
+  static HashFamily<D> createRandomHDist(ui32 size, double distribution_factor = 0.5) {
+    HashFamily<D> HF;
+    const ui32 fraction = 2;
+    for (ui32 i = 0; i < size; ++i)
+    {
+      auto point = random_point<D>(distribution_factor);
+      
+      ui32 L = rand() % (D / fraction);
+      HF.push_back([point, L](const Point<D> &p)
+                   { return p.distance(point) <= L; });
+    }
+    
+    return HF;
+  }
 };
