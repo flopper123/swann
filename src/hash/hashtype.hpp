@@ -9,7 +9,6 @@ enum HashType
   Bit = 0b1,
   Mask = 0b10,
   Hamming = 0b100,
-  Lambda = 1UL << 31UL,
 };
 
 inline HashType operator~ (HashType a) { return (HashType)~(uint32_t)a; }
