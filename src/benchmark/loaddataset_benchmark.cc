@@ -9,7 +9,7 @@ static void BM_load_datasets(benchmark::State &state) {
 
   // Measure
   for (auto _ : state) {
-    Dataset out = load_hdf5(size);
+    PointsDataset<D> out = load_hdf5<D>(size);
   }
 
   // Store input size
@@ -32,20 +32,18 @@ static void BM_parse_datasets(benchmark::State &state) {
 
   // Measure
   for (auto _ : state) {
-    Dataset out = parse_dataset(data_output, rows, cols);
+    PointsDataset<D> out = parse_points_dataset<D>(data_output, rows, cols);
   }
 
   // Store input size
   state.counters["input_size"] = state.range(0);
 }
 
-
-
 // Setup function
 static void DoSetup(const benchmark::State &state)
 {
-  Dataset out0 = load_hdf5(DataSize::XS);
-  Dataset out1 = load_hdf5(DataSize::S);
+  PointsDataset<D> out0 = load_hdf5<D>(DataSize::XS);
+  PointsDataset<D> out1 = load_hdf5<D>(DataSize::S);
 }
 
 // Add to benchmarks
