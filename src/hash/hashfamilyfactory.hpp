@@ -40,4 +40,29 @@ public:
     
     return HF;
   }
+
+  /**
+   * @brief Create a HashFamily containing 'size' hash functions chosen among all the 
+   *        possible hash functions given by flags.
+   *        if size is not divisible by the number of hash functions, the remainder will be 
+   *        excluded.
+   * @param size Number of hash functions to create
+   * @param flags Flags indicating which hash functions to use
+   * ! Consider making distribution of sizes random
+  */
+  static HashFamily<D> create(ui32 size, HashType flags) {
+    HashFamily<D> HF;
+    int bits = std::bitset<64>(flags).count();
+    size /= bits;
+    if (flags & HashType::Bit) {
+      HF += createRandomBits(size);
+    }
+    if (flags & HashType::Mask) {
+      HF += createRandomMasks(size);
+    }
+    if (flags & HashType::Hamming) {
+      HF += createRandomHDist(size);
+    }
+    return HF;
+  }
 };

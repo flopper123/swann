@@ -53,3 +53,14 @@ TEST(HashFamilyFactoryCreateHDist, ConstructsHFContaining_SizeHashFunctions)
   // Assert
   ASSERT_EQ(HF.size(), N);
 }
+
+TEST(HashFamilyFactoryCreate, ConstructsHFContaining_SizeHashFunctions_ifSizeIsDivisableByFlags)
+{
+  auto HF = HashFamilyFactory<D>::create(2, HashType::Bit | HashType::Mask | HashType::Hamming);
+  ASSERT_EQ(HF.size(), 0);
+  const ui32 N = 9;
+  // Act
+  HF = HashFamilyFactory<D>::create(N, HashType::Bit | HashType::Mask | HashType::Hamming);;
+  // Assert
+  ASSERT_EQ(HF.size(), N);
+}
