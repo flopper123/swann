@@ -46,7 +46,6 @@ function extract_dataset() {
   else
     echo "[+] Data file not found locally. Downloading to $dest_file..."
     wget -c $url -O $dest_file
-    # python3 $(dirname ${BASH_SOURCE})/preprocess.py $dest_file
   fi
   python3 $(dirname ${BASH_SOURCE})/preprocess.py $dest_file
 }
