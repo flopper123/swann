@@ -33,7 +33,7 @@ static void BM_run_XS_BF(benchmark::State &state) {
 // Setup function
 static void DoSetupRand(const benchmark::State &state) {
   
-  Dataset in = load_hdf5(DataSize::XS);
+  Dataset<Points<D>> in = load_hdf5(DataSize::XS);
   auto maps = LSHMapFactory<D>::create(pool, TRIE_DEPTH, TRIE_COUNT);
   q_index = new LSHForest<D>(maps, in);
   q_index->build();

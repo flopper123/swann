@@ -3,6 +3,8 @@
 #include "../global.hpp"
 #include "../index/point.hpp"
 
+#include "./dataset.hpp"
+
 #include <H5Cpp.h>
 #include <sstream>
 
@@ -10,11 +12,6 @@ enum DataSize {XS, S, M, L, XL};
 static inline std::string DATA_SIZES_LIST[] = {"100K", "300K", "10M", "30M", "100M"};
 
 constexpr ui32 D = 1024;
-
-//! TO:DO Load and store queries
-class Dataset : public std::vector<Point<D>> {
-  using std::vector<Point<D>>::vector;
-};
 
 /**
  * @brief Downloads 1024-binary sketches from Laion2B-en and 
@@ -38,25 +35,6 @@ inline static std::string download_laion2B_dataset(DataSize size)
   return file_name;
 }
 
-inline static Dataset parse_dataset(std::vector<ui64> &in, const int rows, const int cols)
-{
-  Dataset src;
-
-  assert(D / cols == 64);
-  for (int r = 0; r < rows; ++r) {
-    std::stringstream ss;
-
-    for (int c = 0; c < cols; ++c)
-      ss << std::bitset<64>(in[r * cols + c]);
-
-    src.emplace_back(ss.str()); // construct point from bitstring
-  }
-
-  assert(src.size() == rows);
-
-  return src;
-}
-
 /** @returns A pair containing the number of rows and cols of the dataset */
 inline static std::pair<int, int> get_dataset_dimensions(H5::DataSet &dataset)
 {
@@ -69,16 +47,80 @@ inline static std::pair<int, int> get_dataset_dimensions(H5::DataSet &dataset)
   return {(int)data_dims_out[0], (int)data_dims_out[1]};
 }
 
-inline static H5::DataSet fetch_dataset(DataSize size)
-{
-  const std::string filePath = download_laion2B_dataset(size),
-                    groupName = "/",
-                    datasetName = "hamming";
+inline static H5::DataSet fetch_local_dataset(
+  DataSize size, 
+  std::string filePath, 
+  std::string groupName, 
+  std::string datasetName
+) {
   assert(!filePath.empty());
   
   H5::H5File file(filePath, H5F_ACC_RDONLY);
   H5::Group group = file.openGroup(groupName);
   return group.openDataSet(datasetName);
+}
+
+inline static H5::DataSet fetch_points_dataset(DataSize size)
+{
+  return fetch_local_dataset( size, download_laion2B_dataset(size), "/", "hamming" );
+}
+
+inline static H5::DataSet fetch_query_dataset(DataSize size)
+{
+  return fetch_local_dataset( size, download_laion2B_dataset(size), "/queries", "points" );
+}
+
+inline static H5::DataSet fetch_answers_dataset(DataSize size) 
+{
+  return fetch_local_dataset( size, download_laion2B_dataset(size), "/queries", "answers" );
+}
+
+
+template<ui32 D>
+inline static PointsDataset<D> parse_points_dataset(std::vector<ui64> &in, const int rows, const int cols)
+{
+  PointsDataset<D> src;
+
+  assert(D / cols == 64);
+  for (int r = 0; r < rows; ++r) {
+    std::stringstream ss;
+
+    for (int c = 0; c < cols; ++c) {
+      ss << std::bitset<64>(in[r * cols + c]);
+    }
+    
+    src.emplace_back(ss.str()); // construct point from bitstring
+  }
+
+  assert(src.size() == rows);
+
+  return src;
+}
+
+template<ui32 D>
+inline static PointsDataset<D> parse_hdf5_points(H5::DataSet dataset) {
+
+  auto [rows, cols] = get_dataset_dimensions(dataset);
+
+  std::vector<ui64> data_output(rows * cols);
+
+  dataset.read(&data_output[0], H5::PredType::NATIVE_UINT64);
+
+  return parse_points_dataset<D>(data_output, rows, cols);
+}
+
+
+inline static std::vector<std::vector<ui32>> parse_hdf5_answers(H5::DataSet dataset)
+{
+  auto [rows, cols] = get_dataset_dimensions(dataset);
+
+  std::vector<std::vector<ui32>> ans(rows, std::vector<ui32>(cols));
+  
+  dataset.read(&ans[0], H5::PredType::NATIVE_UINT32);
+  
+  assert(ans.size() == rows);
+  
+  return ans;
 }
 
 /**
@@ -87,15 +129,24 @@ inline static H5::DataSet fetch_dataset(DataSize size)
  *            The points in the dataset will be pushed back
  * @param size Number of vectors to download
  */
-inline static Dataset load_hdf5(DataSize size) {
+template<ui32 D>
+inline static PointsDataset<D> load_hdf5(DataSize size) {
+  return parse_hdf5_points<D>(fetch_points_dataset(size));
+}
 
-  H5::DataSet dataset = fetch_dataset(size);
+// Load queries:
+template<ui32 D>
+inline static QueryDataset<D> load_queries(DataSize size) {
+  PointsDataset<D> query = parse_hdf5_points<D>(fetch_query_dataset(size)); // List of points
 
-  auto [rows, cols] = get_dataset_dimensions(dataset);
+  std::vector<std::vector<ui32>> answers = parse_hdf5_answers(fetch_answers_dataset(size));
 
-  std::vector<ui64> data_output(rows * cols);
-
-  dataset.read(&data_output[0], H5::PredType::NATIVE_UINT64);
-
-  return parse_dataset(data_output, rows, cols);
+  assert(query.size() == answers.size());
+  const ui32 N = query.size();
+  
+  QueryDataset<D> dataset(N);
+  for (int n = 0; n < N; n++) {
+    dataset[n] = { query[n], answers[n] };
+  }
+  return dataset;
 }

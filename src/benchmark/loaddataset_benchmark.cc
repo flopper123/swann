@@ -1,7 +1,5 @@
 #include <benchmark/benchmark.h>
-
 #include "../dataset/load.hpp"
-
 
 
 // Measure load time of datasets of variable size
@@ -24,7 +22,7 @@ static void BM_parse_datasets(benchmark::State &state) {
   // Setup
   DataSize size = (state.range(0) == 100000 ? DataSize::XS : DataSize::S);
   
-  H5::DataSet dataset = fetch_dataset(size);
+  H5::DataSet dataset = fetch_points_dataset(size);
 
   auto [rows, cols] = get_dataset_dimensions(dataset);
 
