@@ -11,7 +11,7 @@ HashPool<D> hashes;
 int main()
 {
   std::cout << "[+] Loading Dataset..." << std::endl;
-  Dataset in = load_hdf5(DataSize::XS);
+  PointsDataset<D> in = load_hdf5<D>(DataSize::XS);
   std::cout << "[+] Loading Index..." << std::endl;
   auto maps = LSHMapFactory<D>::create(hashes, TRIE_DEPTH, TRIE_COUNT);
   LSHForest<D> index(maps, in);

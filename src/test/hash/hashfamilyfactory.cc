@@ -40,3 +40,27 @@ TEST(HashFamilyFactoryCreateRandomMasks, ConstructsHFContaining_RandomMasks)
   ASSERT_EQ(HF_ALL(random_point<D>(1.0)), 0b1111111111);
   ASSERT_EQ(HF_NONE(random_point<D>(0.0)), 0b1111111111);
 }
+
+TEST(HashFamilyFactoryCreateHDist, ConstructsHFContaining_SizeHashFunctions)
+{
+  auto HF = HashFamilyFactory<D>::createRandomHDist(0);
+  ASSERT_EQ(HF.size(), 0);
+
+  // Arrange
+  const ui32 N = 10;
+  // Act
+  HF = HashFamilyFactory<D>::createRandomHDist(N);
+  // Assert
+  ASSERT_EQ(HF.size(), N);
+}
+
+TEST(HashFamilyFactoryCreate, ConstructsHFContaining_SizeHashFunctions_ifSizeIsDivisableByFlags)
+{
+  auto HF = HashFamilyFactory<D>::create(2, HashType::Bit | HashType::Mask | HashType::Hamming);
+  ASSERT_EQ(HF.size(), 0);
+  const ui32 N = 9;
+  // Act
+  HF = HashFamilyFactory<D>::create(N, HashType::Bit | HashType::Mask | HashType::Hamming);;
+  // Assert
+  ASSERT_EQ(HF.size(), N);
+}

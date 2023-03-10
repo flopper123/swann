@@ -3,7 +3,7 @@
 #include "index.hpp"
 
 template<ui32 D>
-class BFIndex : Index<D> {
+class BFIndex : public Index<D> {
   std::vector<Point<D>> points;
 
   public:

@@ -36,7 +36,8 @@ function extract_dataset() {
   count=$1 # Denotes N:the dataset to extract
 
   url="http://ingeotec.mx/~sadit/metric-datasets/LAION/SISAP23-Challenge/hamming/en-bundles/laion2B-en-hamming-n=${count}.h5"
-  dest_file="$DEST/laion2B-en-hamming-n=${count}.h5"
+  dest_filename="laion2B-${count}.h5"
+  dest_file="$DEST/$dest_filename"
   
   echo "[+] Checking if $dest_file file exists locally"
   if [ -e $dest_file ]
@@ -44,8 +45,9 @@ function extract_dataset() {
     echo "[+] Data file already exists... Skipping download"
   else
     echo "[+] Data file not found locally. Downloading to $dest_file..."
-    wget -P $DEST $url
+    wget -c $url -O $dest_file
   fi
+  python3 $(dirname ${BASH_SOURCE})/preprocess.py $dest_file
 }
 
 if [[ -z "$1" ]]; then

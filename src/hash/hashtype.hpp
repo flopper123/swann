@@ -6,9 +6,9 @@
 enum HashType
  : uint32_t
 {
-  RndBit = 0b1,
-  RndMask = 0b10,
-  Lambda = 1UL << 31UL,
+  Bit = 0b1,
+  Mask = 0b10,
+  Hamming = 0b100,
 };
 
 inline HashType operator~ (HashType a) { return (HashType)~(uint32_t)a; }
