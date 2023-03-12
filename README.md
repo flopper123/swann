@@ -19,3 +19,9 @@ If you want to only compile and test write:
 If you want to compile and run without tests:
 
 ```$ docker compose up swann```
+
+## Hashfamilies
+
+### BCEH Binary Code Embedded Hypersphere hash
+A datadependent hashing technique i.e. considers the distribution of datapoints
+

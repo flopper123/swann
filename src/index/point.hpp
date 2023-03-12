@@ -9,9 +9,13 @@ template<ui32 D>
 class Point : public std::bitset<D> {
   public:
     using std::bitset<D>::bitset;
+    /** @brief Computes the spherical hamming distance between two points by subtraction */
+    inline ui32 spherical_distance(const Point<D>& p2) const {
+      return distance(p2) - (*this & p2).count();
+    }
 
-    // Computes the Hamming distance between to points
-    ui32 distance(const Point<D>& p2) const {
+    /** @brief Computes the Hamming distance between two points */
+    inline ui32 distance(const Point<D>& p2) const {
       return (*this ^ p2).count();
     }
 };
