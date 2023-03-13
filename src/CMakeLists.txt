@@ -61,6 +61,7 @@ add_executable(
   "test/index/bfindex.cc"
   "test/index/lshtrie.cc"
   "test/hash/hashfamily.cc"
+  "test/hash/spherichashfamily.cc"
   "test/hash/hashpool.cc"
   "test/hash/hashfamilyfactory.cc"
   "test/index/lsharraymap.cc"

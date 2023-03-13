@@ -8,6 +8,7 @@ enum HashType
 {
   RndBit = 0b1,
   RndMask = 0b10,
+  Spherical = 0b100,
   Lambda = 1UL << 31UL,
 };
 
