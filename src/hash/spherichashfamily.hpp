@@ -39,8 +39,5 @@ public:
         std::cout << *cur << "\n";
     }
     std::cout << std::endl;
-    //   for (auto &p : sample)
-    //   {
-    //   }
   }
 };
