@@ -43,6 +43,8 @@ static void DoSetupRand(const benchmark::State &state) {
   bf_index->build();
 
   // Generate queries at random
+  queries.clear();
+  
   const ui32 N = 100;
   for (int i=0; i < N; ++i) {
     queries.emplace_back(in[rand() % in.size()]);

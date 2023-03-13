@@ -59,7 +59,8 @@ if 'queries' in h5:
 print("[+] Preprocessing initiated", flush=True)
 # Data is encoded as R*C with R points encoded over C dimensions of ui64
 dataset = h5['hamming']
-data_points, query_points = train_test_split(dataset, test_size=0.1, shuffle=False)
+dataset_10k_fraction = 10000 / len(dataset)
+data_points, query_points = train_test_split(dataset, test_size=dataset_10k_fraction, random_state=420, shuffle=True)
 
 
 print("[+] Generating answers for", len(query_points), "queries...")
