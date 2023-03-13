@@ -6,9 +6,10 @@
 enum HashType
  : uint32_t
 {
-  RndBit = 0b1,
-  RndMask = 0b10,
-  Spherical = 0b100,
+  Bit = 0b1,
+  Mask = 0b10,
+  Hamming = 0b100,
+  Spherical = 0b1000,
   Lambda = 1UL << 31UL,
 };
 
