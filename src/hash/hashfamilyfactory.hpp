@@ -64,7 +64,6 @@ public:
       HF += createRandomHDist(size);
     }
     assert(!(HashType::Spherical & flags)); // Not supported currently
-    // if (flags & HashType::Spherical)
     return HF;
   }
 };
