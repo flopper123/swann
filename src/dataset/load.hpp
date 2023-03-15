@@ -113,14 +113,24 @@ inline static PointsDataset<D> parse_hdf5_points(H5::DataSet dataset) {
 inline static std::vector<std::vector<ui32>> parse_hdf5_answers(H5::DataSet dataset)
 {
   auto [rows, cols] = get_dataset_dimensions(dataset);
-
-  std::vector<std::vector<ui32>> ans(rows, std::vector<ui32>(cols));
+  
+  ui32* ans = new ui32[rows * cols];
   
   dataset.read(&ans[0], H5::PredType::NATIVE_UINT32);
+
+  std::vector<std::vector<ui32>> ans_vec(rows, std::vector<ui32>(cols, 0));
+
+  ui32 maximum = 0;
+  for (int r = 0; r < rows; r++) {
+    for (int c = 0; c < cols; c++) {
+      maximum = std::max(ans[r * cols + c], maximum);
+      ans_vec[r][c] = ans[r * cols + c];
+    }
+  }
+
+  assert(ans_vec.size() == rows);
   
-  assert(ans.size() == rows);
-  
-  return ans;
+  return ans_vec;
 }
 
 /**
@@ -137,8 +147,9 @@ inline static PointsDataset<D> load_hdf5(DataSize size) {
 // Load queries:
 template<ui32 D>
 inline static QueryDataset<D> load_queries(DataSize size) {
-  PointsDataset<D> query = parse_hdf5_points<D>(fetch_query_dataset(size)); // List of points
 
+  PointsDataset<D> query = parse_hdf5_points<D>(fetch_query_dataset(size)); // List of points
+  
   std::vector<std::vector<ui32>> answers = parse_hdf5_answers(fetch_answers_dataset(size));
 
   assert(query.size() == answers.size());
@@ -149,4 +160,13 @@ inline static QueryDataset<D> load_queries(DataSize size) {
     dataset[n] = { query[n], answers[n] };
   }
   return dataset;
+}
+
+// Load benchmark datasets:
+template<ui32 D>
+inline static BenchmarkDataset<D> load_benchmark_dataset(DataSize size) {
+  auto points = load_hdf5<D>(size);
+  auto queries = load_queries<D>(size);
+
+  return {points, queries};
 }

@@ -6,7 +6,8 @@ import time
 import multiprocessing
 import h5py
 import numpy as np
-from sklearn.model_selection import train_test_split
+import random
+from sklearn.model_selection import train_test_split, ShuffleSplit
 
 # Class for finding k nearest neighbours by brute force
 class BFkNN:
@@ -41,7 +42,7 @@ def mk_ans(data_points, query_points, kn):
   
 
   pool = multiprocessing.Pool()
-  ans = pool.map(bfknn.find_knn, query_points) # Make the queries in parralel
+  ans = pool.map(bfknn.find_knn, query_points) # Make the queries in parallel
   
   return ans
 
@@ -60,13 +61,20 @@ print("[+] Preprocessing initiated", flush=True)
 # Data is encoded as R*C with R points encoded over C dimensions of ui64
 dataset = h5['hamming']
 dataset_10k_fraction = 10000 / len(dataset)
-data_points, query_points = train_test_split(dataset, test_size=dataset_10k_fraction, random_state=420, shuffle=True)
+
+
+print("[+] Shuffling dataset...", flush=True)
+random.seed(420)
+random.shuffle(dataset)
+
+print("[+] Splitting dataset...", flush=True)
+data_points, query_points = train_test_split(dataset, test_size=dataset_10k_fraction, shuffle=False)
 
 
 print("[+] Generating answers for", len(query_points), "queries...")
 start = time.time()
 ans = mk_ans(data_points, query_points, k)
-print("[+] Time: ", (time.time()-start))
+print("[+] Time: ", int(time.time()-start), "s")
 
 # Override content of 'hamming' group with new data without the query points
 del h5['hamming']
