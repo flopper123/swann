@@ -58,7 +58,7 @@ public:
   /** 
    * Build optimal hash functions for sample
    **/
-  template<typename PointIterator>
+  template<iterator_to<Point<D>> PointIterator>
   void optimize(ui32 size, PointIterator sample_beg, PointIterator sample_end) {
     // const double err_margin = 0.25;
     const ui32 N = std::distance(sample_beg,sample_end);

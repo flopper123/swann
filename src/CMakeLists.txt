@@ -57,6 +57,7 @@ add_executable(
   ${SOURCE_FILES}
   ${TEST_UTIL_FILES}
   "test/test.cc"
+  "test/util/ranges.cc"
   "test/index/lshforest.cc"
   "test/index/bfindex.cc"
   "test/index/lshtrie.cc"
