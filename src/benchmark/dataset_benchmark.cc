@@ -77,7 +77,7 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
     for (auto &q : dataset.queries) {
 
       if (i % (dataset.queries.size()/100) == 0) {
-        std::cout << "Brute force " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl;
+        std::cout << "LSHForest " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl;
       }
 
       auto result = index->query(q.query, 10, 0.8);
@@ -98,11 +98,11 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
 BENCHMARK(BM_bf_query_10_points_BFIndex)
     ->Name("QueryBF10PointsBFIndex")
     ->Unit(benchmark::kMillisecond)
-    ->Arg(0); // XS
+    ->Arg(0)  // XS
     ->Arg(1); // S
 
 BENCHMARK(BM_query_10_points_LSHForest)
     ->Name("Query10PointsLSHForest")
     ->Unit(benchmark::kMillisecond)
-    ->Arg(0); // XS
+    ->Arg(0)  // XS
     ->Arg(1); // S
