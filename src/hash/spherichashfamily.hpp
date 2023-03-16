@@ -55,9 +55,11 @@ private:
 public:
   using HashFamily<D>::HashFamily;
   
+  /** 
+   * Build optimal hash functions for sample
+   **/
   template<typename PointIterator>
   void optimize(ui32 size, PointIterator sample_beg, PointIterator sample_end) {
-    // Build optimal hash functions
     // const double err_margin = 0.25;
     const ui32 N = std::distance(sample_beg,sample_end);
     assert(N >= size);
@@ -89,7 +91,6 @@ public:
     double size_4 = size / 4.0;
     ui32 r = 0;
     
-
     do {
       for (int i = 0; i < size; ++i) {
         // Update points with forces
@@ -103,10 +104,8 @@ public:
       }
 
       // compute oijs
-      for (int i=0; i < size; ++i)
-      {
-        for (int j=0; j < size; ++j)
-        {
+      for (int i=0; i < size; ++i) {
+        for (int j=0; j < size; ++j) {
           hfs[i].shared_cnt[j] = std::accumulate(ALL(sample), 0, [&hfs, i, j](ui32 acc, const Point<D> &p)
                           { return acc + ((bool)hfs[i].apply(p) & hfs[j].apply(p)); });
         }
