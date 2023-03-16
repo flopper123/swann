@@ -1,4 +1,5 @@
 #pragma once
+
 #include "point.hpp"
 
 template<ui32 D>

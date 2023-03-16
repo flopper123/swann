@@ -19,7 +19,7 @@ public:
   // Applies the force to the point
   void apply(Point<D>& src){
     //! Modify point
-
+    
     //! Clear forces
     std::memset(f, 0, sizeof(f));
   }
@@ -31,13 +31,13 @@ private:
   struct hfargs {
       PointForce<D> force;          // force.toPoint() => f_i
       std::vector<ui32> shared_cnt; // o_ij
-      ui32 threshold, cnt;          // cnt= o_i
+      ui32 threshold;
       Point<D> p;
         
       hfargs() : 
         force(), 
         shared_cnt(), 
-        threshold(0), cnt(0), 
+        threshold(0), 
         p(0x0)
       {}
       
@@ -98,26 +98,21 @@ public:
         // Compute new thresholds
         hfs[i].threshold = hfs[i].p.spherical_distance(pivot);
         
-        // reset oi and oij
-        hfs[i].cnt = 0;
+        // reset oij
         hfs[i].shared_cnt.assign(size, 0);
       }
 
-      // compute ois and oijs
+      // compute oijs
       for (int i=0; i < size; ++i)
       {
         for (int j=0; j < size; ++j)
         {
-          if (i == j) continue;
-          hfs[i].cnt = std::accumulate(ALL(sample), 0, [&hfs, i, j](ui32 acc, const Point<D> &p)
-                          { return acc + hfs[i].apply(p); });
           hfs[i].shared_cnt[j] = std::accumulate(ALL(sample), 0, [&hfs, i, j](ui32 acc, const Point<D> &p)
                           { return acc + ((bool)hfs[i].apply(p) & hfs[j].apply(p)); });
         }
       }
       
-      //! TO:DO add check if oij is within error margin
-      
+      //! TO:DO add check if oij is within error margin 
       for (int i = 0; i < size-1; ++i) {
         for (int j = i + 1; j < size; ++j) {
           PointSubtractionResult<D> psub(hfs[i].p,hfs[j].p);
