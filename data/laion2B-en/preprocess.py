@@ -2,8 +2,10 @@
 #   'hamming', 
 #   'queries' ('points', 'answers')
 import sys
+import os
 import time
 import multiprocessing
+from typing import List
 import h5py
 import numpy as np
 import random
@@ -15,9 +17,13 @@ class BFkNN:
     self.data_points = data_points
     self.k = k
     
-  def find_knn(self, query_point) -> [int]:
+  def find_knn(self, query_point) -> List[int]:
     arr = []
-    for i in range(len(self.data_points)):
+    data_points_count = len(self.data_points)
+    for i in range(data_points_count):
+      if i % data_points_count/10 == 0:
+        print("Finding kNN progress:", i/data_points_count*100, "%", flush=True)
+
       point = self.data_points[i]
       zipped = zip(query_point, point)
       arr.append(
@@ -46,24 +52,28 @@ def mk_ans(data_points, query_points, kn):
   
   return ans
 
-
+# Number of nearest neighbors to find
 k = 100
+
 h5filename = sys.argv[1]
 # Open h5file with read & write permissions
 h5 = h5py.File(h5filename,'r+') 
 
 # Check if preprocess has been performed
 print("[+] Checks if file has been preprocessed")
+
 if 'queries' in h5:
   sys.exit()
 
 print("[+] Preprocessing initiated", flush=True)
+
 # Data is encoded as R*C with R points encoded over C dimensions of ui64
 dataset = h5['hamming']
 dataset_10k_fraction = 10000 / len(dataset)
 
 
 print("[+] Shuffling dataset...", flush=True)
+
 random.seed(420)
 random.shuffle(dataset)
 
@@ -74,6 +84,7 @@ data_points, query_points = train_test_split(dataset, test_size=dataset_10k_frac
 print("[+] Generating answers for", len(query_points), "queries...")
 start = time.time()
 ans = mk_ans(data_points, query_points, k)
+
 print("[+] Time: ", int(time.time()-start), "s")
 
 # Override content of 'hamming' group with new data without the query points
@@ -89,11 +100,14 @@ query_group.create_dataset('answers', data=ans, dtype=np.uint32, compression="gz
 h5.close()
 
 h5 = h5py.File(h5filename,'r') 
+
 print("[+] H5 keys:", h5.keys())
 
 # Data is encoded as R*C with R points encoded over C dimensions of ui64
 qdset = h5['queries/points']
 pdset = h5['queries/answers']
 hdset = h5['hamming']
+
 print("Queries:", qdset.shape, "\nAnswers:", pdset.shape, "\nHamming:", hdset.shape)
+
 h5.close()

@@ -3,16 +3,48 @@
 #include <iostream>
 #include "../dataset/load.hpp"
 #include "../index/index.hpp"
+#include "../index/bfindex.hpp"
 #include "../index/lshforest.hpp"
 #include "../index/lshmapfactory.hpp"
 #include "../hash/hashpool.hpp"
 
+static void BM_query_10_points_BFIndex(benchmark::State &state)
+{
+  // Setup
+  BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(static_cast<DataSize>(state.range(0)));
+
+  Index<D> *index = new BFIndex<D>(dataset.points);
+
+  index->build();
+
+  double recalls;
+  double queriesLength = (double)dataset.queries.size();
+
+  // Measure
+  for (auto _ : state)
+  {
+    for (auto &q : dataset.queries)
+    {
+      auto result = index->query(q.query, 10, 0.8);
+
+      recalls += calculateRecall(result, q.nearest_neighbors);
+    }
+  }
+
+  recalls /= queriesLength;
+
+  state.counters["recall"] = recalls; // Expected to be 1.0 since brute force
+}
+
+/**
+ * @brief Benchmark the query performance of the LSHForest index
+ */
 constexpr ui32 TRIE_DEPTH = 22, TRIE_COUNT = 5;
 
-static void BM_run_XS_dataset(benchmark::State &state) {
+static void BM_query_10_points_LSHForest(benchmark::State &state) {
   std::cout << "Loading benchmark dataset" << std::endl;
   // Setup
-  BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(DataSize::XS);
+  BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(static_cast<DataSize>(state.range(0)));
 
   std::cout << "Instantiating hash LSHMap" << std::endl;
   HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
@@ -39,9 +71,18 @@ static void BM_run_XS_dataset(benchmark::State &state) {
   recalls /= queriesLength;
 
   state.counters["recall"] = recalls;
-
 }
 
 
 // Add to benchmarks
-BENCHMARK(BM_run_XS_dataset)->Name("QueryXSBenchmarkDataset")->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_query_10_points_BFIndex)
+    ->Name("Query10PointsBFIndex")
+    ->Unit(benchmark::kMillisecond)
+    ->Arg(0)  // XS
+    ->Arg(1); // S
+
+BENCHMARK(BM_query_10_points_LSHForest)
+    ->Name("Query10PointsLSHForest")
+    ->Unit(benchmark::kMillisecond)
+    ->Arg(0)  // XS
+    ->Arg(1); // S
