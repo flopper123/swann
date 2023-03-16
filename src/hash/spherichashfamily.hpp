@@ -4,21 +4,137 @@
 #include "hashfamily.hpp"
 #include <experimental/iterator>
 
+
+template<ui32 D> 
+class PointForce {
+public:
+  const static double threshold = 0.5;
+
+  double f[D];
+  
+  PointForce() { std::memset(f, 0, sizeof(f)); }
+
+  double &operator[](ui32 d) { return f[d]; }
+
+  // Applies the force to the point
+  void apply(Point<D>& src){
+    //! Modify point
+
+    //! Clear forces
+    std::memset(f, 0, sizeof(f));
+  }
+};
+
 template<ui32 D>
 class SphericalHashFamily : public HashFamily<D> {
 private:
+  struct hfargs {
+      PointForce<D> force;          // force.toPoint() => f_i
+      std::vector<ui32> shared_cnt; // o_ij
+      ui32 threshold, cnt;          // cnt= o_i
+      Point<D> p;
+        
+      hfargs() : 
+        force(), 
+        shared_cnt(size, 0), 
+        threshold(0), cnt(0), 
+        p(0x0)
+      {}
+      
+      BinaryHash<D> toLambda() {
+        return ([threshold, p](const Point<D> &p2)
+                { return p.spherical_distance(p2) < threshold; });
+      }
+
+      bool apply(const Point<D>& p2)
+      {
+        return p.spherical_distance(p2) < threshold;
+      }     
+    };
 public:
   using HashFamily<D>::HashFamily;
- 
-  // A data independent constructor for constructing a hashfamily of size spherical hash functions
-  // SphericalHashFamily(ui32 size, ui32 threshold, float distribution_factor = 0.5) {
-  //   for (ui32 i = 0; i < size; ++i) {
-  //     auto mask = random_point<D>(distribution_factor);
-  //     this->push_back([mask, threshold](const Point<D> &p)  
-  //                  { return (p.spherical_distance(mask)) < threshold; });  
-  //   }
-  // }
   
+  template<typename PointIterator>
+  virtual void optimize(ui32 size, PointIterator sample_beg, PointIterator sample_end) override {
+    // Build optimal hash functions
+    // const double err_margin = 0.25;
+    const ui32 N = std::distance(sample_beg,sample_end);
+    assert(N >= size);
+
+    std::vector<Point<D>> sample(sample_beg, sample_end), // sample in order
+                          tmp(size);                      // random subset of samples of size points
+    std::sample(ALL(sample), tmp.begin(), size, std::mt19937{std::random_device{}()});
+    
+    // Choose some random pivot to sort points by
+    Point<D> pivot(sample[N/2]); 
+
+    // Sort sample by distance to pivot for each point
+    std::sort(ALL(sample), [&pivot](const Point<D> &p1, const Point<D> &p2)
+              { return p1.spherical_distance(pivot) < p2.spherical_distance(pivot); });
+
+    // Update pivot to be median of points 
+    pivot = sample[N/2]; 
+
+    // Initialize start points of hashfunctions to be the size random sampled points
+    std::vector<hfargs> hfs(size);
+    for (int i = 0; i < size; ++i)
+    {
+      auto &p = tmp[i];
+      hfs[i].p = p;      
+    }
+    
+    constexpr ui32 max_rounds = 10;
+    double size_4 = size / 4.0;
+    ui32 r = 0;
+    
+
+    do {
+      for (int i = 0; i < size; ++i) {
+        // Update points with forces
+        hfs[i].force.apply(hfs[i].p);
+        
+        // Compute new thresholds
+        hfs[i].threshold = hfs[i].p.spherical_distance(pivot);
+        
+        // reset oi
+        hfs[i].cnt = 0; 
+      }
+
+      // compute ois and oijs
+      for (int i=0; i < size; ++i)
+      {
+        for (int j=0; j < size; ++j)
+        {
+          if (i == j) continue;
+          hfs[i].cnt = std::accumulate(ALL(sample), 0, [&hfs, i, j](ui32 acc, const Point<D> &p)
+                          { return acc + hfs[i].apply(p); });
+          hfs[i].shared_cnt[j] = std::accumulate(ALL(sample), 0, [&hfs, i, j](ui32 acc, const Point<D> &p)
+                          { return acc + ((bool)hfs[i].apply(p) & hfs[j].apply(p)); });
+        }
+      }
+      
+      //! TO:DO add check if oij is within error margin
+      
+      for (int i = 0; i < size-1; ++i) {
+        for (int j = i + 1; j < size; ++j) {
+          PointArithmeticResult<D> psub = hfs[i].p - hfs[j].p;
+
+          // Calculate point force for each dimension
+          PointForce<D> f_ij;
+          for (int d = 0; d < D; ++d) {
+            f_ij[d] = 0.5 * ((hfs[i].shared_cnt[j] - size_4) / size_4) * (psub.neg()[d] + psub.pos()[d]);
+            hfs[i].force[d] += f_ij[d];
+            hfs[j].force[d] -= f_ij[d];
+          }
+        }
+      }
+    } while (r++ < max_rounds);
+    
+    // Add constructed hashfunctions to hashfamily
+    std::transform(ALL(hfs), std::back_inserter(*this), 
+      [](const hfargs &h){ return h.toLambda(); });
+  }
+
   /**
    * @brief A data dependent constructor for constructing a hashfamily of spherical hash functions
    *        Construct by the iterative optimization algorithm proposed in 
@@ -28,53 +144,16 @@ public:
    *        - l = number of hyperspheres
    *        - D = dimensions of points
    * @param size Number of hyperspheres i.e. number of hash functions  
-   * @param sample A sample of the points in the dataset         
+   * @param sample_beg An iterator pointing to the start of the sample points
+   * @param sample_end An iterator pointing to the end of the sample points         
    */
   template<typename Iterator>
   SphericalHashFamily(ui32 size, 
-                      Iterator beg, Iterator end)
+                      Iterator sample_beg, Iterator sample_end)
     : HashFamily<D>(size)
   {
-    ui32 N = std::distance(beg,end);
-    Point<D> dist_pivot = *(beg + N / 2);
-    assert(N >= size);
-    std::cout << "Received " << N << " points" << std::endl;
-    vec<Point<D>> sample(size);
-    std::sample(ALL(in), ALL(sample), size, std::mt19937{std::random_device{}()});
-
-    std::vector<Point<D>, ui32> fargs;
-    for (int i = 0; i < size; ++i)
-    {
-      ui32 threshold = dist_pivot->spherical_distance(p[i]);
-      fargs.push_back({sample[i], threshold});
-    }
-
-    std::vector<int> hfcnt(size, 0); // hfcnt[i] how many points evaluate to true when applying the i'th hash function 
-    std::vector<std::vector<int>> hfcntpairs(size, std::vector<int>(size, 0)); // hfcntpairs[i][j] : how many points evaluate to true for i'th and j'th hash function 
-    for (ui32 i = 0; i < size; ++i)
-    {
-      auto &[p1, t] = fargs[i];
-      auto shash = [&p1, t](const Point<D> &p2)
-      {
-        return p1.spherical_distance(p2) < t;
-      };
-
-      hfcnt[i] = std::accumulate(ALL(sample), 0, [shash](int acc, const Point<D> &p)
-                                  { return acc + shash(p); });
-
-      for (ui32 j = 0; j < size; ++j)
-      {
-        if (i == j) hfcntpairs[i][j] = hfcnt[i];
-        auto shash_j = [&fargs[j]](const Point<D> &p)
-        {
-          auto &[p1, t] = fargs[j];
-          return p1.spherical_distance(p) < t;
-        };
-
-        hfcntpairs[i][j] = std::accumulate(ALL(sample), [shash_j, shash](int acc, const Point<D> &p)
-                                           { return acc + (shash_j(p) & shash(p)); });
-      }
-    }      
-    std::cout << std::endl;
+    this->optimize(size, beg, end);
   }
+
+  SphericalHashFamily() : HashFamily<D>() {}
 };
