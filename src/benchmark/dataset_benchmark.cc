@@ -8,8 +8,10 @@
 #include "../index/lshmapfactory.hpp"
 #include "../hash/hashpool.hpp"
 
-static void BM_query_10_points_BFIndex(benchmark::State &state)
+static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
 {
+  std::cout << "Loading benchmark dataset" << std::endl;
+
   // Setup
   BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(static_cast<DataSize>(state.range(0)));
 
@@ -20,14 +22,23 @@ static void BM_query_10_points_BFIndex(benchmark::State &state)
   double recalls;
   double queriesLength = (double)dataset.queries.size();
 
+  std::cout << "Running brute force query" << std::endl;
   // Measure
+  ui32 i = 1;
   for (auto _ : state)
   {
     for (auto &q : dataset.queries)
     {
+
+      if (i % (dataset.queries.size()/100) == 0) {
+        std::cout << "Brute force " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl;
+      }
+
       auto result = index->query(q.query, 10, 0.8);
 
       recalls += calculateRecall(result, q.nearest_neighbors);
+
+      i++;
     }
   }
 
@@ -59,12 +70,21 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
   double recalls;
   double queriesLength = (double)dataset.queries.size();
 
+  ui32 i = 1;
+
   // Measure
   for (auto _ : state) {
     for (auto &q : dataset.queries) {
+
+      if (i % (dataset.queries.size()/100) == 0) {
+        std::cout << "Brute force " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl;
+      }
+
       auto result = index->query(q.query, 10, 0.8);
       
       recalls += calculateRecall(result, q.nearest_neighbors);
+      
+      i++;
     }
   }
 
@@ -75,14 +95,14 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
 
 
 // Add to benchmarks
-BENCHMARK(BM_query_10_points_BFIndex)
-    ->Name("Query10PointsBFIndex")
+BENCHMARK(BM_bf_query_10_points_BFIndex)
+    ->Name("QueryBF10PointsBFIndex")
     ->Unit(benchmark::kMillisecond)
-    ->Arg(0)  // XS
+    ->Arg(0); // XS
     ->Arg(1); // S
 
 BENCHMARK(BM_query_10_points_LSHForest)
     ->Name("Query10PointsLSHForest")
     ->Unit(benchmark::kMillisecond)
-    ->Arg(0)  // XS
+    ->Arg(0); // XS
     ->Arg(1); // S

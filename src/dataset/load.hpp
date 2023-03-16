@@ -23,10 +23,15 @@ inline static std::string download_laion2B_dataset(DataSize size)
 {
   // Assert system call is available
   assert(std::system(NULL)); 
-  
+
+  // Check for debug printing
+  auto debugging = std::getenv("DEBUG");
+  bool should_debug = debugging != nullptr && std::string(debugging) == "true";
+
   // Make the path of the python script relative to the directory
   const std::string laion2b_path = "/swann/data/laion2B-en/";
-  const std::string command = laion2b_path + "download.sh " + DATA_SIZES_LIST[size];
+  const std::string command = laion2b_path + "download.sh " + DATA_SIZES_LIST[size] + (should_debug ? "" : " > /dev/null");
+
 
   // Execute download script
   std::system(command.c_str());
