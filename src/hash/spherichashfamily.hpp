@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include "../index/pointarithmeticresult.hpp"
 #include "hashfamily.hpp"
 #include <experimental/iterator>
 
@@ -8,10 +9,9 @@
 template<ui32 D> 
 class PointForce {
 public:
-  const static double threshold = 0.5;
-
+  const double threshold = 0.5d;
   double f[D];
-  
+
   PointForce() { std::memset(f, 0, sizeof(f)); }
 
   double &operator[](ui32 d) { return f[d]; }
@@ -36,26 +36,27 @@ private:
         
       hfargs() : 
         force(), 
-        shared_cnt(size, 0), 
+        shared_cnt(), 
         threshold(0), cnt(0), 
         p(0x0)
       {}
       
-      BinaryHash<D> toLambda() {
-        return ([threshold, p](const Point<D> &p2)
-                { return p.spherical_distance(p2) < threshold; });
+      BinaryHash<D> toLambda() const {
+        return ([this](const Point<D> &p2)
+                { return this->p.spherical_distance(p2) <= this->threshold; });
       }
 
-      bool apply(const Point<D>& p2)
+      bool apply(const Point<D>& p2) const
       {
-        return p.spherical_distance(p2) < threshold;
+        return p.spherical_distance(p2) <= threshold;
       }     
     };
+
 public:
   using HashFamily<D>::HashFamily;
   
   template<typename PointIterator>
-  virtual void optimize(ui32 size, PointIterator sample_beg, PointIterator sample_end) override {
+  void optimize(ui32 size, PointIterator sample_beg, PointIterator sample_end) {
     // Build optimal hash functions
     // const double err_margin = 0.25;
     const ui32 N = std::distance(sample_beg,sample_end);
@@ -80,7 +81,8 @@ public:
     for (int i = 0; i < size; ++i)
     {
       auto &p = tmp[i];
-      hfs[i].p = p;      
+      hfs[i].p = p;
+      hfs[i].shared_cnt.resize(size);
     }
     
     constexpr ui32 max_rounds = 10;
@@ -96,8 +98,9 @@ public:
         // Compute new thresholds
         hfs[i].threshold = hfs[i].p.spherical_distance(pivot);
         
-        // reset oi
-        hfs[i].cnt = 0; 
+        // reset oi and oij
+        hfs[i].cnt = 0;
+        hfs[i].shared_cnt.assign(size, 0);
       }
 
       // compute ois and oijs
@@ -117,7 +120,7 @@ public:
       
       for (int i = 0; i < size-1; ++i) {
         for (int j = i + 1; j < size; ++j) {
-          PointArithmeticResult<D> psub = hfs[i].p - hfs[j].p;
+          PointSubtractionResult<D> psub(hfs[i].p,hfs[j].p);
 
           // Calculate point force for each dimension
           PointForce<D> f_ij;
@@ -147,12 +150,12 @@ public:
    * @param sample_beg An iterator pointing to the start of the sample points
    * @param sample_end An iterator pointing to the end of the sample points         
    */
-  template<typename Iterator>
+  template<typename PointIterator>
   SphericalHashFamily(ui32 size, 
-                      Iterator sample_beg, Iterator sample_end)
+                      PointIterator sample_beg, PointIterator sample_end)
     : HashFamily<D>(size)
   {
-    this->optimize(size, beg, end);
+    this->optimize(size, sample_beg, sample_end);
   }
 
   SphericalHashFamily() : HashFamily<D>() {}

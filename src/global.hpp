@@ -5,6 +5,7 @@
 #include <bitset>
 #include <vector>
 #include <numeric>
+#include <cstring> // memcpy and memsets
 #include <algorithm> 
 #include <cassert>
 #include <functional>

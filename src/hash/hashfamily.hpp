@@ -14,9 +14,7 @@ template <ui32 D>
 class HashFamily : public std::vector<BinaryHash<D>> {
 public:
   using std::vector<BinaryHash<D>>::vector;
-
-  virtual void optimize(){}; // Default class does nothing
-
+  
   HashFamily& operator+=(const HashFamily& rhs) {
     this->insert(this->end(), ALL(rhs));
     return *this;

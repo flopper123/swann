@@ -18,19 +18,6 @@ class Point : public std::bitset<D> {
     inline ui32 distance(const Point<D>& p2) const {
       return (*this ^ p2).count();
     }
-
-    friend inline operator-(const Point<D>& p1, const Point<D>& p2) : PointArithmeticResult<D> const {
-      return distance(p2);
-    }
-};
-
-template<ui32 D>
-class PointArithmeticResult : public Pair<Point<D>, Point<D>> {
-public:
-  using Pair<Point<D>, Point<D>>::Pair;
-
-  Point<D>& neg() { return this->first; }
-  Point<D>& pos() { return this->second; }
 };
 
 /** 
