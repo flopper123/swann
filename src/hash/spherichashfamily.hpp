@@ -4,7 +4,7 @@
 #include "../index/pointarithmeticresult.hpp"
 #include "hashfamily.hpp"
 #include <experimental/iterator>
-
+#include <iostream>
 
 template<ui32 D> 
 class PointForce {
@@ -60,31 +60,31 @@ public:
    **/
   template<iterator_to<Point<D>> PointIterator>
   void optimize(ui32 size, PointIterator sample_beg, PointIterator sample_end) {
-    // const double err_margin = 0.25;
-    const ui32 N = std::distance(sample_beg,sample_end);
-    assert(N >= size);
+      // const double err_margin = 0.25;
+      const ui32 N = std::distance(sample_beg, sample_end);
+      assert(N >= size);
 
-    std::vector<Point<D>> sample(sample_beg, sample_end), // sample in order
-                          tmp(size);                      // random subset of samples of size points
-    std::sample(ALL(sample), tmp.begin(), size, std::mt19937{std::random_device{}()});
-    
-    // Choose some random pivot to sort points by
-    Point<D> pivot(sample[N/2]); 
+      std::vector<Point<D>> sample(sample_beg, sample_end), // sample in order
+          tmp(size);                                        // random subset of samples of size points
+      std::sample(ALL(sample), tmp.begin(), size, std::mt19937{std::random_device{}()});
 
-    // Sort sample by distance to pivot for each point
-    std::sort(ALL(sample), [&pivot](const Point<D> &p1, const Point<D> &p2)
-              { return p1.spherical_distance(pivot) < p2.spherical_distance(pivot); });
+      // Choose some random pivot to sort points by
+      Point<D> pivot(sample[N >> 1]);
 
-    // Update pivot to be median of points 
-    pivot = sample[N/2]; 
+      // Sort sample by distance to pivot for each point
+      std::sort(ALL(sample), [&pivot](const Point<D> &p1, const Point<D> &p2)
+                { return p1.spherical_distance(pivot) < p2.spherical_distance(pivot); });
 
-    // Initialize start points of hashfunctions to be the size random sampled points
-    std::vector<hfargs> hfs(size);
-    for (int i = 0; i < size; ++i)
-    {
-      auto &p = tmp[i];
-      hfs[i].p = p;
-      hfs[i].shared_cnt.resize(size);
+      // Update pivot to be median of points
+      pivot = sample[N >> 1];
+
+      // Initialize start points of hashfunctions to be the size random sampled points
+      std::vector<hfargs> hfs(size);
+      for (int i = 0; i < size; ++i)
+      {
+        auto &p = tmp[i];
+        hfs[i].p = p;
+        hfs[i].shared_cnt.resize(size);
     }
     
     constexpr ui32 max_rounds = 10;
@@ -128,7 +128,7 @@ public:
     } while (r++ < max_rounds);
     
     // Add constructed hashfunctions to hashfamily
-    std::transform(ALL(hfs), std::back_inserter(*this), 
+    std::transform(ALL(hfs), this->begin(), 
       [](const hfargs &h){ return h.toLambda(); });
   }
 
@@ -136,7 +136,7 @@ public:
    * @brief A data dependent constructor for constructing a hashfamily of spherical hash functions
    *        Construct by the iterative optimization algorithm proposed in 
    *        Spherical Hashing: Binary Code Embedding with Hyperspheres
-   *        Runs in asymptotitc time complexity of O((l^2 + l*D)*N) where
+   *        Runs in asymptotic time complexity of O((l^2 + l*D)*N) where
    *        - N = size of sample points
    *        - l = number of hyperspheres
    *        - D = dimensions of points
@@ -144,7 +144,7 @@ public:
    * @param sample_beg An iterator pointing to the start of the sample points
    * @param sample_end An iterator pointing to the end of the sample points         
    */
-  template<typename PointIterator>
+  template<iterator_to<Point<D>> PointIterator>
   SphericalHashFamily(ui32 size, 
                       PointIterator sample_beg, PointIterator sample_end)
     : HashFamily<D>(size)
