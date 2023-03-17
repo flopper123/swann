@@ -4,7 +4,7 @@ Searching With Approximate Nearest Neighbor
 
 ## Running
 
-If you want to compile, test and run:
+If you want to compile and run:
 
 ```$ docker compose up```
 
@@ -16,6 +16,6 @@ If you want to only compile and test write:
 
 ```$ docker compose up test```
 
-If you want to compile and run without tests:
+To run benchmarking:
 
-```$ docker compose up swann```
+```$ docker compose up benchmark```
