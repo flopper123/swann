@@ -12,8 +12,11 @@ public:
   PointArithmeticResult(const Point<D>& lhs, const Point<D>& rhs) {
     this->compute(lhs, rhs);
   }
-
+  
+  /** @brief Returns a bitset where the bits that are in lhs but not in rhs is set */
   Point<D>& pos() { return this->first; }
+
+  /** @brief Returns a bitset where the bits that are in rhs but not in lhs is set */
   Point<D>& neg() { return this->second; }  
 };
 

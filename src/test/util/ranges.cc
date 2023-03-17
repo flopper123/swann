@@ -29,3 +29,13 @@ TEST(RangesVariance, CanComputeVarianceForDouble){
          act = variance(ALL(in));
   ASSERT_EQ(exp, act);
 }
+
+
+TEST(RangesVariance, CanComputeVarianceFor2DArray) {
+  std::vector<std::vector<ui32>> in = { { 1, 2, 3 },
+                                        { 4, 5, 6 },
+                                        { 7, 8, 9 } };
+  double exp = 7.5, // sample std-dev            
+         act = variance2D(in); 
+  ASSERT_EQ(exp, act);
+}

@@ -75,7 +75,6 @@ inline static H5::DataSet fetch_answers_dataset(DataSize size)
   return fetch_local_dataset( size, download_laion2B_dataset(size), "/queries", "answers" );
 }
 
-
 template<ui32 D>
 inline static PointsDataset<D> parse_points_dataset(std::vector<ui64> &in, const int rows, const int cols)
 {
@@ -108,7 +107,6 @@ inline static PointsDataset<D> parse_hdf5_points(H5::DataSet dataset) {
 
   return parse_points_dataset<D>(data_output, rows, cols);
 }
-
 
 inline static std::vector<std::vector<ui32>> parse_hdf5_answers(H5::DataSet dataset)
 {
