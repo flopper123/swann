@@ -14,7 +14,7 @@ class LSHForest : public Index<D> {
   QueryFailureProbability is_exit; 
   
   // The minimum depth of all LSHMaps in the forest
-  ui32 depth;
+  ui32 depth = UINT32_MAX;
   
   // The points in the forest
   std::vector<Point<D>> points;
@@ -67,11 +67,11 @@ public:
     std::vector<ui32> hash_idx(this->maps.size()), ret;  // hash[m] : contains the hash of point in map[m]
     std::vector<std::pair<ui32, ui32>> pdist;            // A vector containing pairs of (dist, idx)
     const ui32 M = this->maps.size();
-  
+
     for (ui32 m = 0; m < M; ++m) {
-      hash_idx[m] = maps[m]->hash(point);
+      hash_idx[m] = this->maps[m]->hash(point);
     }
-    
+
     // Loop through all buckets within hamming distance of hdist of point
     for (ui32 hdist = 0;
          hdist < this->depth && !stop_query(recall, hdist, found.size(), k);

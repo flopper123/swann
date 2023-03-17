@@ -11,7 +11,7 @@ using QueryFailureProbability = std::function<float(ui32, ui32, ui32, ui32, ui32
  * @param found Number of points found so far
  * @param tar Number of kNN to find
 */
-float SimpleSizeFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 tar) 
+static float SimpleSizeFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 tar) 
 {
   const float factor = 3;
   found = found ? found : 1;

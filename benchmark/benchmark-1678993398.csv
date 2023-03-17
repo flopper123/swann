@@ -1,0 +1,16 @@
+2023-03-16T19:03:18+00:00
+Running /swann/build/benchmark
+Run on (20 X 2112 MHz CPU s)
+CPU Caches:
+  L1 Data 48 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 1280 KiB (x10)
+  L3 Unified 25600 KiB (x1)
+Load Average: 0.54, 0.19, 0.07
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"recall"
+"BuildLSHForestIndex/0",2,352.168,352.166,ms,,,,,,0
+"BuildLSHForestIndex/1",1,1091.22,1091.2,ms,,,,,,0
+"QueryBF10PointsBFIndex/0",1,564006,564006,ms,,,,,,1
+"QueryBF10PointsBFIndex/1",1,1.90369e+06,1.90369e+06,ms,,,,,,1
+"Query10PointsLSHForest/0",1,15214,15214,ms,,,,,,0.36978
+"Query10PointsLSHForest/1",1,26299.6,26299.4,ms,,,,,,0.3504
