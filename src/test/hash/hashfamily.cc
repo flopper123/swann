@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "../../hash/hashfamily.hpp"
+#include "../../hash/hashfamilyfactory.hpp"
 #include "../../index/lshtrie.hpp"
+#include "../index/util.hpp"
 
 TEST(HashFamily, HashSetsTheIthBit_ToResultOfIthHash) {
   ui64 depth = 64;
@@ -24,4 +26,55 @@ TEST(HashFamily, HashSetsTheIthBit_ToResultOfIthHash) {
     // We expect no bits to be set when applying HFalse
     ASSERT_EQ(Point<64>(0x0), HFalse(p));
   }
+}
+
+TEST(HashFamily, PairwiseMean_Correctess_Independent) {
+  // Generate a hashfamily consisting of D hashfunctions that each check
+  // a different bit 
+  HashFamily<D> H = HashFamilyFactory<D>::createRandomBits(D);
+  auto in = { 
+    Point<D>(0b1001),
+    Point<D>(0b0101),
+    Point<D>(0b0011),
+    Point<D>(0b1100),
+  }; 
+  // Each hash function evaluates to true for exactly two points in the input range                             
+  double exp = 0.25; 
+  ASSERT_EQ(exp, H.pairwise_mean(ALL(in)));
+}
+
+TEST(HashFamily, Mean_Correctness_Dependent) {
+  HashFamily<D> H = { 
+    [](const Point<D> &p) { return true; },
+    [](const Point<D> &p) { return true; },
+    [](const Point<D> &p) { return false; },
+    [](const Point<D> &p) { return false; },
+  };
+  auto in = createCompleteInput();
+  double exp = 0.5; // 2xfunctions evaluate true for all, and 2 false for all
+  ASSERT_EQ(exp, H.mean(ALL(in)));
+}
+
+TEST(HashFamily, MeanReturns0ForEmptyInput) {
+  HashFamily<D> H { [](const Point<D> &p) { return true; } };
+  std::vector<Point<D>> in;
+  ASSERT_EQ(0.0, H.mean(ALL(in)));
+}
+
+TEST(HashFamily, MeanReturns0ForEmptyFamily) {
+  HashFamily<D> H;
+  auto in = createCompleteInput();
+  ASSERT_EQ(0.0, H.mean(ALL(in)));
+}
+
+TEST(HashFamily, SpreadReturns0ForEmpty) {
+  HashFamily<D> H;
+  auto in = createCompleteInput();
+  ASSERT_EQ(0.0, H.spread(ALL(in)));
+}
+
+TEST(HashFamily, SpreadReturns0ForSingleHF) {
+  HashFamily<D> H { [](const Point<D> &p) { return true; } };
+  auto in = createCompleteInput();
+  ASSERT_EQ(0.0, H.spread(ALL(in)));
 }

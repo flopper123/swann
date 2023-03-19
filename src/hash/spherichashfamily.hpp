@@ -147,7 +147,7 @@ public:
       }
 
       mean = hf_mean(N, shared_cnt);
-      std_dev = sqrt(variance2D(shared_cnt));
+      std_dev = sqrt(Util::variance2D(shared_cnt));
       if (mean <= err_mean && std_dev <= err_std_dev) {
         std::cout << "[+] Found optimal hash functions after " << r << " rounds" << std::endl;
         break;

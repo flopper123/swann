@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "../../util/ranges.hpp"
+using namespace Util;
 
 TEST(RangesVariance, CanComputeVarianceForUI32) {
   std::vector<ui32> in {1u,2u,3u,4u,5u,6u};
@@ -37,5 +38,14 @@ TEST(RangesVariance, CanComputeVarianceFor2DArray) {
                                         { 7, 8, 9 } };
   double exp = 7.5, // sample std-dev            
          act = variance2D(in); 
+  ASSERT_EQ(exp, act);
+}
+
+TEST(RangesMean, CanComputeMeanFor2DArray) {
+  std::vector<std::vector<ui32>> in = { { 1, 2, 3 },
+                                        { 4, 5, 6 },
+                                        { 7, 8, 9 } };
+  double exp = 5.0,        
+         act = mean2D(in); 
   ASSERT_EQ(exp, act);
 }
