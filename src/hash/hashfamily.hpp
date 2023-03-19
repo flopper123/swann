@@ -83,15 +83,16 @@ public:
     if (this->empty()) return 0.0;
 
     const ui64 N = std::distance(beg, end), H = this->size();
-    std::vector<std::vector<ui32>> cnt(H, std::vector<ui32>(H, 0));
+    std::vector<double> cnt;
     for (int i = 0; i < H; i++) {
-      for (int j = 0; j < H; ++j) {
-        cnt[i][j] = std::accumulate(beg, end, 0, [this, i, j](ui32 acc, const Point<D> &p)
-                        { return acc + ((bool)(*this)[i](p) & (*this)[j](p)); });
+      for (int j = i+1; j < H; ++j) {
+        double c = std::accumulate(beg, end, 0.0, [this, i, j](double acc, const Point<D> &p)
+                        { return acc + ((int)((bool)(*this)[i](p) & (*this)[j](p))); }) / ((double) N);
+        cnt.push_back(c);
       }
     }
     
-    return sqrt(Util::variance2D(cnt));
+    return sqrt(Util::variance(ALL(cnt)));
   }
     
   /** 
