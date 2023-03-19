@@ -155,12 +155,12 @@ public:
 
       for (int i = 0; i < size-1; ++i) {
         for (int j = i + 1; j < size; ++j) {
-          PointSubtractionResult<D> psub(hfs[i].p,hfs[j].p);
+          auto [pos, neg] = PointCalculator::subtraction<D>(hfs[i].p, hfs[j].p);
 
           // Calculate point force for each dimension
           PointForce<D> f_ij;
           for (int d = 0; d < D; ++d) {
-            f_ij[d] = 0.5 * ((shared_cnt[i][j] - N_4) / N_4) * (psub.pos()[d] - psub.neg()[d]);
+            f_ij[d] = 0.5 * ((shared_cnt[i][j] - N_4) / N_4) * (pos[d] - neg[d]);
             hfs[i].force[d] += f_ij[d];
             hfs[j].force[d] -= f_ij[d];
           }
