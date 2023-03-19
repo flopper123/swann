@@ -1,5 +1,5 @@
 #pragma once
-
+#include <iostream>
 #include <vector>
 #include <functional>
 #include "../util/ranges.hpp"
@@ -49,16 +49,26 @@ public:
    */
   template<iterator_to<Point<D>> PointIterator>
   double pairwise_mean(PointIterator beg, PointIterator end) const {
-    if (this->empty()) return 0.0;
+    if (this->empty()) {
+      std::cout << "I am empty :()" << std::endl;
+      return 0.0;
+    }
     const ui64 N = std::distance(beg, end), H = this->size();
-    std::vector<std::vector<ui32>> cnt(H, std::vector<ui32>(H, 0));
+    std::vector<double> cnt;
+    
     for (int i = 0; i < H; i++) {
-      for (int j = 0; j < H; ++j) {
-        cnt[i][j] = std::accumulate(beg, end, 0, [this, i, j](ui32 acc, const Point<D> &p)
-                        { return acc + ((*this)[i](p) & (*this)[j](p)); }) / ((double) N);
+      for (int j = i+1; j < H; ++j) {
+        if (i == j) continue; // skip self in calculation
+        double oij = std::accumulate(beg, end, 0.0, [this, i, j](double acc, const Point<D> &p)
+                                    { return acc + ((int) (((*this)[i](p)) & ((*this)[j](p)))); }) 
+                     / ((double) N);
+        cnt.push_back(oij);
+
+        std::cout << "o[" << i << "][" << j << "] = " << oij << std::endl;
       }
     }
-    return Util::mean2D(cnt);
+
+    return Util::mean(ALL(cnt));
   }
  
   /**

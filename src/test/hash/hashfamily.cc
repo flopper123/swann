@@ -31,15 +31,24 @@ TEST(HashFamily, HashSetsTheIthBit_ToResultOfIthHash) {
 TEST(HashFamily, PairwiseMean_Correctess_Independent) {
   // Generate a hashfamily consisting of D hashfunctions that each check
   // a different bit 
-  HashFamily<D> H = HashFamilyFactory<D>::createRandomBits(D);
+  HashFamily<D> H = {
+    [](const Point<D> &p) { return p[0]; },
+    [](const Point<D> &p) { return p[1]; },
+    [](const Point<D> &p) { return p[2]; },
+    [](const Point<D> &p) { return p[3]; },
+  };
   auto in = { 
     Point<D>(0b1001),
-    Point<D>(0b0101),
     Point<D>(0b0011),
+    Point<D>(0b0110),
     Point<D>(0b1100),
-  }; 
+  };
+  
   // Each hash function evaluates to true for exactly two points in the input range                             
-  double exp = 0.25; 
+  // - combination (0,1) (0,2) (0,3) (2,3) evaluates to 0.25 
+  // - combination (1,2) (1,3) evaluates to 0.0
+  // therefore we expect..
+  double exp = (0.25*4.0)/6.0; 
   ASSERT_EQ(exp, H.pairwise_mean(ALL(in)));
 }
 
