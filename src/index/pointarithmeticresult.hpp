@@ -9,7 +9,9 @@ class PointArithmeticResult : public std::pair<Point<D>, Point<D>> {
 public:
   using std::pair<Point<D>, Point<D>>::pair;
   
-  PointArithmeticResult(const Point<D>& lhs, const Point<D>& rhs) {
+  PointArithmeticResult(const Point<D>& lhs, const Point<D>& rhs) 
+    : std::pair<Point<D>,Point<D>>(Point<D>::Empty, Point<D>::Empty)
+  {
     this->compute(lhs, rhs);
   }
   
@@ -24,11 +26,11 @@ template<ui32 D>
 class PointSubtractionResult : public PointArithmeticResult<D> {
   virtual void compute(const Point<D>& lhs, const Point<D>& rhs) override {
     auto xOR = lhs ^ rhs;
-    // Point<D> xOR = *static_cast<Point<D>*>(&bset_XOR);
     auto bset_pos = xOR & lhs;
-    this->pos() = *static_cast<Point<D>*>(&bset_pos); // Which bits does lhs have that rhs doesnt have
     auto bset_neg = xOR & rhs;
-    this->neg() = *static_cast<Point<D>*>(&bset_neg); // Which bits does rhs have that lhs doesnt have
+    
+    this->first = *static_cast<Point<D>*>(&bset_pos); // Which bits does lhs have that rhs doesnt have
+    this->second = *static_cast<Point<D>*>(&bset_neg); // Which bits does rhs have that lhs doesnt have
   }
 
 public: 

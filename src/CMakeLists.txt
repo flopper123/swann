@@ -58,15 +58,16 @@ add_executable(
   ${TEST_UTIL_FILES}
   "test/test.cc"
   "test/util/ranges.cc"
-  "test/index/lshforest.cc"
-  "test/index/bfindex.cc"
-  "test/index/lshtrie.cc"
   "test/hash/hashfamily.cc"
   "test/hash/spherichashfamily.cc"
   "test/hash/hashpool.cc"
   "test/hash/hashfamilyfactory.cc"
   "test/index/lsharraymap.cc"
   "test/index/lshmapfactory.cc"
+  "test/index/pointarithmeticresult.cc"
+  "test/index/lshforest.cc"
+  "test/index/bfindex.cc"
+  "test/index/lshtrie.cc"
 )
 
 target_link_libraries(

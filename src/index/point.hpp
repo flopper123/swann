@@ -18,6 +18,8 @@ class Point : public std::bitset<D> {
     inline ui32 distance(const Point<D>& p2) const {
       return (*this ^ p2).count();
     }
+    
+    static inline constexpr Point<D> Empty = Point<D>{0x0};
 };
 
 /** 
