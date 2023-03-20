@@ -28,14 +28,13 @@ struct BenchmarkDataset {
   QueryDataset<D> queries;
 };
 
-
+/**
+ * @brief Calculates recall based on hamming distance of points
+ */
 inline static double calculateRecall(std::vector<ui32> actual_nn, std::vector<ui32> true_nn) {
-
   assert(actual_nn.size() <= true_nn.size());
-
-  int found = std::accumulate(ALL(actual_nn), 0, [&](int acc, ui32 expected) {
-    return acc + (std::find(true_nn.begin(), true_nn.begin() + actual_nn.size(), expected) != true_nn.begin() + actual_nn.size());
-  });
-  
-  return (double)found / (double)actual_nn.size();
+  // TODO: Fix 
+  const double count = std::accumulate(ALL(actual_nn), 0, [&](int acc, double actual) 
+    { return acc + (true_nn[acc] == actual); });
+  return count / actual_nn.size();
 }

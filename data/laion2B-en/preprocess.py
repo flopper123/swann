@@ -11,53 +11,38 @@ import numpy as np
 import random
 from sklearn.model_selection import train_test_split, ShuffleSplit
 
+import tqdm
+from tqdm.contrib.concurrent import thread_map
+
+
 # Class for finding k nearest neighbours by brute force
 class BFkNN:
   def __init__(self, data_points, k):
     self.data_points = data_points
     self.k = k
-    self.count_lock = multiprocessing.Lock()
-    self.found_count = 0
 
   def find_knn(self, query_point) -> List[int]:
     arr = []
-    data_points_count = len(self.data_points)
-    for i in range(data_points_count):
-      point = self.data_points[i]
+
+    for point in self.data_points:
       zipped = zip(query_point, point)
       arr.append(
-        (
-          sum([
-            (x ^ y).bit_count()
-            for (x, y) in zipped
-          ]),
-          i
-        )
+        sum([
+          (x ^ y).bit_count()
+          for (x, y) in zipped
+        ])
       )
     
-    self.count_lock.acquire()
-
-    self.found_count += 1
-    if self.found_count % (10_000/100) == 0:
-      print("Finding kNN progress:", int((100*self.found_count)/10_000), "%", flush=True)
-    
-    self.count_lock.release()
-
-    return list(
-      map(
-        lambda p: p[1], # Return index
-        sorted(arr)[:self.k] # Sort by distance
-      )
-    )
+    # Return the k shortest distances
+    return sorted(arr)[:self.k]
 
 def mk_ans(data_points, query_points, kn):
   # Build bruteforce solution
   bfknn = BFkNN(data_points, kn)
   
+  with multiprocessing.Pool() as pool:
+    ans = list(tqdm.tqdm(pool.imap(bfknn.find_knn, query_points), total=len(query_points), file=sys.stdout)) # Make the queries in parallel
 
-  pool = multiprocessing.Pool()
-  ans = pool.map(bfknn.find_knn, query_points) # Make the queries in parallel
-  
   return ans
 
 # Number of nearest neighbors to find
@@ -78,7 +63,6 @@ print("[+] Preprocessing initiated", flush=True)
 # Data is encoded as R*C with R points encoded over C dimensions of ui64
 dataset = h5['hamming']
 dataset_10k_fraction = 10000 / len(dataset)
-
 
 print("[+] Shuffling dataset...", flush=True)
 
