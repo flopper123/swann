@@ -63,8 +63,6 @@ public:
                                     { return acc + ((int) (((*this)[i](p)) & ((*this)[j](p)))); }) 
                      / ((double) N);
         cnt.push_back(oij);
-
-        std::cout << "o[" << i << "][" << j << "] = " << oij << std::endl;
       }
     }
 
@@ -131,5 +129,19 @@ public:
     return ret;
   }
   
+  /** 
+   * @brief Construct a string containing stats of the hashfamily on the input range 
+   * @param beg Iterator to the first point
+   * @param end Iterator to the last point
+  */
+  template<iterator_to<Point<D>> PointIterator>
+  const std::string str(PointIterator beg, PointIterator end) {
+    std::stringstream ss;
+    ss << "HashFamily[" << this->size() << "]\n"
+       << "\tmean:" << mean(beg, end) << "\n"
+       << "\tpairwise_mean:" << pairwise_mean(beg, end) << "\n"
+       << "\tspread:" << spread(beg, end) << "\n";
+    return ss.str();
+  }
 };
 

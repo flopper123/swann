@@ -125,7 +125,7 @@ public:
     }
     
     do {
-      std::cout << "[+] Running round " << r << std::endl;
+      // std::cout << "[+] Running round " << r << std::endl;
       for (int i = 0; i < size; ++i)
       {
         // Update points with forces
@@ -167,10 +167,12 @@ public:
         }
       }
     } while (r++ < max_rounds);
-    
+    std::cout << "[+] Finished hash function loop in " << r << " rounds" << std::endl;
     // Add constructed hashfunctions to hashfamily
-    std::transform(ALL(hfs), this->begin(), 
+    std::transform(ALL(hfs), std::back_inserter(*this), 
       [](const hfargs &h){ return h.toLambda(); });
+
+    std::cout << "exiting" << std::endl;
   }
 
   /**
@@ -197,7 +199,7 @@ public:
   SphericalHashFamily(ui32 size, 
                       PointIterator sample_beg, PointIterator sample_end,
                       double err_mean = 0.05, double err_std_dev = 0.06)
-    : HashFamily<D>(size)
+    : HashFamily<D>()
   {
     this->optimize(size, sample_beg, sample_end, err_mean, err_std_dev);
   }
