@@ -33,8 +33,14 @@ struct BenchmarkDataset {
  */
 inline static double calculateRecall(std::vector<ui32> actual_nn, std::vector<ui32> true_nn) {
   assert(actual_nn.size() <= true_nn.size());
-  // TODO: Fix 
-  const double count = std::accumulate(ALL(actual_nn), 0, [&](int acc, double actual) 
-    { return acc + (true_nn[acc] == actual); });
-  return count / actual_nn.size();
+  
+  int count = 0;
+  
+  for (int i = 0; i < actual_nn.size(); i++) {
+    if (actual_nn[count] == true_nn[i]) {
+      count++;
+    }
+  }
+
+  return (double)count / (double)actual_nn.size();
 }

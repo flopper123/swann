@@ -65,7 +65,7 @@ static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
 /**
  * @brief Benchmark the query performance of the LSHForest index
  */
-constexpr ui32 TRIE_DEPTH = 22, TRIE_COUNT = 5;
+constexpr ui32 TRIE_DEPTH = 22, TRIE_COUNT = 12;
 
 static void BM_query_10_points_LSHForest(benchmark::State &state) {
 
