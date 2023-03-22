@@ -47,15 +47,11 @@ static inline double hf_mean(ui32 n, std::vector<std::vector<ui32>>& shared_cnt)
   const double n_4 = n/4.0;
   // Accumulator
   double oijAcc = 0.0;
-  
-  // Accumulate o_i_j - n/4
-  for (int i=0; i < shared_cnt.size(); ++i) {
-    oijAcc += std::accumulate(ALL(shared_cnt[i]), 0.0, 
-      [&n_4](double acc, ui32 val){
-        return acc + abs(val - n_4);
-    });
-  }
-  
+  const int sz = shared_cnt.size();
+  // Accumulate o_i_j - n/4 : avoid visiting the same pair twice
+  for (int i=0; i < sz; ++i) 
+    for (int j=i+1; j < sz; ++j)
+      oijAcc += abs(shared_cnt[i][j] - n_4);
   return oijAcc / shared_cnt.size();
 }
 
@@ -92,7 +88,10 @@ public:
   {
     const ui32 N = std::distance(sample_beg, sample_end);
     assert(N >= size);
-    
+
+    std::pair<int, double> best_mean = {0, 100000};
+    std::pair<int, double> best_std_dev = {0, 100000};
+
     constexpr ui32 max_rounds = 10;
     double N_4 = N / 4.0, mean = 0.0, std_dev = 0.0;
     err_mean *= N_4;
@@ -118,10 +117,8 @@ public:
 
     // Initialize start points of hashfunctions to be the size random sampled points
     std::vector<hfargs> hfs(size);
-    for (int i = 0; i < size; ++i)
-    {
-      auto &p = tmp[i];
-      hfs[i].p = p;
+    for (int i = 0; i < size; ++i) {
+      hfs[i].p = tmp[i];
     }
     
     do {
@@ -147,7 +144,23 @@ public:
       }
 
       mean = hf_mean(N, shared_cnt);
-      std_dev = sqrt(Util::variance2D(shared_cnt));
+      
+      // filter out irrelevant counts - might be a smarter way to do this
+      std::vector<double> cnts; 
+      for (int i=0; i < size; ++i) {
+        for (int j=i+1; j < size; ++j) {
+          cnts.emplace_back(shared_cnt[i][j]);
+        }
+      }
+
+      std_dev = Util::std_dev(ALL(cnts));
+      if (std_dev < best_std_dev.second) {
+        best_std_dev = {r, std_dev};
+      }
+      if (mean < best_mean.second) {
+        best_mean = {r, mean};
+      }
+
       if (mean <= err_mean && std_dev <= err_std_dev) {
         std::cout << "[+] Found optimal hash functions after " << r << " rounds" << std::endl;
         break;
@@ -167,7 +180,9 @@ public:
         }
       }
     } while (r++ < max_rounds);
-    std::cout << "[+] Finished hash function loop in " << r << " rounds" << std::endl;
+    std::cout << "[+] Finished hash function loop in " << r << " rounds" << std::endl
+              << "[+] Best mean: " << best_mean.second << " at round " << best_mean.first << std::endl
+              << "[+] Best std_dev: " << best_std_dev.second << " at round " << best_std_dev.first << std::endl;
     // Add constructed hashfunctions to hashfamily
     std::transform(ALL(hfs), std::back_inserter(*this), 
       [](const hfargs &h){ return h.toLambda(); });

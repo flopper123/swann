@@ -30,11 +30,11 @@ public:
    */
   template<iterator_to<Point<D>> PointIterator>
   double mean(PointIterator beg, PointIterator end) const {
-    if (this->empty()) return 0.0;
     const ui64 N = std::distance(beg, end), H = this->size();
-    std::vector<ui32> cnt(H, 0);
+    if (this->empty() || (N == 0)) return 0.0;
+    std::vector<double> cnt(H, 0);
     for (int i = 0; i < H; i++) {
-      cnt[i] = std::accumulate(beg, end, 0, [this, i](ui32 acc, const Point<D> &p)
+      cnt[i] = std::accumulate(beg, end, 0, [this, i](double acc, const Point<D> &p)
                       { return acc + (*this)[i](p); }) / ((double) N);
     }
     return Util::mean(ALL(cnt));
@@ -138,9 +138,9 @@ public:
   const std::string str(PointIterator beg, PointIterator end) {
     std::stringstream ss;
     ss << "HashFamily[" << this->size() << "]\n"
-       << "\tmean:" << mean(beg, end) << "\n"
-       << "\tpairwise_mean:" << pairwise_mean(beg, end) << "\n"
-       << "\tspread:" << spread(beg, end) << "\n";
+       << "\tmean:" << this->mean(beg, end) << "\n"
+       << "\tpairwise_mean:" << this->pairwise_mean(beg, end) << "\n"
+       << "\tspread:" << this->spread(beg, end) << "\n";
     return ss.str();
   }
 };

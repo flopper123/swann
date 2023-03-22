@@ -4,19 +4,23 @@
 #include <bitset>
 #include "../global.hpp"
 
+// hold as global to allow retrieving for testing
+const double point_sp_offset = 0.1d; 
+
 /** Binary vector point */
 template<ui32 D>
 class Point : public std::bitset<D> {
   public:
     using std::bitset<D>::bitset;
-    /** @brief Computes the spherical hamming distance between two points by subtraction */
-    inline ui32 spherical_distance(const Point<D>& p2) const {
-      return distance(p2) - (*this & p2).count();
-    }
 
     /** @brief Computes the Hamming distance between two points */
     inline ui32 distance(const Point<D>& p2) const {
       return (*this ^ p2).count();
+    }
+    /** @brief Computes spherical distance by division */
+    inline double spherical_distance(const Point<D>& p2) const {
+      // offset to avoid branching for division by zero check
+      return (this->distance(p2)) / ((double)(*this & p2).count() + point_sp_offset);
     }
     
     static inline constexpr Point<D> Empty = Point<D>{0x0};
