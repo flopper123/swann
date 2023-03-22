@@ -28,11 +28,13 @@ public:
     for (ui32 d = 0; d < D; ++d)
     {
       f[d] = f[d] ? f[d] / sz : 0;
-      // std::cout << "\tp[" << d << "] = " << p[d] << " [f=" << f[d] << "]" << std::endl;
-
-      if (f[d] >= threshold || f[d] <= -threshold) {
-        // std::cout << "\tFlipping bit " << d << std::endl;
-        p[d] = p[d] ^ true;
+      if (f[d] >= threshold) {
+        assert(!p[d]);
+        p[d] = true;
+      } else if (f[d] <= -threshold)
+      {
+        assert(p[d]);
+        p[d] = false;
       }
     }
     // std::cout << "Point after applying force: Point { " << p << " }" << std::endl;
@@ -41,25 +43,40 @@ public:
   }
 };
 
-// Returns a pair of mean and standard deviation of the given vector
-static inline double hf_mean(ui32 n, std::vector<std::vector<ui32>>& shared_cnt)
+// Returns the mean of the given vector
+static inline double hf_mean(const ui32 n_4, std::vector<std::vector<ui32>>& shared_cnt)
 {
-  const double n_4 = n/4.0;
-  // Accumulator
-  double oijAcc = 0.0;
   const int sz = shared_cnt.size();
+  // Declare as double to avoid integer division
+  double runs = 0, oijAcc = 0; 
   // Accumulate o_i_j - n/4 : avoid visiting the same pair twice
   for (int i=0; i < sz; ++i) 
-    for (int j=i+1; j < sz; ++j)
-      oijAcc += abs(shared_cnt[i][j] - n_4);
-  return oijAcc / shared_cnt.size();
+    for (int j=i+1; j < sz; ++j) 
+    {
+      oijAcc += std::abs((int) shared_cnt[i][j]) - ((int) n_4);
+      ++runs;
+    }
+
+  return oijAcc / runs;
+}
+
+static inline double hf_std_dev(std::vector<std::vector<ui32>>& shared_cnt) {
+  const int size = shared_cnt.size();
+  // filter out irrelevant counts - might be a smarter way to do this
+  std::vector<double> cnts; 
+  for (int i=0; i < size; ++i) {
+    for (int j=i+1; j < size; ++j) {
+      cnts.emplace_back(shared_cnt[i][j]);
+    }
+  }
+  return Util::std_dev(ALL(cnts));
 }
 
 template<ui32 D>
 class SphericalHashFamily : public HashFamily<D> {
 private:
   struct hfargs {
-    PointForce<D> force;   // force.toPoint() => f_i
+    PointForce<D> force;  // force.toPoint() => f_i
     Point<D> p;
     ui32 threshold;
       
@@ -78,116 +95,91 @@ private:
 
 public:
   using HashFamily<D>::HashFamily;
-  
-  /** 
-   * Build optimal hash functions for sample
-   **/
+
+  /**
+   * @param H Number of hash functions  
+   * @param sample_beg An iterator pointing to the start of the sample points
+   * @param sample_end An iterator pointing to the end of the sample points
+   * @param err_mean Error margin for the mean
+   * @param err_std_dev Error margin for the standard deviation
+   */
   template<iterator_to<Point<D>> PointIterator>
-  void optimize(ui32 size, PointIterator sample_beg, PointIterator sample_end, 
+  void optimize(const ui32 H, PointIterator sample_beg, PointIterator sample_end, 
                 double err_mean = 0.1, double err_std_dev = 0.15) 
   {
-    const ui32 N = std::distance(sample_beg, sample_end);
-    assert(N >= size);
+    ui32 r = 0;
+    constexpr ui32 MAX_R = 100;
 
-    std::pair<int, double> best_mean = {0, 100000};
-    std::pair<int, double> best_std_dev = {0, 100000};
-
-    constexpr ui32 max_rounds = 10;
-    double N_4 = N / 4.0, mean = 0.0, std_dev = 0.0;
+    // Choose baseline
+    const ui32 N = std::distance(sample_beg, sample_end),
+             N_4 = N/4; // Number of points in sample
+    assert(N >= H && N > 0);
     err_mean *= N_4;
     err_std_dev *= N_4;
-    ui32 r = 0;
 
     std::vector<Point<D>> sample(sample_beg, sample_end), // sample in order
-                          tmp(size);                      // random subset of samples of size points
-    std::sample(ALL(sample), tmp.begin(), size, std::mt19937{std::random_device{}()});
+                          rndPoints(H);                   // random subset of samples of size points
+    std::sample(ALL(sample), rndPoints.begin(), H, std::mt19937{std::random_device{}()});
 
     // Choose some random pivot to sort points by
     Point<D> pivot(sample[N >> 1]);
-
-    // 2d-Array: Number of points within sphere i and j
-    std::vector<std::vector<ui32>> shared_cnt(size, std::vector<ui32>(size, 0)); 
-
     // Sort sample by distance to pivot for each point
     std::sort(ALL(sample), [&pivot](const Point<D> &p1, const Point<D> &p2)
               { return p1.spherical_distance(pivot) < p2.spherical_distance(pivot); });
-
     // Update pivot to be median of points
     pivot = sample[N >> 1];
 
-    // Initialize start points of hashfunctions to be the size random sampled points
-    std::vector<hfargs> hfs(size);
-    for (int i = 0; i < size; ++i) {
-      hfs[i].p = tmp[i];
+    // Initialize start points of hashfunctions to be the H random sampled points
+    // and initlialize thresholds to be the distance to the pivot
+    std::vector<hfargs> hfs(H);
+    for (int i = 0; i < H; ++i) {
+      hfs[i].p = rndPoints[i];
+      hfs[i].threshold = pivot.spherical_distance(hfs[i].p);
     }
-    
-    do {
-      // std::cout << "[+] Running round " << r << std::endl;
-      for (int i = 0; i < size; ++i)
+
+    std::vector<std::vector<ui32>> oij(H, std::vector<ui32>(H, 0));
+    while (r++ < MAX_R)
+    {
+      // update all oijs
+      for (int i = 0; i < H; ++i) {
+        for (int j = i+1; j < H; ++j) {
+          // Count number of points in sample that are in both the i'th and the j'th hypersphere
+          oij[i][j] = oij[j][i] = std::accumulate(ALL(sample), 0, [&hfs, i, j](ui32 acc, const Point<D> &p)
+                                                  { return acc + ((bool)hfs[i].apply(p) & hfs[j].apply(p)); });
+        }
+      }
+
+      double mean = hf_mean(N_4, oij), std_dev = hf_std_dev(oij);
+      if (mean <= err_mean && std_dev <= err_std_dev)
       {
-        // Update points with forces
-        hfs[i].force.apply(hfs[i].p, size);
-        
-        // Compute new thresholds
-        hfs[i].threshold = hfs[i].p.spherical_distance(pivot);
-        
-        // reset oij
-        shared_cnt[i].assign(size, 0);
-      }
-
-      // compute oijs
-      for (int i=0; i < size; ++i) {
-        for (int j=0; j < size; ++j) {
-          shared_cnt[i][j] = std::accumulate(ALL(sample), 0, [&hfs, i, j](ui32 acc, const Point<D> &p)
-                          { return acc + ((bool)hfs[i].apply(p) & hfs[j].apply(p)); });
-        }
-      }
-
-      mean = hf_mean(N, shared_cnt);
-      
-      // filter out irrelevant counts - might be a smarter way to do this
-      std::vector<double> cnts; 
-      for (int i=0; i < size; ++i) {
-        for (int j=i+1; j < size; ++j) {
-          cnts.emplace_back(shared_cnt[i][j]);
-        }
-      }
-
-      std_dev = Util::std_dev(ALL(cnts));
-      if (std_dev < best_std_dev.second) {
-        best_std_dev = {r, std_dev};
-      }
-      if (mean < best_mean.second) {
-        best_mean = {r, mean};
-      }
-
-      if (mean <= err_mean && std_dev <= err_std_dev) {
         std::cout << "[+] Found optimal hash functions after " << r << " rounds" << std::endl;
         break;
       }
 
-      for (int i = 0; i < size-1; ++i) {
-        for (int j = i + 1; j < size; ++j) {
-          auto [pos, neg] = PointCalculator::subtraction<D>(hfs[i].p, hfs[j].p);
-
-          // Calculate point force for each dimension
-          PointForce<D> f_ij;
+      // Calculate forces for i..j
+      for (int i = 0; i < H; ++i) 
+      {
+        for (int j = i + 1; j < H; ++j) 
+        {
+          // oij factor: should we move points closer or further away
+          double factor = 0.5 * ((oij[i][j] - N_4) / ((double) N_4)); 
+          auto pj = factor <= 0 ? hfs[j].p : ~hfs[i].p;
+          auto [pos, neg] = PointCalculator::subtraction<D>(hfs[i].p, pj);
           for (int d = 0; d < D; ++d) {
-            f_ij[d] = 0.5 * ((shared_cnt[i][j] - N_4) / N_4) * (pos[d] - neg[d]);
-            hfs[i].force[d] += f_ij[d];
-            hfs[j].force[d] -= f_ij[d];
+            hfs[i].force[d] += factor * (pos[d] - neg[d]); // Apply the force i<-j
+            hfs[j].force[d] -= hfs[i].force[d];            // Apply the inverse to j<-i
           }
         }
       }
-    } while (r++ < max_rounds);
-    std::cout << "[+] Finished hash function loop in " << r << " rounds" << std::endl
-              << "[+] Best mean: " << best_mean.second << " at round " << best_mean.first << std::endl
-              << "[+] Best std_dev: " << best_std_dev.second << " at round " << best_std_dev.first << std::endl;
-    // Add constructed hashfunctions to hashfamily
-    std::transform(ALL(hfs), std::back_inserter(*this), 
-      [](const hfargs &h){ return h.toLambda(); });
+      for (int i = 0; i < H; ++i) {
+        hfs[i].force.apply(hfs[i].p, H-1);
+        hfs[i].threshold = pivot.spherical_distance(hfs[i].p);
+      }
+    }
 
-    std::cout << "exiting" << std::endl;
+    // Loop until convergence
+    std::transform(ALL(hfs), std::back_inserter(*this), 
+                    [](const hfargs &h){ return h.toLambda(); });
   }
 
   /**

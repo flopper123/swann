@@ -12,6 +12,12 @@ template<ui32 D>
 class Point : public std::bitset<D> {
   public:
     using std::bitset<D>::bitset;
+    
+    Point<D> operator~() const {
+      Point<D> ret(*this);
+      ret.flip();
+      return ret;
+    }
 
     /** @brief Computes the Hamming distance between two points */
     inline ui32 distance(const Point<D>& p2) const {
