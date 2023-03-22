@@ -14,3 +14,10 @@
 
 typedef uint32_t ui32;
 typedef uint64_t ui64;
+
+template<class T, typename TVal>
+concept iterator_to = 
+  std::is_same_v<typename std::iterator_traits<T>::value_type, TVal>;
+
+template <typename IteratorType>
+concept iterator = std::input_iterator<IteratorType>;
