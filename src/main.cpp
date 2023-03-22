@@ -12,6 +12,12 @@ int main()
 {
   std::cout << "[+] Loading Dataset..." << std::endl;
   PointsDataset<D> in = load_hdf5<D>(DataSize::XS);
+
+
+  PointsDataset<D> s = load_hdf5<D>(DataSize::S);
+  
+  std::cout << s.at(0) << std::endl;
+  
   std::cout << "[+] Loading Index..." << std::endl;
   auto maps = LSHMapFactory<D>::create(hashes, TRIE_DEPTH, TRIE_COUNT);
   LSHForest<D> index(maps, in);
