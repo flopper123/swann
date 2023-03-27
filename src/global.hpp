@@ -1,13 +1,16 @@
 #pragma once
 
 #include <stdint.h>
+#include <math.h>
 #include <unordered_map>
 #include <bitset>
 #include <vector>
 #include <numeric>
+#include <cstring> // memcpy and memsets
 #include <algorithm> 
 #include <cassert>
 #include <functional>
+#include <concepts>
 
 #define ALL(o) (o).begin(), (o).end()
 #define hmap std::unordered_map

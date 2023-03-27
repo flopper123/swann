@@ -4,16 +4,27 @@
 #include <bitset>
 #include "../global.hpp"
 
+// hold as global to allow retrieving for testing
+const double point_sp_offset = 0.1d; 
+
 /** Binary vector point */
 template<ui32 D>
 class Point : public std::bitset<D> {
   public:
     using std::bitset<D>::bitset;
+    
+    Point<D> operator~() const {
+      Point<D> ret(*this);
+      ret.flip();
+      return ret;
+    }
 
-    // Computes the Hamming distance between to points
-    ui32 distance(const Point<D>& p2) const {
+    /** @brief Computes the Hamming distance between two points */
+    inline ui32 distance(const Point<D>& p2) const {
       return (*this ^ p2).count();
     }
+   
+    static inline constexpr Point<D> Empty = Point<D>{0x0};
 };
 
 /** 

@@ -38,7 +38,6 @@ TEST(BFIndexTest, ReturnsTrueKNN) {
   std::sort(ALL(actual));
   std::sort(ALL(exp));
 
-  std::cerr << "Running assertion" << std::endl;
   // Assert
   ASSERT_TRUE(std::equal(ALL(actual), ALL(exp)));
 }
