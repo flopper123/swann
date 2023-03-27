@@ -9,7 +9,6 @@ enum HashType
   Bit = 0b1,
   Mask = 0b10,
   Hamming = 0b100,
-  Spherical = 0b1000,
   Lambda = 1UL << 31UL,
 };
 

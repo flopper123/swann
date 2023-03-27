@@ -59,7 +59,6 @@ add_executable(
   "test/test.cc"
   "test/util/ranges.cc"
   "test/hash/hashfamily.cc"
-  "test/hash/spherichashfamily.cc"
   "test/hash/hashpool.cc"
   "test/index/point.cc"
   "test/hash/hashfamilyfactory.cc"

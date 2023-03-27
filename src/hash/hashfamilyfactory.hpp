@@ -53,7 +53,7 @@ public:
   static HashFamily<D> create(ui32 size, HashType flags) {
     HashFamily<D> HF;
     int bits = std::bitset<64>(flags).count();
-    size /= bits;
+    size /= bits; // Construct equal number of each type of hash functions
     if (flags & HashType::Bit) {
       HF += createRandomBits(size);
     }
@@ -63,7 +63,6 @@ public:
     if (flags & HashType::Hamming) {
       HF += createRandomHDist(size);
     }
-    assert(!(HashType::Spherical & flags)); // Not supported currently
     return HF;
   }
 };
