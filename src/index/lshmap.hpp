@@ -25,6 +25,11 @@ public:
   virtual ui32 depth() = 0;
 
   /**
+   * @returns Number of buckets in the map
+   */
+  virtual ui32 bucketCount() = 0;
+
+  /**
    * Inserts a point into the map
    */
   virtual void add(const Point<D> &point) = 0;

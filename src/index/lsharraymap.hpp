@@ -20,9 +20,14 @@ public:
   ui32 depth() { return this->hashes.size(); };
   
   /**
-   * @returns Number of hash-functions in the chain
+   * @returns Number of points in all buckets
    */
   ui32 size() { return this->count; };
+
+  /**
+   * @returns Number of buckets in the map
+   */
+  ui32 bucketCount() { return this->buckets.size(); };
 
   /**
    * Inserts a point into the map

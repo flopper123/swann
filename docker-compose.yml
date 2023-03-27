@@ -16,6 +16,9 @@ services:
     depends_on:
       compile:
         condition: service_completed_successfully
+    environment:
+      - DEBUG=true
+
   test:
     build: .
     command: /swann/build/hello_test
@@ -26,6 +29,8 @@ services:
     depends_on:
       compile:
         condition: service_completed_successfully
+    environment:
+      - DEBUG=true
 
   benchmark:
     build: .
@@ -39,6 +44,8 @@ services:
     depends_on:
       compile:
         condition: service_completed_successfully
+    environment:
+      - DEBUG=true
 
   notebooks:
     build: ./notebooks
