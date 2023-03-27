@@ -60,7 +60,6 @@ add_executable(
   "test/util/ranges.cc"
   "test/hash/hashfamily.cc"
   "test/hash/hashpool.cc"
-  "test/index/point.cc"
   "test/hash/hashfamilyfactory.cc"
   "test/index/lsharraymap.cc"
   "test/index/lshmapfactory.cc"
