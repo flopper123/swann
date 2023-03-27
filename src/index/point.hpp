@@ -23,12 +23,7 @@ class Point : public std::bitset<D> {
     inline ui32 distance(const Point<D>& p2) const {
       return (*this ^ p2).count();
     }
-    /** @brief Computes spherical distance by division */
-    inline double spherical_distance(const Point<D>& p2) const {
-      // offset to avoid branching for division by zero check
-      return (this->distance(p2)) / ((double)(*this & p2).count() + point_sp_offset);
-    }
-    
+   
     static inline constexpr Point<D> Empty = Point<D>{0x0};
 };
 
