@@ -65,7 +65,6 @@ static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
 /**
  * @brief Benchmark the query performance of the LSHForest index
  */
-constexpr ui32 TRIE_DEPTH = 22, TRIE_COUNT = 12;
 
 static void BM_query_10_points_LSHForest(benchmark::State &state) {
 
@@ -75,8 +74,11 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
 
   std::cout << "Instantiating hash LSHMap" << std::endl;
   HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
-  auto maps = LSHMapFactory<D>::create(pool, TRIE_DEPTH, TRIE_COUNT);
-  
+
+  ui32 depth = log(dataset.points.size());
+  ui32 count = 6;
+  auto maps = LSHMapFactory<D>::create(pool, depth, count);
+
   std::cout << "Building index" << std::endl;
   Index<D> *index = new LSHForest<D>(maps, dataset.points);
   index->build();
