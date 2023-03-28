@@ -45,7 +45,9 @@ TEST(LSHArrayMapTest, CanAddBatchOfPoints) {
 // Query
 TEST(LSHArrayMapTest, CanQueryForExactMatch) {
   // Arrange
-  LSHArrayMap<D> mp(H);
+  HashFamily<D> hash_fam(H.begin(), H.begin() + D);
+
+  LSHArrayMap<D> mp(hash_fam);
   auto input = createCompleteInput();
   mp.add(input);
 

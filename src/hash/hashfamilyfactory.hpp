@@ -18,8 +18,8 @@ public:
 
   // Creates 'size' different lambdas that either ORs or ANDs returned values from createRandomBits
   static HashFamily<D> createRandomBitsConcat(ui32 size) {
-    
-    HashFamily<D> base = HashFamily<D>::createRandomBits(size);
+
+    HashFamily<D> base = HashFamilyFactory<D>::createRandomBits(size);
 
     HashFamily<D> HF;
     for (ui32 i = 0; i < size; ++i) {
