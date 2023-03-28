@@ -6,7 +6,7 @@
 #include "lshmapfactory.hpp"
 #include "query/failureprob.hpp"
 
-const QueryFailureProbability DEFAULT_FAILURE = SimpleSizeFailure;
+const QueryFailureProbability DEFAULT_FAILURE = TestSizeFailure;
 
 template<ui32 D>
 class LSHForest : public Index<D> {

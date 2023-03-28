@@ -122,12 +122,12 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
 
 
 // Add to benchmarks
-BENCHMARK(BM_bf_query_10_points_BFIndex)
-    ->Name("QueryBF10PointsBFIndex")
-    ->Unit(benchmark::kMillisecond)
-    ->Arg(0) // XS
-    ->Arg(1) // S
-    ->UseManualTime();
+// BENCHMARK(BM_bf_query_10_points_BFIndex)
+//     ->Name("QueryBF10PointsBFIndex")
+//     ->Unit(benchmark::kMillisecond)
+//     ->Arg(0) // XS
+//     ->Arg(1) // S
+//     ->UseManualTime();
 
 BENCHMARK(BM_query_10_points_LSHForest)
     ->Name("Query10PointsLSHForest")

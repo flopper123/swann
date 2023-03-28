@@ -17,8 +17,11 @@ public:
     const HashFamily<D> rndBits = HashFamilyFactory<D>::createRandomBits(D),
                         rndMasks = HashFamilyFactory<D>::createRandomMasks(D, bernoulli_p),
                         rndHDist = HashFamilyFactory<D>::createRandomHDist(D, dist_p);
-    *this += rndBits;
-    *this += rndMasks;
-    *this += rndHDist;
+
+    const HashFamily<D> rndBitsConcat = HashFamilyFactory<D>::createRandomBitsConcat(D);
+    *this += rndBitsConcat;
+    // *this += rndBits;
+    // *this += rndMasks;
+    // *this += rndHDist;
   }
 };
