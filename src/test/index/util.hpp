@@ -9,7 +9,11 @@ static inline HashFamily<D> H = {
   [](const Point<D>& p) { return p[0]; },
   [](const Point<D>& p) { return p[1]; },
   [](const Point<D>& p) { return p[2]; },
-  [](const Point<D>& p) { return p[3]; }
+  [](const Point<D>& p) { return p[3]; },
+
+  [](const Point<D>& p) { return (p[0] & p[1]) | (p[2] & p[3]); },
+  [](const Point<D>& p) { return (p[0] & p[2]) | (p[1] & p[3]); },
+  [](const Point<D>& p) { return (p[0] & p[3]) | (p[1] & p[2]); },
 };
 
 /**

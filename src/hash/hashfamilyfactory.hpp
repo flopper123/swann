@@ -16,6 +16,23 @@ public:
     return HF;
   }
 
+  // Creates 'size' different lambdas that either ORs or ANDs returned values from createRandomBits
+  static HashFamily<D> createRandomBitsConcat(ui32 size) {
+
+    HashFamily<D> base = HashFamilyFactory<D>::createRandomBits(size);
+
+    HashFamily<D> HF;
+    for (ui32 i = 0; i < size; ++i) {
+      auto a = base[rand() % size];
+      auto b = base[rand() % size];
+      auto c = base[rand() % size];
+      auto d = base[rand() % size];
+      HF.push_back([a, b, c, d](const Point<D> &p)
+                   { return (a(p) & b(p)) | (c(p) & d(p)); });
+    }
+    return HF;
+  }
+
   static HashFamily<D> createRandomMasks(ui32 size, double distribution_factor = 0.5) {
     HashFamily<D> HF;
     for (ui32 i = 0; i < size; ++i) {

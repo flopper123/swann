@@ -55,7 +55,7 @@ TEST(LSHForestBuild, BuildInsertPointsIntoAllMaps) {
 // Expect excatly K results and correct distance
 TEST(LSHForestQuery, QueryReturnsCorrectResults) {
   // Arrange : Build all maps on all combinations of points  
-  std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, H.size(), 5);
+  std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, 2, 2);
   std::vector<Point<D>> points = createCompleteInput();
   LSHForest<D> forest(maps, points);
   forest.build();
@@ -84,16 +84,16 @@ TEST(LSHForestQuery, QueryReturnsCorrectResults) {
 // Expect excatly K results and correct distance
 TEST(LSHForestQuery, QueryReturnsElementsWithCorrectDistance) {
   // Arrange : Build all maps on all combinations of points  
-  std::vector<LSHMap<4>*> maps = LSHMapFactory<4>::create(H, H.size(), 5);
-  std::vector<Point<4>> points = createCompleteInput();
-  LSHForest<4> forest(maps, points);
+  std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, 2, 2);
+  std::vector<Point<D>> points = createCompleteInput();
+  LSHForest<D> forest(maps, points);
   forest.build();
   
   // Act : Query for the single nearest neighbour for all points inserted
-  Point<4> rootPoint(0);
+  Point<D> rootPoint(0);
   int pointsWithMaxDistance[] = { 1, 5, 11, 15, 16 };
 
-  for (int i = 0; i <= 4; i++) {
+  for (int i = 0; i <= D; i++) {
     int k = pointsWithMaxDistance[i];
 
     auto kNearestNeighbours = forest.query(rootPoint, k);

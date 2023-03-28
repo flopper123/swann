@@ -21,9 +21,22 @@ public:
    * @returns a vector of LSHMaps constructed from random hash functions of @H
    **/
   static std::vector<LSHMap<D>*> create(HashFamily<D>& H, ui32 depth, ui32 k) {
+    // Get unique number of hash functions
+    HashFamily<D> subset = H.subset(k * depth);
+    
     std::vector<LSHMap<D>*> ret;
-    for (ui32 i = 0; i < k; ++i)
-      ret.push_back(LSHMapFactory<D>::create(H, depth));
+    
+    for (ui32 i = 0; i < k; ++i) {
+      auto hf = HashFamily<D>(
+        subset.begin() + i * depth,
+        subset.begin() + (i + 1) * depth
+      );
+
+      ret.push_back(
+        new LSHArrayMap<D>(hf)
+      );
+    }
+
     return ret;
   }
 };

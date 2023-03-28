@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)  # CMake version check
 project(swann)                        # Create project "swann"
 set(CMAKE_CXX_STANDARD 23)            # Enable c++23 standard
+set(CMAKE_POLICY_DEFAULT_CMP0135 NEW) # Enable new policy for CMP0135
 
 # Add main.cpp file of project root directory as source file
 file( GLOB SOURCE_FILES
