@@ -219,3 +219,12 @@ cython_debug/
 poetry.toml
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,git,python
+
+# JetBrains
+.idea/
+
+# macOS
+.DS_Store
+
+# CMake
+cmake-build-debug/
