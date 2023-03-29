@@ -55,11 +55,13 @@ public:
   void insert(Point<D>& point) { points.push_back(point); };
   
   void build() {
-    // Insert points into all LSHMaps
-    for(auto& map : maps) {
-      map->add(this->points);
-    }
-  };  
+    // Insert points into all LSHMaps in vectorization-parallel
+    std::for_each(
+        std::execution::par_unseq,
+        ALL(maps),
+        [this](LSHMap<D> *map)
+        { map->add(this->points); });
+  };
 
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) 
   {
