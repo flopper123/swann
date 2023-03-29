@@ -1,6 +1,6 @@
 #pragma once
 
-#include <set>
+#include <unordered_set>
 #include "index.hpp"
 #include "lshmap.hpp"
 #include "lshmapfactory.hpp"
@@ -65,7 +65,7 @@ public:
 
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) 
   {
-    std::set<ui32> found;                                // A set containing all found points so far from the maps
+    std::unordered_set<ui32> found;                      // A set containing all found points so far from the maps
     std::mutex found_mutex;                              // A mutex to protect the 'found' set
 
     std::vector<ui32> hash_idx(this->maps.size()), ret;  // hash[m] : contains the hash of point in map[m]
@@ -89,19 +89,19 @@ public:
           std::execution::par,
           ALL(hidx_maps),
           [this, &found, &found_mutex, &hash_idx, hdist, M](std::pair<ui32, LSHMap<D>*> hidx_map)
-      {
+          {
             auto [hidx, map] = hidx_map;
             assert(hidx < this->points.size()); 
-        // Loop through all buckets with hamming distance of hdist to point
+            // Loop through all buckets with hamming distance of hdist to point
             for (ui32 bucket_i : map->query(hidx, hdist))
-        {
+            {
               found_mutex.lock();
               found.insert(ALL((*map)[bucket_i]));
               found_mutex.unlock();
-        }
+            }
           });
     }
-    
+
     // Transform all found points into pairs of (distance, point idx)
     std::transform(ALL(found), std::back_inserter(pdist), [this, point](ui32 pi) -> std::pair<ui32,ui32> { 
       return { point.distance(this->points[pi]), pi}; });
