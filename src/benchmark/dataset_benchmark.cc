@@ -97,7 +97,6 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
       if (i % (dataset.queries.size()/100) == 0) {
         std::cout << "LSHForest " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl;
       }
-
       // Query
       auto start = std::chrono::high_resolution_clock::now();
       auto result = index->query(q.query, 10, 0.8);
@@ -185,21 +184,6 @@ static void BM_query_10_points_LSHForest_HammingDistanceDependent(benchmark::Sta
 
   state.counters["recall"] = recalls;
 }
-
-// Add to benchmarks
-// BENCHMARK(BM_bf_query_10_points_BFIndex)
-//     ->Name("QueryBF10PointsBFIndex")
-//     ->Unit(benchmark::kMillisecond)
-//     ->Arg(0) // XS
-//     ->Arg(1) // S
-//     ->UseManualTime();
-
-BENCHMARK(BM_query_10_points_LSHForest_HammingDistanceDependent)
-    ->Name("Query10PointsLSHForestHammingDistanceDependent")
-    ->Unit(benchmark::kMillisecond)
-    ->Arg(DataSize::XS) // XS
-    ->Arg(DataSize::S)  // S
-    ->UseManualTime();
 
 BENCHMARK(BM_query_10_points_LSHForest)
     ->Name("Query10PointsLSHForest")

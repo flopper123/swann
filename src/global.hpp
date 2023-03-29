@@ -12,6 +12,7 @@
 #include <functional>
 #include <concepts>
 #include <execution>
+#include <mutex>
 
 #define ALL(o) (o).begin(), (o).end()
 #define hmap std::unordered_map

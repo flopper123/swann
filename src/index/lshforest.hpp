@@ -66,12 +66,17 @@ public:
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) 
   {
     std::set<ui32> found;                                // A set containing all found points so far from the maps
+    std::mutex found_mutex;                              // A mutex to protect the 'found' set
+
     std::vector<ui32> hash_idx(this->maps.size()), ret;  // hash[m] : contains the hash of point in map[m]
     std::vector<std::pair<ui32, ui32>> pdist;            // A vector containing pairs of (dist, idx)
     const ui32 M = this->maps.size();
 
+    // Hacky way to get the index of the current map
+    std::vector<std::pair<ui32, LSHMap<D> *>> hidx_maps(M);
     for (ui32 m = 0; m < M; ++m) {
-      hash_idx[m] = this->maps[m]->hash(point);
+      ui32 idx = this->maps[m]->hash(point);
+      hidx_maps[m] = {idx, this->maps[m]};
     }
 
     // Loop through all buckets within hamming distance of hdist of point
@@ -79,15 +84,22 @@ public:
          hdist < this->depth && !stop_query(recall, hdist, found.size(), k);
          ++hdist)
     {
-      // Loop through all maps
-      for (ui32 m = 0; m < M; ++m)
+      // Loop through all maps in parallel
+      std::for_each(
+          std::execution::par,
+          ALL(hidx_maps),
+          [this, &found, &found_mutex, &hash_idx, hdist, M](std::pair<ui32, LSHMap<D>*> hidx_map)
       {
+            auto [hidx, map] = hidx_map;
+            assert(hidx < this->points.size()); 
         // Loop through all buckets with hamming distance of hdist to point
-        for (ui32 bucket_i : maps[m]->query(hash_idx[m], hdist))
+            for (ui32 bucket_i : map->query(hidx, hdist))
         {
-          found.insert(ALL((*maps[m])[bucket_i]));
+              found_mutex.lock();
+              found.insert(ALL((*map)[bucket_i]));
+              found_mutex.unlock();
         }
-      }
+          });
     }
     
     // Transform all found points into pairs of (distance, point idx)
@@ -120,7 +132,4 @@ private:
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar);
     return (1 - recall) > failure_prob;
   }
-
 };
-
-
