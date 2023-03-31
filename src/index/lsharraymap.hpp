@@ -9,7 +9,7 @@ class LSHArrayMap : public LSHMap<D> {
   static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
   
   void initMasks() {
-    for (ui32 hdist = 0; hdist < this->depth(); ++hdist) {
+    for (ui32 hdist = masks.size(); hdist < this->depth(); ++hdist) {
       LSHArrayMap<D>::masks.push_back(std::vector<ui32>());
       // Initalize a bitset of size depth with hdist bits set
       std::vector<bool> vmask(this->depth(), false);
@@ -36,7 +36,7 @@ public:
             bucket()),
         count(0)
   {
-    if (LSHArrayMap<D>::masks.empty()) {
+    if (LSHArrayMap<D>::masks.size() != this->depth()) {
       initMasks();
     }
   }
@@ -99,8 +99,7 @@ public:
   };
 
   /**
-   * @brief 
-   * 
+   * @brief Retrieve the bucket at the specified bucket-index
    */
   bucket& operator[](hash_idx bidx) {
     return this->buckets[bidx];

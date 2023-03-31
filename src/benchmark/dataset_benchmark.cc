@@ -74,7 +74,7 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
   BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(static_cast<DataSize>(state.range(0)));
 
   std::cout << "Instantiating hash LSHMap" << std::endl;
-  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
+  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
   ui32 depth = log(dataset.points.size());
   ui32 count = 6;
