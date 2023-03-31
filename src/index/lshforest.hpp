@@ -55,8 +55,13 @@ public:
   void insert(Point<D>& point) { points.push_back(point); };
   
   void build() {
-    for(auto& map : this->maps) {
-      map->add(this->points);
+    std::vector<std::thread> threads;
+    for (auto &map : this->maps) {
+      auto task = [this, map]() { map->add(this->points); };
+      threads.emplace_back(std::thread(task));
+    }
+    for (auto &t : threads) {
+      t.join();
     }
   };
 
@@ -70,6 +75,7 @@ public:
 
     // Hacky way to get the index of the current map
     std::vector<std::pair<ui32, LSHMap<D> *>> hidx_maps(M);
+    
     for (ui32 m = 0; m < M; ++m) {
       ui32 idx = this->maps[m]->hash(point);
       hidx_maps[m] = {idx, this->maps[m]};
@@ -80,22 +86,35 @@ public:
          hdist < this->depth && !stop_query(recall, hdist, found.size(), k);
          ++hdist)
     {
-      // Loop through all maps in parallel
-      std::for_each(
-          std::execution::par,
-          ALL(hidx_maps),
-          [this, &found, &found_mutex, &hash_idx, hdist, M](std::pair<ui32, LSHMap<D>*> hidx_map)
-          {
-            auto [hidx, map] = hidx_map;
-            assert(hidx < this->points.size()); 
-            // Loop through all buckets with hamming distance of hdist to point
-            for (ui32 bucket_i : map->query(hidx, hdist))
-            {
-              found_mutex.lock();
-              found.insert(ALL((*map)[bucket_i]));
-              found_mutex.unlock();
-            }
-          });
+      // Initialize thread pool
+      std::vector<std::thread> qthreads;
+      
+      // Loop through all buckets with hamming distance of hdist to point for all maps
+      for (auto &[hidx, map] : hidx_maps) {
+        
+        // Thread task
+        auto query_task = [this, &found, &found_mutex, hdist, hidx, map]()
+        {
+
+          std::vector<ui32> points_indices;
+          for (ui32 bucket_i : map->query(hidx, hdist)) {
+            points_indices.insert(points_indices.end(), ALL((*map)[bucket_i]));
+          }
+
+          // Lock the found set and insert all found points
+          found_mutex.lock();
+          found.insert(ALL(points_indices));
+          found_mutex.unlock();
+        };
+
+        // Add task to thread pool
+        qthreads.emplace_back(std::thread(query_task));
+      }
+
+      // Wait the queries of all maps to finish for hdist
+      for (auto &t : qthreads) {
+        t.join();
+      }
     }
 
     // Transform all found points into pairs of (distance, point idx)
