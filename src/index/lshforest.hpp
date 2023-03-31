@@ -55,13 +55,8 @@ public:
   void insert(Point<D>& point) { points.push_back(point); };
   
   void build() {
-    std::vector<std::thread> threads;
     for (auto &map : this->maps) {
-      auto task = [this, map]() { map->add(this->points); };
-      threads.emplace_back(std::thread(task));
-    }
-    for (auto &t : threads) {
-      t.join();
+      map->add(this->points);
     }
   };
 

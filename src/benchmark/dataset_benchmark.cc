@@ -189,11 +189,11 @@ static void BM_query_10_points_LSHForest_HammingDistanceDependent(benchmark::Sta
   StatsGenerator<D>::runStats(static_cast<LSHForest<1024>*>(index));
 }
 
-BENCHMARK(BM_query_10_points_LSHForest_HammingDistanceDependent)
-    ->Name("Query10Points_LSHForest_HammingDistanceDependent")
-    ->Unit(benchmark::kMillisecond)
-    ->Arg(0) // XS
-    ->UseManualTime();
+// BENCHMARK(BM_query_10_points_LSHForest_HammingDistanceDependent)
+//     ->Name("Query10Points_LSHForest_HammingDistanceDependent")
+//     ->Unit(benchmark::kMillisecond)
+//     ->Arg(0) // XS
+//     ->UseManualTime();
 // BENCHMARK(BM_bf_query_10_points_BFIndex)
 //     ->Name("BruteForceQuery10PointsBFIndex")
 //     ->Unit(benchmark::kMillisecond)
