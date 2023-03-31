@@ -3,7 +3,7 @@
 #include <random>
 #include "hashfamily.hpp"
 #include "hashtype.hpp"
-
+/** @brief For constructing data independent hash families */
 template<ui32 D>
 class HashFamilyFactory {
 public:
@@ -31,14 +31,16 @@ public:
     return HF;
   }
   
+  /** 
+   * @brief Construct an independent hamming distance hash family of 'size' functions.
+  */
   static HashFamily<D> createHDist(ui32 size, ui32 threshold, double distribution_factor = 0.5) {
     HashFamily<D> HF;
-    ui32 x = threshold;
     for (ui32 i = 0; i < size; ++i)
     {
       auto point = random_point<D>(distribution_factor);
-      HF.push_back([point, x](const Point<D> &p)
-                   { return p.distance(point) <= x; });
+      HF.push_back([point, threshold](const Point<D> &p)
+                   { return p.distance(point) <= threshold; });
     }
     
     return HF;

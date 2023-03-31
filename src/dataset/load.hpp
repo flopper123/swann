@@ -8,7 +8,7 @@
 #include <H5Cpp.h>
 #include <sstream>
 
-enum DataSize {XS, S, M, L, XL};
+enum DataSize : int { XS=0, S, M, L, XL};
 static inline std::string DATA_SIZES_LIST[] = {"100K", "300K", "10M", "30M", "100M"};
 
 constexpr ui32 D = 1024;

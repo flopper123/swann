@@ -34,7 +34,7 @@ services:
 
   benchmark:
     build: .
-    command: /swann/scripts/run_benchmark.sh
+    command: /swann/scripts/run_benchmark.sh 
     profiles: [ "benchmark" ]
     volumes:
       - ./build:/swann/build

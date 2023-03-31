@@ -1,0 +1,9 @@
+2023-03-29T11:21:33+00:00
+Running /swann/build/benchmark
+Run on (4 X 48 MHz CPU s)
+Load Average: 0.33, 0.18, 0.23
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"recall"
+"BuildLSHForestIndex/0",3,238.56,238.548,ms,,,,,,0
+"BuildLSHForestIndex/1",1,797.748,797.456,ms,,,,,,0
+"Query10PointsLSHForest/0/manual_time",1,87065.9,87097.7,ms,,,,,,0.79295
+"Query10PointsLSHForest/1/manual_time",1,358450,358520,ms,,,,,,0.80534
