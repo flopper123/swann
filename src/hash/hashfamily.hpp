@@ -148,18 +148,20 @@ public:
    * @brief Expands the current HashFamily by merging hash functions at random.
    *        This is useful for hash families where the number of hash functions is limnited
   */
-  HashFamily<D>& expand(ui32 sz = 0) {
+  void expand(ui32 sz = 0) {
     if (sz == 0) sz = this->size();    
     HashFamily<D> res;
     for (ui32 i = 0; i < sz; ++i) {
       // pick 4 hash functions at random
       HashFamily<D> hf_sample = this->subset(4); 
-      res.emplace_back([&hf_sample](const Point<D> &p)
+      assert(hf_sample.size() == 4);
+      res.push_back([&hf_sample](const Point<D> &p)
         { return (hf_sample[0](p) & hf_sample[1](p)) 
                | (hf_sample[2](p) & hf_sample[3](p)); });
     }
-    std::copy(ALL(res), this->begin());
-    return *this;
+    this->resize(sz);
+    for (ui32 i = 0; i < sz; ++i)
+      (*this)[i] = res[i];
   }
 };
 

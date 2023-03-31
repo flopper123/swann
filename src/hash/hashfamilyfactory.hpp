@@ -18,7 +18,9 @@ public:
 
   // Creates 'size' different lambdas that either ORs or ANDs returned values from createRandomBits
   static HashFamily<D> createRandomBitsConcat(ui32 size) {
-    return HashFamilyFactory<D>::createRandomBits(size).expand();
+    auto hf = HashFamilyFactory<D>::createRandomBits(size);
+    hf.expand();
+    return hf;
   }
   
   static HashFamily<D> createRandomMasks(ui32 size, double distribution_factor = 0.5) {

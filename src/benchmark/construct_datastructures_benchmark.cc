@@ -25,9 +25,9 @@ static void BM_build_LSHForest_index(benchmark::State &state) {
   state.counters["recall"] = 0.0;
 }
 
-// Add to benchmarks
-BENCHMARK(BM_build_LSHForest_index)
-    ->Name("BuildLSHForestIndex")
-    ->Unit(benchmark::kMillisecond)
-    ->Arg(0)  // XS
-    ->Arg(1); // S
+// // Add to benchmarks
+// BENCHMARK(BM_build_LSHForest_index)
+//     ->Name("BuildLSHForestIndex")
+//     ->Unit(benchmark::kMillisecond)
+//     ->Arg(0)  // XS
+//     ->Arg(1); // S

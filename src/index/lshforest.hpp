@@ -55,19 +55,15 @@ public:
   void insert(Point<D>& point) { points.push_back(point); };
   
   void build() {
-    // Insert points into all LSHMaps in vectorization-parallel
-    std::for_each(
-        std::execution::par_unseq,
-        ALL(maps),
-        [this](LSHMap<D> *map)
-        { map->add(this->points); });
+    for(auto& map : this->maps) {
+      map->add(this->points);
+    }
   };
 
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) 
   {
     std::unordered_set<ui32> found;                      // A set containing all found points so far from the maps
     std::mutex found_mutex;                              // A mutex to protect the 'found' set
-
     std::vector<ui32> hash_idx(this->maps.size()), ret;  // hash[m] : contains the hash of point in map[m]
     std::vector<std::pair<ui32, ui32>> pdist;            // A vector containing pairs of (dist, idx)
     const ui32 M = this->maps.size();
