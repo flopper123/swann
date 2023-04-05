@@ -69,11 +69,12 @@ public:
     const ui32 M = this->maps.size();
 
     // Hacky way to get the index of the current map
-    std::vector<std::pair<ui32, LSHMap<D> *>> hidx_maps(M);
+    // std::vector<std::pair<ui32, LSHMap<D> *>> hidx_maps(M);
     
     for (ui32 m = 0; m < M; ++m) {
       ui32 idx = this->maps[m]->hash(point);
-      hidx_maps[m] = {idx, this->maps[m]};
+      hash_idx[m] = idx;
+          // hidx_maps[m] = {idx, this->maps[m]};
     }
 
     // Loop through all buckets within hamming distance of hdist of point
@@ -81,34 +82,13 @@ public:
          hdist < this->depth && !stop_query(recall, hdist, found.size(), k);
          ++hdist)
     {
-      // Initialize thread pool
-      std::vector<std::thread> qthreads;
-      
-      // Loop through all buckets with hamming distance of hdist to point for all maps
-      for (auto &[hidx, map] : hidx_maps) {
-        
-        // Thread task
-        auto query_task = [this, &found, &found_mutex, hdist, hidx, map]()
-        {
-
-          std::vector<ui32> points_indices;
-          for (ui32 bucket_i : map->query(hidx, hdist)) {
-            points_indices.insert(points_indices.end(), ALL((*map)[bucket_i]));
-          }
-
-          // Lock the found set and insert all found points
-          found_mutex.lock();
-          found.insert(ALL(points_indices));
-          found_mutex.unlock();
-        };
-
-        // Add task to thread pool
-        qthreads.emplace_back(std::thread(query_task));
-      }
-
-      // Wait the queries of all maps to finish for hdist
-      for (auto &t : qthreads) {
-        t.join();
+      // Loop through all maps
+      for (ui32 m = 0; m < M; ++m)
+      {
+        // Loop through all buckets with hamming distance of hdist to point
+        for (ui32 bucket_i : maps[m]->query(hash_idx[m], hdist)) {
+          found.insert(ALL((*maps[m])[bucket_i]));
+        }
       }
     }
 

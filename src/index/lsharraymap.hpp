@@ -90,7 +90,7 @@ public:
     const ui32 MI = LSHArrayMap<D>::masks[hdist].size();
     
     std::vector<hash_idx> res(MI, UINT32_MAX);
-    
+
     for (ui32 mi = 0; mi < MI; ++mi) {
       res[mi] = bidx ^ LSHArrayMap<D>::masks[hdist][mi];
     }
