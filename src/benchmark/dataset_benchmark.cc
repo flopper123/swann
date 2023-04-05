@@ -100,7 +100,7 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
       }
       // Query
       auto start = std::chrono::high_resolution_clock::now();
-      auto result = index->query(q.query, 100, 0.8);
+      auto result = index->query(q.query, 10, 0.8);
       auto end = std::chrono::high_resolution_clock::now();
 
       std::transform(ALL(result), result.begin(), [&index, &q](ui32 i) {
@@ -133,7 +133,7 @@ static void BM_query_10_points_LSHForest_HammingDistanceDependent(benchmark::Sta
 
   const ui32 N_Sample = dataset.points.size() / 10;
   ui32 depth = log(dataset.points.size())+2;
-  ui32 count = 8;
+  ui32 count = 6;
   
   std::vector<Point<D>> sample_points;
   std::sample(ALL(dataset.points),
@@ -165,7 +165,7 @@ static void BM_query_10_points_LSHForest_HammingDistanceDependent(benchmark::Sta
 
       // Query
       auto start = std::chrono::high_resolution_clock::now();
-      auto result = index->query(q.query, 100, 0.8);
+      auto result = index->query(q.query, 10, 0.8);
       auto end = std::chrono::high_resolution_clock::now();
 
       std::transform(ALL(result), result.begin(), [&index, &q](ui32 i) {
@@ -183,16 +183,14 @@ static void BM_query_10_points_LSHForest_HammingDistanceDependent(benchmark::Sta
 
   recalls /= queriesLength;
 
-  state.counters["recall"] = recalls;
-
-  
-  StatsGenerator<D>::runStats(static_cast<LSHForest<1024>*>(index));
+  state.counters["recall"] = recalls;  
 }
 
 BENCHMARK(BM_query_10_points_LSHForest_HammingDistanceDependent)
     ->Name("Query10Points_LSHForest_HammingDistanceDependent")
     ->Unit(benchmark::kMillisecond)
     ->Arg(0) // XS
+    // ->Arg(1)
     ->UseManualTime();
 // BENCHMARK(BM_bf_query_10_points_BFIndex)
 //     ->Name("BruteForceQuery10PointsBFIndex")
@@ -204,4 +202,5 @@ BENCHMARK(BM_query_10_points_LSHForest)
     ->Name("Query10PointsLSHForest")
     ->Unit(benchmark::kMillisecond)
     ->Arg(0) // XS
+    // ->Arg(1)
     ->UseManualTime();

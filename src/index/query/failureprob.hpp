@@ -25,16 +25,11 @@ static float TestSizeFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 t
   return tar / ((found+0.01) * factor);
 }
 
-/**
- * @brief A failure-probability highly dependent on the current depth of the trie
- * @param N Number of maps in the forest
- * @param tDepth Maximum depth of each tree in the forest
- * @param depth Current depth of the tree being queried
- * @param found Number of points found so far
- * @param tar Number of kNN to find
- */
 static float HammingSizeFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 tar)
 {
-  const float factor = (N * (depth / tDepth) + 1) * std::numbers::egamma_v<double>; 
-  return (tar*(tDepth-depth+1)*std::numbers::e_v<double>) / (found * factor+0.01);
+  const ui32 buckets = 1UL << tDepth;
+  const double nr_points = std::pow(std::numbers::e_v<double>, tDepth);
+  const double found_factor = (buckets*std::numbers::egamma_v<double> / nr_points),
+               tar_factor = (std::pow(std::numbers::e_v<double>, depth/((double) tDepth)))*(1.0+(1.0/N));
+  return tar*tar_factor / ((found * found_factor) + 0.001);
 }
