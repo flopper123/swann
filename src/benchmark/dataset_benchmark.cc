@@ -203,7 +203,7 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
 BENCHMARK(BM_query_x_points_LSHForest_HammingDistanceDependent)
     ->Name("Query10Points_LSHForest_HammingDistanceDependent")
     ->Unit(benchmark::kMillisecond)
-    ->Args({0,10}) // XS
+    ->Args({0, 10}) // XS
     ->UseManualTime();
 
 // BENCHMARK(BM_bf_query_10_points_BFIndex)

@@ -74,7 +74,6 @@ public:
     for (ui32 m = 0; m < M; ++m) {
       ui32 idx = this->maps[m]->hash(point);
       hash_idx[m] = idx;
-          // hidx_maps[m] = {idx, this->maps[m]};
     }
 
     // Loop through all buckets within hamming distance of hdist of point
