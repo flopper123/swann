@@ -11,6 +11,7 @@
 #include <cassert>
 #include <functional>
 #include <concepts>
+#include <thread>
 #include <execution>
 #include <mutex>
 

@@ -82,3 +82,23 @@ TEST(LSHArrayMapTest, BucketCanContainMultiplePoints) {
   std::vector<ui32> expected = { 5, (ui32) input.size() };
   ASSERT_EQ(actual, expected);
 }
+
+// Query
+TEST(LSHArrayMapTest, QueryReturnsCorrectHammingDistanceOfBucketId)
+{
+  // Arrange
+  LSHArrayMap<D> mp(H);
+  auto bucket_hash = mp.hash(Point<D>(0b101));
+  Point<32> bucket_hash_point(bucket_hash);
+
+  // Act
+  for (int i = 0; i < H.size(); ++i) {
+    std::vector<ui32> buckets = mp.query(bucket_hash, i);
+
+    // Assert
+    for (auto& bucket : buckets) {
+      Point<32> bucket_point(bucket);
+      ASSERT_EQ(bucket_point.distance(bucket_hash_point), i);
+    }
+  }
+}

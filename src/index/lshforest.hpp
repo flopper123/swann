@@ -55,7 +55,7 @@ public:
   void insert(Point<D>& point) { points.push_back(point); };
   
   void build() {
-    for(auto& map : this->maps) {
+    for (auto &map : this->maps) {
       map->add(this->points);
     }
   };
@@ -69,10 +69,12 @@ public:
     const ui32 M = this->maps.size();
 
     // Hacky way to get the index of the current map
-    std::vector<std::pair<ui32, LSHMap<D> *>> hidx_maps(M);
+    // std::vector<std::pair<ui32, LSHMap<D> *>> hidx_maps(M);
+    
     for (ui32 m = 0; m < M; ++m) {
       ui32 idx = this->maps[m]->hash(point);
-      hidx_maps[m] = {idx, this->maps[m]};
+      hash_idx[m] = idx;
+          // hidx_maps[m] = {idx, this->maps[m]};
     }
 
     // Loop through all buckets within hamming distance of hdist of point
@@ -80,22 +82,14 @@ public:
          hdist < this->depth && !stop_query(recall, hdist, found.size(), k);
          ++hdist)
     {
-      // Loop through all maps in parallel
-      std::for_each(
-          std::execution::par,
-          ALL(hidx_maps),
-          [this, &found, &found_mutex, &hash_idx, hdist, M](std::pair<ui32, LSHMap<D>*> hidx_map)
-          {
-            auto [hidx, map] = hidx_map;
-            assert(hidx < this->points.size()); 
-            // Loop through all buckets with hamming distance of hdist to point
-            for (ui32 bucket_i : map->query(hidx, hdist))
-            {
-              found_mutex.lock();
-              found.insert(ALL((*map)[bucket_i]));
-              found_mutex.unlock();
-            }
-          });
+      // Loop through all maps
+      for (ui32 m = 0; m < M; ++m)
+      {
+        // Loop through all buckets with hamming distance of hdist to point
+        for (ui32 bucket_i : maps[m]->query(hash_idx[m], hdist)) {
+          found.insert(ALL((*maps[m])[bucket_i]));
+        }
+      }
     }
 
     // Transform all found points into pairs of (distance, point idx)

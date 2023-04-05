@@ -2,8 +2,31 @@
 
 #include "lshmap.hpp"
 
+
 template <ui32 D>
 class LSHArrayMap : public LSHMap<D> {
+  // all possible masks by hamming distance 
+  static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
+  
+  void initMasks() {
+    for (ui32 hdist = masks.size(); hdist < this->depth(); ++hdist) {
+      LSHArrayMap<D>::masks.push_back(std::vector<ui32>());
+      // Initalize a bitset of size depth with hdist bits set
+      std::vector<bool> vmask(this->depth(), false);
+      
+      // Set n first bits to true
+      std::fill(vmask.begin(), vmask.begin() + hdist, true);
+      std::sort(ALL(vmask));
+      
+      // create ui32 masks
+      do {
+        // Transform vmask to ui32
+        int m = accumulate(vmask.rbegin(), vmask.rend(), 0, [](int x, int y) { return (x << 1) + y; });
+        LSHArrayMap<D>::masks[hdist].emplace_back(m);
+        // Ensure we don't go out of bound
+      } while (std::next_permutation(ALL(vmask)));
+    }
+  }
 
 public:
   LSHArrayMap(HashFamily<D>& hf)
@@ -12,12 +35,16 @@ public:
             1ULL << hf.size(), // Number of buckets is 2^number_of_hashes
             bucket()),
         count(0)
-  { }
+  {
+    if (LSHArrayMap<D>::masks.size() != this->depth()) {
+      initMasks();
+    }
+  }
 
   /**
    * @returns Number of hash-functions in the chain
    */
-  ui32 depth() { return this->hashes.size(); };
+  ui32 depth() { return this->hashes.size(); }; 
   
   /**
    * @returns Number of points in all buckets
@@ -60,27 +87,19 @@ public:
    *          hamming distance of hdist
    */
   std::vector<hash_idx> query(hash_idx bidx, ui32 hdist = 0) {
-  
-    std::vector<hash_idx> res(1, bidx);
+    const ui32 MI = LSHArrayMap<D>::masks[hdist].size();
+    
+    std::vector<hash_idx> res(MI, UINT32_MAX);
 
-    if (hdist == 0) {
-      return res;
-    }
-
-    ui32 max_depth = this->depth();
-
-    // Flip the d-th bit
-    for (ui32 d = 0; d < max_depth; ++d) {
-      ui32 b_x = bidx ^ (1ULL << d);
-      std::vector<hash_idx> innerRes = this->query(b_x, hdist - 1);
-      res.insert(res.end(), ALL(innerRes));
+    for (ui32 mi = 0; mi < MI; ++mi) {
+      res[mi] = bidx ^ LSHArrayMap<D>::masks[hdist][mi];
     }
 
     return res;
   };
 
   /**
-   * @returns Returns the bucket at index bidx
+   * @brief Retrieve the bucket at the specified bucket-index
    */
   bucket& operator[](hash_idx bidx) {
     return this->buckets[bidx];
