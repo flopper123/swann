@@ -67,16 +67,17 @@ static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
  * @brief Benchmark the query performance of the LSHForest index
  */
 
-static void BM_query_10_points_LSHForest(benchmark::State &state) {
+static void BM_query_x_points_LSHForest(benchmark::State &state) {
 
   std::cout << "Loading benchmark dataset" << std::endl;
   // Setup
   BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(static_cast<DataSize>(state.range(0)));
 
   std::cout << "Instantiating hash LSHMap" << std::endl;
-  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
+  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
   ui32 depth = log(dataset.points.size());
+  // ui32 depth = log(1atase.points.size());
   ui32 count = 6;
   auto maps = LSHMapFactory<D>::create(pool, depth, count);
 
@@ -89,7 +90,11 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
   double recalls;
   double queriesLength = (double)dataset.queries.size();
 
+  int nrToQuery = state.range(1);
+
   ui32 i = 1;
+
+  double total_time = 0;
 
   // Measure
   for (auto _ : state) {
@@ -100,7 +105,7 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
       }
       // Query
       auto start = std::chrono::high_resolution_clock::now();
-      auto result = index->query(q.query, 10, 0.8);
+      auto result = index->query(q.query, nrToQuery, 0.8);
       auto end = std::chrono::high_resolution_clock::now();
 
       std::transform(ALL(result), result.begin(), [&index, &q](ui32 i) {
@@ -109,8 +114,10 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
       recalls += calculateRecall(result, q.nearest_neighbors);
       
       // Save result
-      auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-      state.SetIterationTime(elapsed_seconds.count());
+      auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+      state.SetIterationTime(elapsed_time);
+
+      total_time += elapsed_time;
 
       i++;
     }
@@ -118,14 +125,16 @@ static void BM_query_10_points_LSHForest(benchmark::State &state) {
 
   recalls /= queriesLength;
 
-  state.counters["recall"] = recalls;
+  state.counters["recall"]       = recalls;
+  state.counters["kNN"]          = nrToQuery;
+  state.counters["timePerQuery"] = (double) total_time / queriesLength;
 }
 
 /**
  * @brief Benchmark the query performance of the LSHForest index when run on the dependent 
  *        hamming distance hash family
  */
-static void BM_query_10_points_LSHForest_HammingDistanceDependent(benchmark::State &state) {
+static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::State &state) {
   std::cout << "Loading benchmark dataset" << std::endl;
 
   // Setup
@@ -152,7 +161,9 @@ static void BM_query_10_points_LSHForest_HammingDistanceDependent(benchmark::Sta
   
   std::cout << "Running benchmark" << std::endl;
   
-  double recalls, queriesLength = (double)dataset.queries.size();
+  double recalls, queriesLength = (double)dataset.queries.size(), total_time = 0;
+  int nrToQuery = state.range(1);
+
   ui32 i = 1;
 
   // Measure
@@ -165,7 +176,7 @@ static void BM_query_10_points_LSHForest_HammingDistanceDependent(benchmark::Sta
 
       // Query
       auto start = std::chrono::high_resolution_clock::now();
-      auto result = index->query(q.query, 10, 0.8);
+      auto result = index->query(q.query, nrToQuery, 0.8);
       auto end = std::chrono::high_resolution_clock::now();
 
       std::transform(ALL(result), result.begin(), [&index, &q](ui32 i) {
@@ -174,33 +185,35 @@ static void BM_query_10_points_LSHForest_HammingDistanceDependent(benchmark::Sta
       recalls += calculateRecall(result, q.nearest_neighbors);
       
       // Save result
-      auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-      state.SetIterationTime(elapsed_seconds.count());
-
+      auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+      state.SetIterationTime(elapsed_time);
+      total_time += elapsed_time;
       i++;
     }
   }
 
   recalls /= queriesLength;
 
-  state.counters["recall"] = recalls;  
+  state.counters["recall"]       = recalls;
+  state.counters["kNN"]          = nrToQuery;
+  state.counters["timePerQuery"] = (double) total_time / queriesLength;
 }
 
-BENCHMARK(BM_query_10_points_LSHForest_HammingDistanceDependent)
+
+BENCHMARK(BM_query_x_points_LSHForest_HammingDistanceDependent)
     ->Name("Query10Points_LSHForest_HammingDistanceDependent")
     ->Unit(benchmark::kMillisecond)
-    ->Arg(0) // XS
-    // ->Arg(1)
+    ->Args({0,10}) // XS
     ->UseManualTime();
+
 // BENCHMARK(BM_bf_query_10_points_BFIndex)
 //     ->Name("BruteForceQuery10PointsBFIndex")
 //     ->Unit(benchmark::kMillisecond)
 //     ->Arg(0) // XS
 //     ->UseManualTime();
 
-BENCHMARK(BM_query_10_points_LSHForest)
-    ->Name("Query10PointsLSHForest")
+BENCHMARK(BM_query_x_points_LSHForest)
+    ->Name("QueryXPointsLSHForest")
     ->Unit(benchmark::kMillisecond)
-    ->Arg(0) // XS
-    // ->Arg(1)
+    ->Args({0, 10}) // XS - query for 10 points
     ->UseManualTime();

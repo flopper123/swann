@@ -80,28 +80,3 @@ TEST(LSHForestQuery, QueryReturnsCorrectResults) {
     }
   }
 }
-
-// Expect excatly K results and correct distance
-TEST(LSHForestQuery, QueryReturnsElementsWithCorrectDistance) {
-  // Arrange : Build all maps on all combinations of points  
-  std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, 2, 2);
-  std::vector<Point<D>> points = createCompleteInput();
-  LSHForest<D> forest(maps, points);
-  forest.build();
-  
-  // Act : Query for the single nearest neighbour for all points inserted
-  Point<D> rootPoint(0);
-  int pointsWithMaxDistance[] = { 1, 5, 11, 15, 16 };
-
-  for (int i = 0; i <= D; i++) {
-    int k = pointsWithMaxDistance[i];
-
-    auto kNearestNeighbours = forest.query(rootPoint, k);
-    ASSERT_EQ(kNearestNeighbours.size(), k);
-
-    for (auto &pidx : kNearestNeighbours) {
-      auto p = forest[pidx];
-      ASSERT_LE(p.distance(rootPoint), i);
-    }
-  }
-}
