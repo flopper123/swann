@@ -206,12 +206,6 @@ BENCHMARK(BM_query_x_points_LSHForest_HammingDistanceDependent)
     ->Args({0, 10}) // XS
     ->UseManualTime();
 
-// BENCHMARK(BM_bf_query_10_points_BFIndex)
-//     ->Name("BruteForceQuery10PointsBFIndex")
-//     ->Unit(benchmark::kMillisecond)
-//     ->Arg(0) // XS
-//     ->UseManualTime();
-
 BENCHMARK(BM_query_x_points_LSHForest)
     ->Name("QueryXPointsLSHForest")
     ->Unit(benchmark::kMillisecond)
