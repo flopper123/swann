@@ -20,7 +20,6 @@ find_package(HDF5 REQUIRED COMPONENTS C CXX HL)
 # Add output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /swann/bin)
 
-
 include_directories(
   ON
   /usr/include/hdf5/serial

@@ -199,7 +199,6 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
   state.counters["timePerQuery"] = (double) total_time / queriesLength;
 }
 
-
 BENCHMARK(BM_query_x_points_LSHForest_HammingDistanceDependent)
     ->Name("Query10Points_LSHForest_HammingDistanceDependent")
     ->Unit(benchmark::kMillisecond)
