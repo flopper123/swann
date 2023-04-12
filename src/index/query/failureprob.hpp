@@ -41,3 +41,22 @@ static float HammingSizeFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui3
                tar_factor = (std::pow(std::numbers::e_v<double>, depth/((double) tDepth)))*(1.0+(1.0/N));
   return tar*tar_factor / ((found * found_factor) + 0.001);
 }
+
+/**
+ * @brief A failure-probability on single bit hash functions
+ * @param L Number of maps in the forest
+ * @param tDepth Maximum depth of each tree in the forest
+ * @param depth Current depth of the tree being queried
+ * @param found Number of points found so far
+ * @param tar Number of kNN to find
+ */
+template<ui32 D>
+static float SingleBitFailure(ui32 L, ui32 tDepth, ui32 depth, ui32 found, ui32 tar)
+{
+  double r = tDepth - depth;
+
+  double p1 = 1.0 - (r / tDepth); // Lowest probability of points being in same bucket
+  // double p2 = 1.0 - ((c*r)/D); // Highest probability of points being in same bucket
+
+  return std::pow(1.0 - std::pow(p1, tDepth), L);
+}

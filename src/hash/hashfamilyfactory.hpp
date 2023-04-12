@@ -9,9 +9,10 @@ class HashFamilyFactory {
 public:
   static HashFamily<D> createRandomBits(ui32 size) {
     HashFamily<D> HF;
-    for (ui32 bit = 0; bit < size; ++bit) {
+    for (ui32 i = 0; i < size; ++i) {
+      ui32 bit = rand() % D;
       HF.push_back([bit](const Point<D> &p)
-                   { return p[bit % D]; });
+                   { return p[bit]; });
     }
     return HF;
   }

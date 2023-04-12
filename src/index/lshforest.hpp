@@ -118,6 +118,6 @@ private:
   bool stop_query(float recall, ui32 curDepth, ui32 found, ui32 tar) const
   {
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar);
-    return (1 - recall) > failure_prob;
+    return (1.0 - recall) >= failure_prob && found >= tar;
   }
 };
