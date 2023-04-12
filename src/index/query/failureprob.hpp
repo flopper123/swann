@@ -25,6 +25,14 @@ static float TestSizeFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 t
   return tar / ((found+0.01) * factor);
 }
 
+/**
+ * @brief A failure-probability highly dependent on the current depth of the trie
+ * @param N Number of maps in the forest
+ * @param tDepth Maximum depth of each tree in the forest
+ * @param depth Current depth of the tree being queried
+ * @param found Number of points found so far
+ * @param tar Number of kNN to find
+ */
 static float HammingSizeFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 tar)
 {
   const ui32 buckets = 1UL << tDepth;

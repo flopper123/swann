@@ -102,6 +102,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state) {
       if (i % (dataset.queries.size()/100) == 0) {
         std::cout << "LSHForest " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl;
       }
+      
       // Query
       auto start = std::chrono::high_resolution_clock::now();
       auto result = index->query(q.query, nrToQuery, 0.8);
