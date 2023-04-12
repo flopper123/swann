@@ -64,9 +64,8 @@ static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
 }
 
 /**
- * @brief Benchmark the query performance of the LSHForest index
+ * @brief Benchmark the query performance of the LSHForest index for random bits concat hash family
  */
-
 static void BM_query_x_points_LSHForest(benchmark::State &state) {
 
   std::cout << "Loading benchmark dataset" << std::endl;
@@ -140,7 +139,8 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
   // Setup
   BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(static_cast<DataSize>(state.range(0)));
 
-  const ui32 N_Sample = dataset.points.size() / 10;
+  // Max 100_000 sample size to avoid infinity loop
+  const ui32 N_Sample = dataset.points.size() / 10 > 100000 ? 100000 : dataset.points.size() / 10;
   ui32 depth = log(dataset.points.size())+2;
   ui32 count = 6;
   
