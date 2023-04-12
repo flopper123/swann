@@ -35,6 +35,9 @@ static float TestSizeFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 t
  */
 static float HammingSizeFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 tar)
 {
-  const float factor = (N * (depth / tDepth) + 1); 
-  return (tar*(tDepth-depth)*std::numbers::e_v<double>) / (found * factor+0.01);
+  const ui32 buckets = 1UL << tDepth;
+  const double nr_points = std::pow(std::numbers::e_v<double>, tDepth);
+  const double found_factor = (buckets*std::numbers::egamma_v<double> / nr_points),
+               tar_factor = (std::pow(std::numbers::e_v<double>, depth/((double) tDepth)))*(1.0+(1.0/N));
+  return tar*tar_factor / ((found * found_factor) + 0.001);
 }

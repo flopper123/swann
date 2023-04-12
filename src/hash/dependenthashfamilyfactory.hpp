@@ -10,7 +10,7 @@ class DependentHashFamilyFactory {
 public:
   /**
    * Creates a hash family of size 'size' using the points in the range [sample_beg, sample_end)
-   * O(size*N*LogN) where N is the distance from sample_beg to sample_end
+   * Θ(size*N*LogN) where N is the distance from sample_beg to sample_end
    * @param sample_beg - begin iterator of the sample points
    * @param sample_end - end iterator of the sample points
    * @param size - size of the hash family
@@ -30,7 +30,7 @@ public:
       });
       
       // Threshold is the median distance
-      ui32 t = p1.distance(*(sample_beg + (N>>1))); 
+      const ui32 t = p1.distance(*(sample_beg + (N>>1))); 
       HF.push_back([p1, t](const Point<D> &p2) -> bool {
         return p1.distance(p2) < t;
       });
