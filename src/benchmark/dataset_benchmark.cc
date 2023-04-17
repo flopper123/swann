@@ -81,8 +81,6 @@ static void BM_query_x_points_LSHForest(benchmark::State &state) {
 
   
   ui32 depth = ceil(log(dataset.points.size()));
-  
-  // ui32 depth = log(1atase.points.size());
 
   ui32 count = 10;
 
