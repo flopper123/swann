@@ -64,6 +64,7 @@ add_executable(
   "test/hash/hashpool.cc"
   "test/hash/hashfamilyfactory.cc"
   "test/hash/dependenthashfamilyfactory.cc"
+  "test/index/query/pointmap.cc"
   "test/index/lsharraymap.cc"
   "test/index/lshmapfactory.cc"
   "test/index/pointarithmeticresult.cc"
