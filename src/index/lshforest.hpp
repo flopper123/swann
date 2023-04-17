@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_set>
+#include "query/pointmap.hpp"
 #include "index.hpp"
 #include "lshmap.hpp"
 #include "lshmapfactory.hpp"
@@ -62,45 +63,32 @@ public:
 
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) 
   {
-    std::unordered_set<ui32> found;                // A set containing all found points so far from the maps
-    std::vector<ui32> k_closest;                   // A set containing the k closest candidate points to point
-    ui32 kthHammingDist = UINT32_MAX;              // The hamming distance of the k'th closest candidate point
-    std::vector<ui32> hash_idx(this->maps.size()); // hash[m] : contains the hash of point in map[m]
     const ui32 M = this->maps.size();
+    PointMap<D> found(&(this->points), point);
+    std::vector<ui32> hash(M);                    // hash[m] : contains the hash of point in map[m]
 
-    // Hacky way to get the index of the current map
-    // std::vector<std::pair<ui32, LSHMap<D> *>> hidx_maps(M);
-    
     for (ui32 m = 0; m < M; ++m) {
       ui32 idx = this->maps[m]->hash(point);
-      hash_idx[m] = idx;
+      hash[m] = idx;
     }
 
     // Loop through all buckets within hamming distance of hdist of point
     for (ui32 hdist = 0;
-         hdist < this->depth && !stop_query(recall, hdist, found.size(), k, kthHammingDist);
+         hdist < this->depth && !stop_query(recall, hdist, found.size(), k, found.get_kth_dist(k));
          ++hdist)
     {
       // Loop through all maps
       for (ui32 m = 0; m < M; ++m)
       {
         // Loop through all buckets with hamming distance of hdist to point
-        for (ui32 bucket_i : maps[m]->query(hash_idx[m], hdist)) {
+        for (ui32 bucket_i : maps[m]->query(hash[m], hdist)) {
           found.insert(ALL((*maps[m])[bucket_i]));
-          k_closest.insert(k_closest.end(), ALL((*maps[m])[bucket_i]));
         }
       }
-
-      // Update closest points
-      auto k_closest_set = std::unordered_set(k_closest.begin(), k_closest.end());
-      k_closest = get_k_closest_indices(k_closest_set, point, k);
-
-      kthHammingDist = k_closest.size() < k
-                      ? UINT32_MAX
-                      : point.distance(this->points[k_closest.back()]);
+  
     }
 
-    return k_closest;
+    return found.get_k_nearest(k);
   }
 
   Point<D> &operator[](ui32 i) { return points[i]; };

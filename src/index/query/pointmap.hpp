@@ -12,24 +12,36 @@ template <ui32 D>
 class PointMap
 {
   //! Consider mapping to a point pointer instead of a bool
-  std::unordered_set<ui32> seen;  // seen[i]   : whether the point with idx i has been seen
+  std::unordered_set<ui32> seen; // seen[i]   : whether the point with idx i has been seen
   
   //! Retrieval can be done faster by keeping track of the first non-empty distance index and the inverse
-  std::vector<ui32> dist[D];      // dist[d]   : list of points with hamming distance of d from query point
+  std::vector<ui32> dist2points[D+1]; // dist2points[d]   : list of points with hamming distance of d from query point
 
   //! Consider using a unique_ptr here to avoid copying the points
-  std::vector<Point<D>> points;
-  Point<D> query;
+  std::vector<Point<D>>* points; // ptr to points src
+  const Point<D> query;
+
+  ui32 lo_d, hi_d, sz; // lo_d : first non-empty distance index, 
+                      // hi_d : last non-empty distance index
 
 public:
-  PointMap(std::vector<Point<D>>& points, Point<D>& query) 
-    : seen(), points(points), query(query) 
+  PointMap(std::vector<Point<D>>* points, const Point<D>& query) 
+    : seen(), points(points), query(query), lo_d(UINT32_MAX), hi_d(0), sz(0)
   {
-    for (ui32 i = 0; i < D; ++i)
-      dist[i] = std::vector<ui32>();
+    for (ui32 i = 0; i < D+1; ++i)
+      dist2points[i] = std::vector<ui32>();
   };
+
+  ui32 size() const { return sz; }
   
-  ui32 size() const { return seen.size(); }
+  ui32 get_kth_dist(const ui32 k) const {
+    ui32 i = lo_d, cnt = 0;
+    for (; i < hi_d+1 && cnt < k; ++i) {
+      cnt += dist2points[i].size();
+      if (cnt > k) return i;
+    }
+    return i;
+  }
 
   /**
    * @brief Get the k points with the lowest hamming distance to the query target
@@ -38,11 +50,14 @@ public:
    * @return std::vector<ui32> A vector containing the indices of the k nearest points 
    *         in sorted ascending order by hamming distance to query point
    */
-  std::vector<ui32> get_nearest(const ui32 k) const {
+  std::vector<ui32> get_k_nearest(const ui32 k) const {
     std::vector<ui32> ret;
-    for (ui32 i = 0; i < D && ret.size() < k; ++i) {
-      int j = std::min(k - ret.size(), dist[i].size()); 
-      ret.insert(ret.end(), dist[i].begin(), dist[i].begin() + j);
+    for (ui32 i = lo_d; 
+         i < hi_d+1 && ret.size() < k; 
+         ++i) 
+    {
+      int j = std::min(k - ret.size(), dist2points[i].size()); 
+      ret.insert(ret.end(), dist2points[i].begin(), dist2points[i].begin() + j);
     }
     return ret;
   }
@@ -51,7 +66,7 @@ public:
    * @brief Returns true if this map contains the point with the given idx in asymptotic O(1) time.
    * @param idx index of the point to check 
    */
-  bool contains(const ui32 idx) const { return seen.contains(idx); }
+  bool contains(const ui32 idx) const { return seen.find(idx) != seen.end(); }
   
   /**
    * @brief Inserts the point with the given idx into this map in asymptotic O(D) time 
@@ -60,8 +75,12 @@ public:
    */
   void insert(const ui32 idx) {
     if (this->contains(idx)) return;
+    ++sz;
     seen.emplace(idx);
-    dist[query.distance(points[idx])].emplace_back(idx);
+    ui32 hdist = query.distance((*points)[idx]);
+    dist2points[hdist].emplace_back(idx);
+    lo_d = std::min(lo_d, hdist);
+    hi_d = std::max(hi_d, hdist);
   }
   
   template<iterator_to<ui32> IdxIterator>
