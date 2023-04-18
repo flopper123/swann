@@ -31,14 +31,25 @@ public:
     for (ui32 i = 0; i < D+1; ++i)
       dist2points[i] = std::vector<ui32>();
   };
-
+  
+  /**
+   * @brief Returns the number of points inserted into this map, 
+   *        note that this is not the same as the number of initially given points
+   * @return ui32 
+   */
   ui32 size() const { return sz; }
   
+  /**
+   * @brief the idx of the kth distance point from the query point
+   *        among all points inserted into this map
+   * @param k The number of points to skip
+   * @return ui32 
+   */
   ui32 get_kth_dist(const ui32 k) const {
     ui32 i = lo_d, cnt = 0;
     for (; i < hi_d+1 && cnt < k; ++i) {
       cnt += dist2points[i].size();
-      if (cnt > k) return i;
+      if (cnt > k) return i; // if we overshoot, return the current distance to avoid end increment of i
     }
     return i;
   }

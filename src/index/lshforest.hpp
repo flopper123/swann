@@ -53,7 +53,8 @@ public:
 
   ui32 size() { return points.size(); };
   
-  void insert(Point<D>& point) { points.push_back(point); };
+  // If we care about build performance, this needs to be emplace_back, and then we should implement a copy constructor for points
+  void insert(Point<D>& point) { points.push_back(point); }; 
   
   void build() {
     for (auto &map : this->maps) {
@@ -65,10 +66,10 @@ public:
   {
     const ui32 M = this->maps.size();
     PointMap<D> found(&(this->points), point);
-    std::vector<ui32> hash(M);                    // hash[m] : contains the hash of point in map[m]
-    for (ui32 m = 0; m < M; ++m) {
-      ui32 idx = this->maps[m]->hash(point);
-      hash[m] = idx;
+    std::vector<ui32> hash(M);  // hash[m] : contains the hash of point in map[m]
+
+    for (ui32 m = 0; m < M; ++m){
+      hash[m] = this->maps[m]->hash(point);
     }
 
     // Loop through all buckets within hamming distance of hdist of point
@@ -78,14 +79,14 @@ public:
     {
       // Loop through all maps
       for (ui32 m = 0; m < M; ++m)
-      {
+      {   
         // Loop through all buckets with hamming distance of hdist to point
         for (ui32 bucket_i : maps[m]->query(hash[m], hdist)) {
           found.insert(ALL((*maps[m])[bucket_i]));
         }
       }
-  
     }
+      
     return found.get_k_nearest(k);
   }
 
@@ -105,58 +106,4 @@ private:
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar, kthHammingDist);
     return (1.0 - recall) >= failure_prob && found >= tar;
   }
-
-
-  /**
-   * @brief Returns the k closest points to point from the set of candidat points
-  */
-  std::vector<ui32> get_k_closest_indices(const std::unordered_set<ui32>& candidatePoints, const Point<D>& point, int k) {
-
-    // Get sorted pairs of (distance, point index)
-    auto pdist = get_sorted_indices_tuple(candidatePoints, point);
-
-    // Store the k closest points in a vector
-    std::vector<ui32> k_closest;
-    
-    // Copy the first k points into the return vector
-    std::transform(pdist.begin(), pdist.begin() + k, 
-                   std::back_inserter(k_closest), 
-                   [](auto &p){ return p.second; });
-
-    return k_closest;
-  };
-
-  /**
-   * @brief Returns the hamming distance of the k'th closest candidate point
-  */
-  ui32 get_k_closest_candidate_point_hamming_distance(const std::unordered_set<ui32>& candidatePoints, const Point<D>& point, int k) {
-    // Get sorted pairs of (distance, point index)
-    auto pdist = get_sorted_indices_tuple(candidatePoints, point);
-    
-    if (pdist.size() < k) {
-      return UINT32_MAX;
-    } 
-
-    // Return distance of k'th closest point
-    return pdist[k-1].first;
-  }
-
-  /**
-   * @brief Returns a vector of pairs of (distance, point index) sorted by distance
-  */
-  std::vector<std::pair<ui32, ui32>> get_sorted_indices_tuple(const std::unordered_set<ui32>& candidatePoints, const Point<D>& point) {
-    // A vector containing pairs of (dist, idx)
-    std::vector<std::pair<ui32, ui32>> pdist;
-
-    // Transform all found points into pairs of (distance, point idx)
-    std::transform(ALL(candidatePoints), std::back_inserter(pdist), [this, point](ui32 pi) -> std::pair<ui32,ui32> { 
-      return { point.distance(this->points[pi]), pi };
-    });
-    
-    // Sort all candidate points in ascending order by distance to point
-    std::sort(ALL(pdist), std::less<std::pair<ui32,ui32>>()); 
-
-    return pdist;
-  }
-  
 };

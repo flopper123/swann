@@ -21,15 +21,14 @@ class LSHArrayMap : public LSHMap<D> {
       do {
         // Transform vmask to ui32
         ui32 m = accumulate(vmask.rbegin(), vmask.rend(), 0, [](ui32 x, ui32 y) { return (x << 1UL) + y; });
-        std::cout << "adding " << std::bitset<6>(m) <<  " @hdist=" << hdist << std::endl;
         LSHArrayMap<D>::masks[hdist].emplace_back(m);
         // Ensure we don't go out of bound
       } while (std::next_permutation(ALL(vmask)));
       
       std::sort(ALL(LSHArrayMap<D>::masks[hdist])); // sort ascending to ensure query stays within bound for multiple depths
-      std::cout << "D " << D << "  masks[" << hdist << "]: " << LSHArrayMap<D>::masks[hdist].size() << std::endl;
     }
   }
+
 
 public:
   LSHArrayMap(HashFamily<D>& hf)
@@ -92,9 +91,9 @@ public:
 
     const ui32 MI = LSHArrayMap<D>::masks[hdist].size();
     std::vector<hash_idx> res;
-
+    
     for (ui32 mi = 0; 
-         mi < MI && LSHArrayMap<D>::masks[hdist][mi] <= this->depth(); 
+         mi < MI && LSHArrayMap<D>::masks[hdist][mi] < this->bucketCount(); // since bucketCount is a power of 2, we can compare integer values
          ++mi) {
       res.emplace_back(bidx ^ LSHArrayMap<D>::masks[hdist][mi]);
     }
