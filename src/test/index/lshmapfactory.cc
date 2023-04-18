@@ -11,7 +11,7 @@ TEST(LSHMapFactoryInit, CanCreateSingleMap) {
 }
 
 TEST(LSHMapFactoryInit, CanCreateMultipleMaps) {
-  const int k = 5;
+  const int k = 4;
   std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, 1, k);
   ASSERT_EQ(maps.size(), k);
   ASSERT_EQ(maps.front()->depth(), 1);

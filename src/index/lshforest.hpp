@@ -66,7 +66,6 @@ public:
     const ui32 M = this->maps.size();
     PointMap<D> found(&(this->points), point);
     std::vector<ui32> hash(M);                    // hash[m] : contains the hash of point in map[m]
-
     for (ui32 m = 0; m < M; ++m) {
       ui32 idx = this->maps[m]->hash(point);
       hash[m] = idx;
@@ -87,7 +86,6 @@ public:
       }
   
     }
-
     return found.get_k_nearest(k);
   }
 
