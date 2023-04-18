@@ -11,20 +11,22 @@
 template <ui32 D>
 class PointMap
 {
-  //! Consider mapping to a point pointer instead of a bool
-  std::unordered_set<ui32> seen; // seen[i]   : whether the point with idx i has been seen
-  
-  //! Retrieval can be done faster by keeping track of the first non-empty distance index and the inverse
+  //! Consider mapping to a *point instead of a bool
+  std::unordered_set<ui32> seen;      // seen[i]          : whether the point with idx i has been seen
   std::vector<ui32> dist2points[D+1]; // dist2points[d]   : list of points with hamming distance of d from query point
 
-  //! Consider using a unique_ptr here to avoid copying the points
+  //! Consider using a unique_ptr here to avoid copying the points (unsure if copying occours)
   std::vector<Point<D>>* points; // ptr to points src
   const Point<D> query;
 
-  ui32 lo_d, hi_d, sz; // lo_d : first non-empty distance index, 
-                      // hi_d : last non-empty distance index
-
+  ui32 lo_d, // lo_d : first non-empty index in dist2points, 
+       hi_d, // hi_d : last non-empty index in dist2points
+       sz;   // sz   : number of points inserted into dist2points
 public:
+  /** 
+   * @brief Construct a new Point Map object
+   * @arg points A pointer to the vector of points to use as the source-order for the indices inserted into this map
+   */
   PointMap(std::vector<Point<D>>* points, const Point<D>& query) 
     : seen(), points(points), query(query), lo_d(UINT32_MAX), hi_d(0), sz(0)
   {

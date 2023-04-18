@@ -8,8 +8,16 @@ class LSHArrayMap : public LSHMap<D> {
   static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
   
   void initMasks() {
-    for (ui32 hdist = masks.size(); hdist <= this->depth(); ++hdist) {
-      LSHArrayMap<D>::masks.push_back(std::vector<ui32>());
+    for (ui32 hdist = 0; hdist <= this->depth(); ++hdist) {
+      // The case might be that we have already initialized this hdist, 
+      // so we recompute since each time the depth increases new options emerge.
+      if (LSHArrayMap<D>::masks.size() > hdist) 
+      {
+        LSHArrayMap<D>::masks[hdist] = std::vector<ui32>(); 
+      } else {
+        LSHArrayMap<D>::masks.emplace_back(std::vector<ui32>());
+      } 
+
       // Initalize a bitset of size depth with hdist bits set
       std::vector<bool> vmask(this->depth(), false);
       
@@ -38,8 +46,10 @@ public:
             bucket()),
         count(0)
   {
-    
-    initMasks();
+    if (masks.size() < this->depth()+1)
+    {
+      initMasks();
+    }
   }
 
   /**
@@ -58,7 +68,7 @@ public:
   ui32 bucketCount() { return this->buckets.size(); };
 
   /**
-   * Inserts a point into the map
+   * @brief Inserts a point into the map
    */
   void add(const Point<D> &point) {
     const hash_idx index = this->hash(point);
@@ -66,7 +76,7 @@ public:
   };
 
   /**
-   * Inserts a vector of points into the map
+   * @brief Inserts a vector of points into the map
    */
   void add(std::vector<Point<D>> &points) {
     for (const auto& p : points) {
