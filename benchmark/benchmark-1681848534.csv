@@ -1,9 +1,0 @@
-2023-04-18T20:08:54+00:00
-Running /swann/build/benchmark
-Run on (20 X 3599.99 MHz CPU s)
-CPU Caches:
-  L1 Data 32 KiB (x10)
-  L1 Instruction 32 KiB (x10)
-  L2 Unified 256 KiB (x10)
-  L3 Unified 20480 KiB (x1)
-Load Average: 0.35, 0.27, 0.19
