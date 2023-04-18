@@ -3,7 +3,7 @@
 
 /**
  * @brief An utility class for storing points in a map-like structure 
- *        that allows for fast retrieval of points with a given hamming distance to a query point.
+ *        that allows for fast retrieval of points with the minimum or maximum hamming distance to a query point.
  *        
  *        The primary motivation behind this class is to avoid sorting points by their hamming distance
  * @tparam D 
