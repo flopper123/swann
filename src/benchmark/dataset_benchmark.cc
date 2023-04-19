@@ -80,8 +80,8 @@ static void BM_query_x_points_LSHForest(benchmark::State &state) {
   // HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
   
-  ui32 depth = ceil(log(dataset.points.size()));
-
+  ui32 depth = 11;//log(dataset.points.size());
+  std::cout << "Depth: " << depth << std::endl;
   ui32 count = 10;
 
   HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(count * depth);
@@ -220,9 +220,9 @@ BENCHMARK(BM_query_x_points_LSHForest)
     ->Name("QueryXPointsLSHForest")
     ->Unit(benchmark::kMillisecond)
     ->Args({0, 10, 70}) // XS - query for 10 points
-    ->Args({1, 10, 70}) // XS - query for 10 points
+    ->Args({1, 10, 70}) // S  - query for 10 points
     ->Args({0, 10, 80}) // XS - query for 10 points
-    ->Args({1, 10, 80}) // XS - query for 10 points
+    ->Args({1, 10, 80}) // S  - query for 10 points
     ->Args({0, 10, 90}) // XS - query for 10 points
-    ->Args({1, 10, 90}) // XS - query for 10 points
+    ->Args({1, 10, 90}) // S  - query for 10 points
     ->UseManualTime();

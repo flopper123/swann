@@ -71,22 +71,22 @@ public:
     for (ui32 m = 0; m < M; ++m){
       hash[m] = this->maps[m]->hash(point);
     }
-
     // Loop through all buckets within hamming distance of hdist of point
-    for (ui32 hdist = 0;
-         hdist < this->depth && !stop_query(recall, hdist, found.size(), k, found.get_kth_dist(k));
-         ++hdist)
-    {
+    ui32 hdist = 0, mask_index = 0;
+    while (hdist < this->depth && !stop_query(recall, hdist, found.size(), k, found.get_kth_dist(k))) {
       // Loop through all maps
-      for (ui32 m = 0; m < M; ++m)
-      {   
-        // Loop through all buckets with hamming distance of hdist to point
-        for (ui32 bucket_i : maps[m]->query(hash[m], hdist)) {
-          found.insert(ALL((*maps[m])[bucket_i]));
-        }
+      for (ui32 m = 0; m < M; ++m) {
+        ui32 bucket_index = maps[m]->next_bucket(hash[m], hdist, mask_index);
+        found.insert(ALL((*maps[m])[bucket_index]));
+      }
+      
+      mask_index++;
+      if (!this->maps[0]->has_next_bucket(hash[0], hdist, mask_index)) {
+        ++hdist;
+        mask_index = 0;
       }
     }
-      
+    
     return found.get_k_nearest(k);
   }
 
@@ -104,6 +104,6 @@ private:
   bool stop_query(float recall, ui32 curDepth, ui32 found, ui32 tar, ui32 kthHammingDist) const
   {
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar, kthHammingDist);
-    return (1.0 - recall) >= failure_prob && found >= tar;
+    return failure_prob <= (1.0 - recall) && found >= tar;
   }
 };

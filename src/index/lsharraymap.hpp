@@ -55,17 +55,17 @@ public:
   /**
    * @returns Number of hash-functions in the chain
    */
-  ui32 depth() { return this->hashes.size(); }; 
+  ui32 depth() const { return this->hashes.size(); }; 
   
   /**
    * @returns Number of points in all buckets
    */
-  ui32 size() { return this->count; };
+  ui32 size() const { return this->count; };
 
   /**
    * @returns Number of buckets in the map
    */
-  ui32 bucketCount() { return this->buckets.size(); };
+  ui32 bucketCount() const { return this->buckets.size(); };
 
   /**
    * @brief Inserts a point into the map
@@ -87,25 +87,51 @@ public:
   /**
    * @returns The hash (index) of the bucket the point belongs to
    */
-  hash_idx hash(const Point<D>& point) {
+  hash_idx hash(const Point<D>& point) const {
     return this->hashes(point);
   };
 
+  
+  /**
+   * @brief Returns true if there is a next bucket with hamming distance of hdist
+   * @param bucket 
+   * @param hdist 
+   * @param mask_idx
+   */
+  inline bool has_next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const 
+  {
+    return LSHArrayMap<D>::masks[hdist][mask_idx] < this->bucketCount();
+  }
+  
+  /**
+   * @brief Returns the next bucket index which has @hdist hamming distance to @bucket.
+   *        The search is started at the given mask_idx
+   * @param bucket Starting index of the bucket to search from
+   * @param hdist The hamming distance of the buckets to retrieve
+   * @param mask_idx Starting index of the masks to apply
+   * @return hash_idx 
+   */
+  inline hash_idx next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const
+  {
+    return bucket ^ LSHArrayMap<D>::masks[hdist][mask_idx];
+  }
+  
   /**
    * @param bidx starting index of the bucket
    * @param hdist the hamming distance of the buckets to retrieve 
    * @returns Returns a vector containing all other bucket indices with 
    *          hamming distance of hdist
    */
-  std::vector<hash_idx> query(hash_idx bidx, ui32 hdist = 0) {
+  std::vector<hash_idx> query(hash_idx bidx, ui32 hdist = 0) const {
 
     const ui32 MI = LSHArrayMap<D>::masks[hdist].size();
     std::vector<hash_idx> res;
     
     for (ui32 mi = 0; 
-         mi < MI && LSHArrayMap<D>::masks[hdist][mi] < this->bucketCount(); // since bucketCount is a power of 2, we can compare integer values
-         ++mi) {
-      res.emplace_back(bidx ^ LSHArrayMap<D>::masks[hdist][mi]);
+         mi < MI && this->has_next_bucket(bidx, hdist, mi); // since bucketCount is a power of 2, we can compare integer values
+         ++mi) 
+    {
+      res.emplace_back(this->next_bucket(bidx, hdist, mi));
     }
 
     return res;
