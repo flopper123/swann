@@ -33,6 +33,8 @@
 *.a
 *.lib
 
+*/laion2B-10M.h5
+
 # Executables
 *.exe
 *.out
