@@ -60,5 +60,6 @@ static float SingleBitFailure(ui32 L, ui32 tDepth, ui32 depth, ui32 found, ui32 
 
   double p1 = 1.0 - (R / D); // Lowest probability of points being in same bucket
 
-  return std::pow(1.0 - std::pow(p1, tDepth), L);
+  // for bottom of trie depth is 0, so we need to subtract depth from tDepth to get actual depth
+  return std::pow(1.0 - std::pow(p1, tDepth-depth), L);
 }

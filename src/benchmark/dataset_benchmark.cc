@@ -94,7 +94,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state) {
   
   std::cout << "Running benchmark" << std::endl;
   
-  double recalls = 0.0;
+  double recalls = 0.0, recall = state.range(2) / 100.0;
   double queriesLength = (double)dataset.queries.size();
 
   int nrToQuery = state.range(1);
@@ -113,7 +113,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state) {
       
       // Query
       auto start = std::chrono::high_resolution_clock::now();
-      auto result = index->query(q.query, nrToQuery, 0.8);
+      auto result = index->query(q.query, nrToQuery, recall);
       auto end = std::chrono::high_resolution_clock::now();
 
       std::transform(ALL(result), result.begin(), [&index, &q](ui32 i) {
@@ -171,9 +171,10 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
   
   std::cout << "Running benchmark" << std::endl;
   
-  double recalls = 0.0, queriesLength = (double)dataset.queries.size(), total_time = 0;
+  double recalls = 0.0, 
+         queriesLength = (double)dataset.queries.size(), total_time = 0;
   int nrToQuery = state.range(1);
-
+  
   ui32 i = 1;
 
   // Measure
@@ -218,5 +219,10 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
 BENCHMARK(BM_query_x_points_LSHForest)
     ->Name("QueryXPointsLSHForest")
     ->Unit(benchmark::kMillisecond)
-    ->Args({0, 10}) // XS - query for 10 points
+    ->Args({0, 10, 70}) // XS - query for 10 points
+    ->Args({1, 10, 70}) // XS - query for 10 points
+    ->Args({0, 10, 80}) // XS - query for 10 points
+    ->Args({1, 10, 80}) // XS - query for 10 points
+    ->Args({0, 10, 90}) // XS - query for 10 points
+    ->Args({1, 10, 90}) // XS - query for 10 points
     ->UseManualTime();

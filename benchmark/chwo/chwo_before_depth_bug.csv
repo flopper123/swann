@@ -1,0 +1,16 @@
+2023-04-17T19:47:48+00:00
+Running /swann/build/benchmark
+Run on (20 X 3599.99 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 256 KiB (x10)
+  L3 Unified 20480 KiB (x1)
+Load Average: 0.30, 0.24, 0.24
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"kNN","recall","timePerQuery"
+"QueryXPointsLSHForest/0/10/70/manual_time",1,250450,250469,ms,,,,,,10,0.89271,0.025045
+"QueryXPointsLSHForest/1/10/70/manual_time",1,710669,710695,ms,,,,,,10,0.8424,0.0710669
+"QueryXPointsLSHForest/0/10/80/manual_time",1,342213,342231,ms,,,,,,10,0.83549,0.0342213
+"QueryXPointsLSHForest/1/10/80/manual_time",1,1.03637e+06,1.0364e+06,ms,,,,,,10,0.87389,0.103637
+"QueryXPointsLSHForest/0/10/90/manual_time",1,600347,600371,ms,,,,,,10,0.95236,0.0600347
+"QueryXPointsLSHForest/1/10/90/manual_time",1,1.76144e+06,1.76148e+06,ms,,,,,,10,0.93188,0.176144
