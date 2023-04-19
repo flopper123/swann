@@ -1,10 +1,5 @@
 FROM gcc:12.2
 
-# SHELL ["/bin/bash", "-c"]
-
-ENV PATH="/root/miniconda3/bin:${PATH}"
-ARG PATH="/root/miniconda3/bin:${PATH}"
-
 # Install c++ 23
 RUN apt update -y && apt upgrade -y
 RUN apt-get install -y build-essential
@@ -28,10 +23,17 @@ RUN apt install -y libhdf5-dev
 RUN pip3 install -U cython numpy h5py scikit-learn tqdm
 
 # Install Miniconda
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-    && mkdir /root/.conda \
-    && bash Miniconda3-latest-Linux-x86_64.sh -b \
-    && rm -f Miniconda3-latest-Linux-x86_64.sh
-RUN conda --version
 
-RUN conda install -c pytorch faiss-cpu
+# SHELL ["/bin/bash", "-c"]
+
+# ENV PATH="/root/miniconda3/bin:${PATH}"
+# ARG PATH="/root/miniconda3/bin:${PATH}"
+
+# RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+#     && mkdir /root/.conda \
+#     && bash Miniconda3-latest-Linux-x86_64.sh -b \
+#     && rm -f Miniconda3-latest-Linux-x86_64.sh
+# RUN conda --version
+
+# Create new conda environment and install dependencies
+RUN pip3 install torch faiss-cpu
