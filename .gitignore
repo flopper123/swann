@@ -34,6 +34,7 @@
 *.lib
 
 *10M.h5
+data/laion2B-en/hdf5/laion2B-10M.h5
 
 # Executables
 *.exe
