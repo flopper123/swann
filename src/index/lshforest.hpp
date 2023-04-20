@@ -51,7 +51,7 @@ public:
   
   std::vector<LSHMap<D>*>& getMaps() { return maps; }
 
-  ui32 size() { return points.size(); };
+  ui32 size() const noexcept { return points.size(); };
   
   // If we care about build performance, this needs to be emplace_back, and then we should implement a copy constructor for points
   void insert(Point<D>& point) { points.push_back(point); }; 
@@ -61,21 +61,28 @@ public:
       map->add(this->points);
     }
   };
-
-  std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) 
+  
+  /**
+   * @brief Returns the indices of the @k nearest neighbors to @point where
+   *        atleast a @recall fraction of the points are among the true kNN.
+   * @param point Point to query for
+   * @param k Number of nearest neighbors to find
+   * @param recall The precision of the query
+   * @return std::vector<ui32> A vector of size @k containing the indices of the k-nearest-neighbours 
+   *         in ascending order by distance. 
+   */
+  std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) const noexcept
   {
     const ui32 M = this->maps.size();
+    PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points
+    std::vector<ui32> hash(M);                  // hash[m] : contains the hash of point in map[m]
 
-    PointMap<D> found(this->points, point);
-
-    std::vector<ui32> hash(M);  // hash[m] : contains the hash of point in map[m]
     for (ui32 m = 0; m < M; ++m){
       hash[m] = this->maps[m]->hash(point);
     }
     // Loop through all buckets within hamming distance of hdist of point
     ui32 hdist = 0, mask_index = 0;
-    while (hdist < this->depth && !stop_query(recall, hdist, found.size(), k, found.get_kth_dist(k))) {
-      // Loop through all maps
+    while (hdist < this->depth && !stop_query(recall, hdist, found.size(), k, found.get_kth_dist())) {
       for (ui32 m = 0; m < M; ++m) {
         ui32 bucket_index = maps[m]->next_bucket(hash[m], hdist, mask_index);
         found.insert(ALL((*maps[m])[bucket_index]));
@@ -89,7 +96,7 @@ public:
       }
     }
     
-    return found.get_k_nearest(k);
+    return found.extract_k_nearest();
   }
 
   Point<D> &operator[](ui32 i) { return points[i]; };
