@@ -15,6 +15,7 @@
 #include <execution>
 #include <mutex>
 #include <queue>
+
 #define ALL(o) (o).begin(), (o).end()
 #define hmap std::unordered_map
 

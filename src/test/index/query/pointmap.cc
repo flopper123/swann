@@ -52,10 +52,7 @@ TEST(PointMap, GetKNearest_ReturnsAtleastK)
     // Query for k, but insert k+1
     PointMap<D> mp(points, q, k);
     std::shuffle(ALL(pidxs), std::mt19937{std::random_device{}()}); // shuffle pidxs to ensure random order insertion
-    std::cout << "Finished shuffle pidxs" << std::endl
-              << "inserting " << std::vector<ui32>(pidxs.begin(), pidxs.begin() + k + 1).size() << " element " << std::endl;
     mp.insert(pidxs.begin(), pidxs.begin() + k  + 1);
-    std::cout << "Inserted succesfully" << std::endl;
     auto act = mp.extract_k_nearest();
     ASSERT_EQ(act.size(), k) << "Expected extract_k_nearest to return k points, but got " << act.size() << " instead";
   }

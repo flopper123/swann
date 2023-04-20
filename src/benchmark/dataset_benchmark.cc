@@ -221,8 +221,13 @@ BENCHMARK(BM_query_x_points_LSHForest)
     ->Unit(benchmark::kMillisecond)
     ->Args({0, 10, 70}) // XS - query for 10 points
     ->Args({1, 10, 70}) // S  - query for 10 points
+    ->Args({2, 10, 70}) // M  - query for 10 points
+
     ->Args({0, 10, 80}) // XS - query for 10 points
     ->Args({1, 10, 80}) // S  - query for 10 points
+    ->Args({2, 10, 80}) // M  - query for 10 points
+
     ->Args({0, 10, 90}) // XS - query for 10 points
     ->Args({1, 10, 90}) // S  - query for 10 points
+    ->Args({2, 10, 90}) // M  - query for 10 points
     ->UseManualTime();

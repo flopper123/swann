@@ -4,17 +4,7 @@
 #include "../../index/lsharraymap.hpp"
 #include "../../index/lshforest.hpp"
 
-TEST(LSHForestInit, CanInstantiateFromMaps) {
-  // Arrange
-  LSHArrayMap<D>* mp = new LSHArrayMap<D>(H);
-  std::vector<LSHMap<D>*> maps(1, mp);
-  LSHForest<D> forest(maps);
-
-  // Assert
-  ASSERT_EQ(forest.size(), 0);
-}
-
-TEST(LSHForestInit, CanInstantiateFromMapsAndPoints) {
+TEST(LSHForestInit, CanInstantiate) {
   // Arrange
   LSHArrayMap<D>* mp = new LSHArrayMap<D>(H);
   std::vector<LSHMap<D>*> maps(1, mp);

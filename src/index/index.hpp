@@ -31,5 +31,5 @@ class Index {
     /**
      * @param i index of the point to return
      */
-    virtual Point<D> &operator[](ui32 i) = 0;
+    virtual const Point<D> &operator[](ui32 i) const noexcept = 0;
 };

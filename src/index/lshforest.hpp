@@ -15,41 +15,23 @@ class LSHForest : public Index<D> {
   QueryFailureProbability is_exit; 
   
   // The minimum depth of all LSHMaps in the forest
-  ui32 depth = UINT32_MAX;
+  const ui32 depth;
   
   // The points in the forest
-  std::vector<Point<D>> points;
+  std::vector<Point<D>>& points;
 
   // The trees (LSHMaps) in the forest
-  std::vector<LSHMap<D>*> maps;
+  const std::vector<LSHMap<D>*>& maps;
 
 public:
-  LSHForest(
-    std::vector<LSHMap<D>*>& maps, 
-    QueryFailureProbability failure_strategy = DEFAULT_FAILURE
-  ) : is_exit(failure_strategy) 
-  {
-    this->maps = maps;
-    for (auto& map : maps) {
-      this->depth = std::min(this->depth, map->depth());
-    }
-  };
-
-  LSHForest(
-    std::vector<LSHMap<D>*> &maps, 
-    std::vector<Point<D>> &input, 
-    QueryFailureProbability failure_strategy = DEFAULT_FAILURE
-  ) : is_exit(failure_strategy) 
-  {
-    this->maps = maps;
-    this->points = input;
-    
-    for (auto& map : maps) {
-      this->depth = std::min(this->depth, map->depth());
-    }
-  };
+  LSHForest(std::vector<LSHMap<D>*> &maps, std::vector<Point<D>> &input, QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
+    : is_exit(failure_strategy), 
+      depth(maps.empty() ? 0 : maps.front()->depth()), 
+      points(input), 
+      maps(maps)
+  {};
   
-  std::vector<LSHMap<D>*>& getMaps() { return maps; }
+  const std::vector<LSHMap<D>*>& getMaps() { return maps; }
 
   ui32 size() const noexcept { return points.size(); };
   
@@ -73,13 +55,14 @@ public:
    */
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) const noexcept
   {
-    const ui32 M = this->maps.size();
     PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points
+    
+    const ui32 M = this->maps.size();
     std::vector<ui32> hash(M);                  // hash[m] : contains the hash of point in map[m]
-
     for (ui32 m = 0; m < M; ++m){
       hash[m] = this->maps[m]->hash(point);
     }
+
     // Loop through all buckets within hamming distance of hdist of point
     ui32 hdist = 0, mask_index = 0;
     while (hdist < this->depth && !stop_query(recall, hdist, found.size(), k, found.get_kth_dist())) {
@@ -99,7 +82,7 @@ public:
     return found.extract_k_nearest();
   }
 
-  Point<D> &operator[](ui32 i) { return points[i]; };
+  const Point<D> &operator[](ui32 i) const noexcept { return points[i]; };
 
 private:
   /**
