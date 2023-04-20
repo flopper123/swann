@@ -11,28 +11,24 @@
 template <ui32 D>
 class PointMap
 {
-  //! Consider mapping to a *point instead of a bool
   std::unordered_set<ui32> seen;      // seen[i]          : whether the point with idx i has been seen
   std::vector<ui32> dist2points[D+1]; // dist2points[d]   : list of points with hamming distance of d from query point
 
-  //! Consider using a unique_ptr here to avoid copying the points (unsure if copying occours)
-  std::vector<Point<D>>* points; // ptr to points src
-  const Point<D> query;
+  const std::vector<Point<D>>& points; // reference to points for look up of point by idx
 
   ui32 lo_d, // lo_d : first non-empty index in dist2points, 
        hi_d, // hi_d : last non-empty index in dist2points
        sz;   // sz   : number of points inserted into dist2points
+
+  const Point<D> query;
 public:
   /** 
    * @brief Construct a new Point Map object
    * @arg points A pointer to the vector of points to use as the source-order for the indices inserted into this map
    */
-  PointMap(std::vector<Point<D>>* points, const Point<D>& query) 
+  PointMap(std::vector<Point<D>>& points, const Point<D>& query) 
     : seen(), points(points), query(query), lo_d(UINT32_MAX), hi_d(0), sz(0)
-  {
-    for (ui32 i = 0; i < D+1; ++i)
-      dist2points[i] = std::vector<ui32>();
-  };
+  {};
   
   /**
    * @brief Returns the number of points inserted into this map, 
@@ -90,7 +86,7 @@ public:
     if (this->contains(idx)) return;
     ++sz;
     seen.emplace(idx);
-    ui32 hdist = query.distance((*points)[idx]);
+    ui32 hdist = query.distance(points[idx]);
     dist2points[hdist].emplace_back(idx);
     lo_d = std::min(lo_d, hdist);
     hi_d = std::max(hi_d, hdist);

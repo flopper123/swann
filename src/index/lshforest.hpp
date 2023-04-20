@@ -65,9 +65,10 @@ public:
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) 
   {
     const ui32 M = this->maps.size();
-    PointMap<D> found(&(this->points), point);
-    std::vector<ui32> hash(M);  // hash[m] : contains the hash of point in map[m]
 
+    PointMap<D> found(this->points, point);
+
+    std::vector<ui32> hash(M);  // hash[m] : contains the hash of point in map[m]
     for (ui32 m = 0; m < M; ++m){
       hash[m] = this->maps[m]->hash(point);
     }
@@ -81,6 +82,7 @@ public:
       }
       
       mask_index++;
+      // If one map has next bucket they all do, so we just check for an arbitrary map
       if (!this->maps[0]->has_next_bucket(hash[0], hdist, mask_index)) {
         ++hdist;
         mask_index = 0;

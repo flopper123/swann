@@ -64,5 +64,5 @@ static float SingleBitFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 
 
   // for bottom of trie depth is 0, so we need to subtract depth from tDepth to get actual depth
   float actDepth = depth;
-  return std::pow(1.0 - std::pow(p1, actDepth), L);
+  return std::pow(1.0 - std::pow(p1, tDepth-actDepth), L);
 }

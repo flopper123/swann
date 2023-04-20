@@ -8,7 +8,7 @@ TEST(PointMap, Get_kth_dist_ReturnsUINTMAX_If_Empty) {
   std::vector<ui32> pidxs(points.size(), 0);
   std::iota(ALL(pidxs), 0); // set pidxs to 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
   Point<D> q = Point<D>::Empty;
-  PointMap<D> mp(&points, q);
+  PointMap<D> mp(points, q);
   ASSERT_EQ(mp.get_kth_dist(0), UINT32_MAX);
 }
 
@@ -18,7 +18,7 @@ TEST(PointMap, Get_kth_dist_ReturnsKthNearestDistance)
   std::vector<ui32> pidxs(points.size(), 0);
   std::iota(ALL(pidxs), 0); // set pidxs to 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
   Point<D> q = Point<D>::Empty;
-  PointMap<D> mp(&points, q);
+  PointMap<D> mp(points, q);
   mp.insert(pidxs.begin(), pidxs.end());
 
   std::vector<ui32> exp = {0, 1, 1, 1, 1, 2};
@@ -36,7 +36,7 @@ TEST(PointMap, GetKNearest_ReturnsMaximumSizeofMap)
   std::iota(ALL(pidxs), 0);                                       // set pidxs to 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
   std::shuffle(ALL(pidxs), std::mt19937{std::random_device{}()}); // shuffle pidxs to ensure random order insertion
   Point<D> q = Point<D>::Empty;
-  PointMap<D> mp(&points, q);
+  PointMap<D> mp(points, q);
   auto act = mp.get_k_nearest(10);
   ASSERT_EQ(act.size(), 0) << "Expected get_k_nearest to return no points, but got " << act.size() << " instead";
   mp.insert(pidxs.begin(), pidxs.end());
@@ -52,7 +52,7 @@ TEST(PointMap, GetKNearest_ReturnsKNN)
   std::shuffle(ALL(pidxs), std::mt19937{std::random_device{}()}); // shuffle pidxs to ensure random order insertion
   Point<D> q = Point<D>::Empty;
   
-  PointMap<D> mp(&points, q);
+  PointMap<D> mp(points, q);
   mp.insert(pidxs.begin(), pidxs.end());
 
   std::vector<ui32> exp_dist = {0, 1, 1, 1, 1, 2},
@@ -73,7 +73,7 @@ TEST(PointMap, Contains_TrueIfContained_FalseIfNot) {
   std::iota(ALL(pidxs), 0); // set pidxs to 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
   std::shuffle(ALL(pidxs), std::mt19937{std::random_device{}()}); // shuffle pidxs to ensure random order insertion
   Point<D> q = Point<D>::Empty;
-  PointMap<D> mp(&points, q);
+  PointMap<D> mp(points, q);
 
   for(int i = 0; i < pidxs.size(); ++i) {
     ASSERT_FALSE(mp.contains(pidxs[i])) << "Expected point[" << i << "] to be contained, but it was not";
