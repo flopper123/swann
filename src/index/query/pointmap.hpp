@@ -12,7 +12,7 @@
  *        
  *        This allows for asymptotic bounds of 
  *          * KNN Extraction in O(log(k)*k)
- *          * Insertion in O(log(k)) if the point is not already in the map, O(1) otherwise.
+ *          * Insertion in O(log(k) + D) if the point is not already in the map, O(1) otherwise.
  *          * Distance of the kth point from the query point in O(1)
  * @tparam D 
  */
@@ -33,14 +33,14 @@ class PointMap
 
   const std::vector<Point<D>> &points; // reference to points for look up of point by idx
   const ui32 k; // k : number of nearest points to query after
-  const Point<D> query;
+  const Point<D>& query;
 
 public:
   /** 
    * @brief Construct a new Point Map object
    * @arg points A pointer to the vector of points to use as the source-order for the indices inserted into this map
    */
-  PointMap(const std::vector<Point<D>>& points, const Point<D>& query, ui32 k = 10) 
+  PointMap(std::vector<Point<D>>& points, const Point<D>& query, ui32 k = 10) 
     : knn(), seen(), points(points), query(query), k(k) 
   {
     assert(k > 0 && k <= points.size());
@@ -81,14 +81,14 @@ public:
    * @brief Returns true if this map contains the point with the given idx in asymptotic O(1) time.
    * @param idx index of the point to check 
    */
-  inline bool contains(const ui32 idx) const noexcept { return seen.find(idx) != seen.end(); }
+  inline bool contains(const ui32& idx) const noexcept { return seen.find(idx) != seen.end(); }
   
   /**
    * @brief Inserts the point with the given idx into this map in asymptotic O(log(k) + D) time 
    *        (upper bound is distance computation of point, which is only executed in case no entry exist).
    * @param idx index of the point to insert
    */
-  void insert(const ui32 idx) noexcept {
+  void insert(const ui32& idx) noexcept {
     if (this->contains(idx)) return;
     seen.emplace(idx);
 
