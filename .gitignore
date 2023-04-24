@@ -33,6 +33,9 @@
 *.a
 *.lib
 
+# hdf5 file
+*.h5
+
 # Executables
 *.exe
 *.out

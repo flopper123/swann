@@ -4,16 +4,16 @@
 
 template<ui32 D>
 class BFIndex : public Index<D> {
-  std::vector<Point<D>> points;
+  std::vector<Point<D>>& points;
 
   public:
-    BFIndex() {}
+    BFIndex() 
+    {}
 
-    BFIndex(std::vector<Point<D>>& points) {
-      this->points = points;
-    }
+    BFIndex(std::vector<Point<D>>& points) : points(points) 
+    {}
     
-    ui32 size() { 
+    ui32 size() const noexcept { 
       return this->points.size(); 
     }
     
@@ -23,7 +23,7 @@ class BFIndex : public Index<D> {
       this->points.push_back(p);
     }
 
-    std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) {
+    std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) const noexcept {
       // Create distance vector
       std::vector<std::pair<ui32, ui32>> distance;
       
@@ -48,7 +48,7 @@ class BFIndex : public Index<D> {
       return ret;
     }
 
-    Point<D>& operator[](ui32 i) {
+    const Point<D>& operator[](ui32 i) const noexcept {
       return points[i];
     }
 };

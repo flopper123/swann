@@ -1,76 +1,78 @@
 #include "../point.hpp"
 #include <unordered_set>
-
+#include "../../global.hpp"
 /**
  * @brief An utility class for storing points in a map-like structure 
- *        that allows for fast retrieval of points with the minimum or maximum hamming distance to a query point.
+ *        that allows for fast retrieval of the knn points within the minimum hamming distance 
+ *        to a query point.
  *        
  *        The primary motivation behind this class is to avoid sorting points by their hamming distance
+ *        and to instead maintain a queue of the k-nearest-neighbours to the query point among all points
+ *        inserted into this map.
+ *        
+ *        This allows for asymptotic bounds of 
+ *          * KNN Extraction in O(log(k)*k)
+ *          * Insertion in O(log(k) + D) if the point is not already in the map, O(1) otherwise.
+ *          * Distance of the kth point from the query point in O(1)
  * @tparam D 
  */
 template <ui32 D>
 class PointMap
 {
-  //! Consider mapping to a *point instead of a bool
-  std::unordered_set<ui32> seen;      // seen[i]          : whether the point with idx i has been seen
-  std::vector<ui32> dist2points[D+1]; // dist2points[d]   : list of points with hamming distance of d from query point
+  /**
+   * @brief A queue of the k-nearest-neighbours to the query point 
+   *        among all points inserted into this map.
+   *        The elements are kept as pairs of the form (hamming distance, point index)
+   */
+  max_queue<std::pair<ui32, ui32>> knn;     
 
-  //! Consider using a unique_ptr here to avoid copying the points (unsure if copying occours)
-  std::vector<Point<D>>* points; // ptr to points src
-  const Point<D> query;
+  /**
+   * @brief Contains all points we have computed hamming distances for so far 
+   */
+  std::unordered_set<ui32> seen;       
 
-  ui32 lo_d, // lo_d : first non-empty index in dist2points, 
-       hi_d, // hi_d : last non-empty index in dist2points
-       sz;   // sz   : number of points inserted into dist2points
+  const std::vector<Point<D>> &points; // reference to points for look up of point by idx
+  const ui32 k; // k : number of nearest points to query after
+  const Point<D>& query;
+
 public:
   /** 
    * @brief Construct a new Point Map object
    * @arg points A pointer to the vector of points to use as the source-order for the indices inserted into this map
    */
-  PointMap(std::vector<Point<D>>* points, const Point<D>& query) 
-    : seen(), points(points), query(query), lo_d(UINT32_MAX), hi_d(0), sz(0)
+  PointMap(std::vector<Point<D>>& points, const Point<D>& query, ui32 k = 10) 
+    : knn(), seen(), points(points), query(query), k(k) 
   {
-    for (ui32 i = 0; i < D+1; ++i)
-      dist2points[i] = std::vector<ui32>();
+    assert(k > 0 && k <= points.size());
   };
-  
+
   /**
    * @brief Returns the number of points inserted into this map, 
    *        note that this is not the same as the number of initially given points
    * @return ui32 
    */
-  ui32 size() const { return sz; }
+  inline ui32 size() const noexcept { return this->seen.size(); }
   
   /**
-   * @brief the idx of the kth distance point from the query point
-   *        among all points inserted into this map
-   * @param k The number of points to skip
-   * @return ui32 
+   * @brief The hamming distance of the kth point from the query point
+   *        among all points inserted into this map, or UINT32_MAX if no points in this map
+   * @return ui32 The hamming distance of the kth point from the query point
    */
-  ui32 get_kth_dist(const ui32 k) const {
-    ui32 i = lo_d, cnt = 0;
-    for (; i < hi_d+1 && cnt < k; ++i) {
-      cnt += dist2points[i].size();
-      if (cnt > k) return i; // if we overshoot, return the current distance to avoid end increment of i
-    }
-    return i;
+  inline ui32 get_kth_dist() const noexcept {
+    return knn.empty() ? UINT32_MAX : knn.top().first;
   }
 
   /**
-   * @brief Get the k points with the lowest hamming distance to the query target
-   *        in O(k+D) time.
-   * @param k number of objects to return
+   * @brief Extracts the k points with the lowest hamming distance to the query target
+   *        in O(log(k)*k) time. 
+   * @warning The PointMap is invalidated after this operation, and as such should not be used again.
    * @return std::vector<ui32> A vector containing the indices of the k nearest points 
-   *         in sorted ascending order by hamming distance to query point
+   *         returned in ascending order by hamming distance to query point
    */
-  std::vector<ui32> get_k_nearest(const ui32 k) const {
-    std::vector<ui32> ret;
-    for (ui32 i = lo_d; 
-         i < hi_d+1 && ret.size() < k; 
-         ++i) 
-    {
-      int j = std::min(k - ret.size(), dist2points[i].size()); 
-      ret.insert(ret.end(), dist2points[i].begin(), dist2points[i].begin() + j);
+  std::vector<ui32> extract_k_nearest() noexcept {
+    std::vector<ui32> ret(knn.size(), UINT32_MAX);
+    for (int i = knn.size(); !knn.empty(); knn.pop()) {
+      ret[--i] = knn.top().second;
     }
     return ret;
   }
@@ -79,25 +81,28 @@ public:
    * @brief Returns true if this map contains the point with the given idx in asymptotic O(1) time.
    * @param idx index of the point to check 
    */
-  bool contains(const ui32 idx) const { return seen.find(idx) != seen.end(); }
+  inline bool contains(const ui32& idx) const noexcept { return seen.find(idx) != seen.end(); }
   
   /**
-   * @brief Inserts the point with the given idx into this map in asymptotic O(D) time 
+   * @brief Inserts the point with the given idx into this map in asymptotic O(log(k) + D) time 
    *        (upper bound is distance computation of point, which is only executed in case no entry exist).
    * @param idx index of the point to insert
    */
-  void insert(const ui32 idx) {
+  void insert(const ui32& idx) noexcept {
     if (this->contains(idx)) return;
-    ++sz;
     seen.emplace(idx);
-    ui32 hdist = query.distance((*points)[idx]);
-    dist2points[hdist].emplace_back(idx);
-    lo_d = std::min(lo_d, hdist);
-    hi_d = std::max(hi_d, hdist);
+
+    ui32 hdist = query.distance(points[idx]);
+    if (knn.size() < k) {
+      knn.emplace(hdist, idx);
+    } else if (hdist < knn.top().first) {
+      knn.pop();
+      knn.emplace(hdist, idx);
+    }
   }
   
   template<iterator_to<ui32> IdxIterator>
-  void insert(IdxIterator beg, IdxIterator end) {
+  void insert(IdxIterator beg, IdxIterator end) noexcept {
     for (auto it = beg; it != end; ++it) {
       this->insert(*it);
     }
