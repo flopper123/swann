@@ -1,11 +1,12 @@
 #pragma once
 
 #include <unordered_set>
-#include "query/pointmap.hpp"
+
+#include "./query/pointmap.hpp"
 #include "index.hpp"
 #include "lshmap.hpp"
 #include "lshmapfactory.hpp"
-#include "query/failureprob.hpp"
+#include "./query/failureprob.hpp"
 
 const QueryFailureProbability DEFAULT_FAILURE = TestSizeFailure;
 
@@ -24,6 +25,9 @@ class LSHForest : public Index<D> {
   const std::vector<LSHMap<D>*>& maps;
 
 public:
+
+  ui32 stop_hdist;
+  ui32 stop_mask_index;
   LSHForest(std::vector<LSHMap<D>*> &maps, std::vector<Point<D>> &input, QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
     : is_exit(failure_strategy), 
       depth(maps.empty() ? 0 : maps.front()->depth()), 
@@ -40,7 +44,10 @@ public:
   
   void build() {
     for (auto &map : this->maps) {
-      map->add(this->points);
+
+      if (map->size() < this->size()) {
+        map->add(this->points);
+      }
     }
   };
   
@@ -53,7 +60,7 @@ public:
    * @return std::vector<ui32> A vector of size @k containing the indices of the k-nearest-neighbours 
    *         in ascending order by distance. 
    */
-  std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) const noexcept
+  std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8)
   {
     PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points
     
@@ -65,20 +72,27 @@ public:
 
     // Loop through all buckets within hamming distance of hdist of point
     ui32 hdist = 0, mask_index = 0;
-    while (hdist < this->depth && !stop_query(recall, hdist, found.size(), k, found.get_kth_dist())) {
+    while (hdist < this->depth) {
       for (ui32 m = 0; m < M; ++m) {
         ui32 bucket_index = maps[m]->next_bucket(hash[m], hdist, mask_index);
         found.insert(ALL((*maps[m])[bucket_index]));
       }
-      
+
+      if (stop_query(recall, hdist, found.size(), k, found.get_kth_dist())) {
+        break;
+      }
+
       mask_index++;
+
       // If one map has next bucket they all do, so we just check for an arbitrary map
       if (!this->maps[0]->has_next_bucket(hash[0], hdist, mask_index)) {
         ++hdist;
         mask_index = 0;
       }
     }
-    
+    this->stop_hdist = hdist;
+    this->stop_mask_index = mask_index;
+
     return found.extract_k_nearest();
   }
 
@@ -96,6 +110,6 @@ private:
   bool stop_query(float recall, ui32 curDepth, ui32 found, ui32 tar, ui32 kthHammingDist) const
   {
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar, kthHammingDist);
-    return failure_prob <= (1.0 - recall) && found >= tar;
+    return (failure_prob <= (1.0 - recall) && found >= tar) || (curDepth >= 2 && found >= tar);
   }
 };

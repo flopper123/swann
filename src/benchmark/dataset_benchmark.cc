@@ -28,7 +28,7 @@ static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
   double queriesLength = (double)dataset.queries.size();
 
   std::cout << "Running brute force query" << std::endl;
-  
+
   // Measure
   ui32 i = 1;
   for (auto _ : state)
@@ -36,22 +36,21 @@ static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
     for (auto &q : dataset.queries)
     {
 
-      if (i % (dataset.queries.size()/100) == 0) {
+      if (i % (dataset.queries.size() / 100) == 0)
+      {
         std::cout << "Brute force " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl;
       }
 
       // Query
       auto start = std::chrono::high_resolution_clock::now();
-      
+
       auto result = index->query(q.query, 100, 0.8);
 
       auto end = std::chrono::high_resolution_clock::now();
 
-      std::transform(ALL(result), result.begin(), [&index, &q](ui32 i) {
-        return q.query.distance((*index)[i]);
-      });
+      std::transform(ALL(result), result.begin(), [&index, &q](ui32 i)
+                     { return q.query.distance((*index)[i]); });
       recalls += calculateRecall(result, q.nearest_neighbors);
-      
 
       // Save result
       auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
@@ -69,7 +68,8 @@ static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
 /**
  * @brief Benchmark the query performance of the LSHForest index for random bits concat hash family
  */
-static void BM_query_x_points_LSHForest(benchmark::State &state) {
+static void BM_query_x_points_LSHForest(benchmark::State &state)
+{
   srand(time(NULL));
 
   std::cout << "Loading benchmark dataset" << std::endl;
@@ -79,22 +79,22 @@ static void BM_query_x_points_LSHForest(benchmark::State &state) {
   std::cout << "Instantiating hash LSHMap" << std::endl;
   // HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
-  
-  ui32 depth = log(dataset.points.size());
-  ui32 count = log10(dataset.points.size());
+  ui32 depth = log(dataset.points.size()) + 2;
+  ui32 count = 30;//sqrt(dataset.points.size()) / 20;
   std::cout << "Depth: " << depth << std::endl
-            << "Count: " << count << std::endl;
+            << "Count: " << count << std::endl
+            << "Points: " << dataset.points.size() << std::endl;
 
-  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(count * depth);
+  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
 
-  auto maps = LSHMapFactory<D>::create(pool, depth, count);
+  auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count);
 
   std::cout << "Building index" << std::endl;
-  Index<D> *index = new LSHForest<D>(maps, dataset.points, SingleBitFailure<D>);
+  LSHForest<D> *index = new LSHForest<D>(maps, dataset.points, SingleBitFailure<D>);
   index->build();
-  
+
   std::cout << "Running benchmark" << std::endl;
-  
+
   double recalls = 0.0, recall = state.range(2) / 100.0;
   double queriesLength = (double)dataset.queries.size();
 
@@ -105,26 +105,34 @@ static void BM_query_x_points_LSHForest(benchmark::State &state) {
   double total_time = 0;
 
   // Measure
-  for (auto _ : state) {
-    for (auto &q : dataset.queries) {
-    
-      if (i % (dataset.queries.size()/100) == 0) {
-        std::cout << "LSHForest " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl;
+  for (auto _ : state)
+  {
+    for (auto &q : dataset.queries)
+    {
+
+      if (i % (dataset.queries.size() / 100) == 0)
+      {
+        std::cout << "LSHForest " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl << std::endl;
       }
-      
+
       // Query
       auto start = std::chrono::high_resolution_clock::now();
       auto result = index->query(q.query, nrToQuery, recall);
       auto end = std::chrono::high_resolution_clock::now();
 
-      std::transform(ALL(result), result.begin(), [&index, &q](ui32 i) {
-        return q.query.distance((*index)[i]);
-      });
+      std::transform(ALL(result), result.begin(), [&index, &q](ui32 i)
+                     { return q.query.distance((*index)[i]); });
 
       recalls += calculateRecall(result, q.nearest_neighbors);
 
       // Save result
       auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+      if (i % (dataset.queries.size() / 100) == 0)
+      {
+        std::cout << "Stopped at dist " << index->stop_hdist << " with mask index " << index->stop_mask_index << std::endl;
+        std::cout << "Time taken: " << elapsed_time << std::endl;
+        std::cout << "Recall: " << calculateRecall(result, q.nearest_neighbors) << std::endl << std::endl;
+      }
       state.SetIterationTime(elapsed_time);
 
       total_time += elapsed_time;
@@ -135,16 +143,21 @@ static void BM_query_x_points_LSHForest(benchmark::State &state) {
 
   recalls /= queriesLength;
 
-  state.counters["recall"]       = recalls;
-  state.counters["kNN"]          = nrToQuery;
-  state.counters["timePerQuery"] = (double) total_time / queriesLength;
+  state.counters["recall"] = recalls;
+  state.counters["kNN"] = nrToQuery;
+  state.counters["timePerQuery"] = (double)total_time / queriesLength;
+  
+  // // Print bucket distribution
+  // std::cout << "Bucket distribution:" << std::endl;
+  // StatsGenerator<D>::runStats((LSHForest<D> *)index);
 }
 
 /**
- * @brief Benchmark the query performance of the LSHForest index when run on the dependent 
+ * @brief Benchmark the query performance of the LSHForest index when run on the dependent
  *        hamming distance hash family
  */
-static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::State &state) {
+static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::State &state)
+{
   std::cout << "Loading benchmark dataset" << std::endl;
 
   // Setup
@@ -152,15 +165,14 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
 
   // Max 100_000 sample size to avoid infinity loop
   const ui32 N_Sample = dataset.points.size() / 10 > 100000 ? 100000 : dataset.points.size() / 10;
-  ui32 depth = log(dataset.points.size())+2;
+  ui32 depth = log(dataset.points.size()) + 2;
   ui32 count = 6;
-  
+
   std::vector<Point<D>> sample_points;
   std::sample(ALL(dataset.points),
               std::back_inserter(sample_points),
               N_Sample,
-              std::mt19937{std::random_device{}()}
-  );
+              std::mt19937{std::random_device{}()});
 
   std::cout << "Instantiating hash LSHMap" << std::endl;
   HashFamily<D> HF = DependentHashFamilyFactory<D>::createHDist(ALL(sample_points), depth * count);
@@ -169,20 +181,23 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
   std::cout << "Building index" << std::endl;
   Index<D> *index = new LSHForest<D>(maps, dataset.points, HammingSizeFailure);
   index->build();
-  
+
   std::cout << "Running benchmark" << std::endl;
-  
-  double recalls = 0.0, 
+
+  double recalls = 0.0,
          queriesLength = (double)dataset.queries.size(), total_time = 0;
   int nrToQuery = state.range(1);
-  
+
   ui32 i = 1;
 
   // Measure
-  for (auto _ : state) {
-    for (auto &q : dataset.queries) {
-    
-      if (i % (dataset.queries.size()/100) == 0) {
+  for (auto _ : state)
+  {
+    for (auto &q : dataset.queries)
+    {
+
+      if (i % (dataset.queries.size() / 100) == 0)
+      {
         std::cout << "HammingDist_LSHForest " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl;
       }
 
@@ -191,11 +206,10 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
       auto result = index->query(q.query, nrToQuery, 0.8);
       auto end = std::chrono::high_resolution_clock::now();
 
-      std::transform(ALL(result), result.begin(), [&index, &q](ui32 i) {
-        return q.query.distance((*index)[i]);
-      });
+      std::transform(ALL(result), result.begin(), [&index, &q](ui32 i)
+                     { return q.query.distance((*index)[i]); });
       recalls += calculateRecall(result, q.nearest_neighbors);
-      
+
       // Save result
       auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
       state.SetIterationTime(elapsed_time);
@@ -206,9 +220,9 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
 
   recalls /= queriesLength;
 
-  state.counters["recall"]       = recalls;
-  state.counters["kNN"]          = nrToQuery;
-  state.counters["timePerQuery"] = (double) total_time / queriesLength;
+  state.counters["recall"] = recalls;
+  state.counters["kNN"] = nrToQuery;
+  state.counters["timePerQuery"] = (double)total_time / queriesLength;
 }
 
 // BENCHMARK(BM_query_x_points_LSHForest_HammingDistanceDependent)
@@ -220,12 +234,12 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
 BENCHMARK(BM_query_x_points_LSHForest)
     ->Name("QueryXPointsLSHForest")
     ->Unit(benchmark::kMillisecond)
-    ->Args({0, 10, 70}) // XS - query for 10 points
-    ->Args({1, 10, 70}) // S  - query for 10 points
-    ->Args({2, 10, 70}) // M  - query for 10 points
+    // ->Args({0, 10, 70}) // XS - query for 10 points
+    // ->Args({1, 10, 70}) // S  - query for 10 points
+    // ->Args({2, 10, 70}) // M  - query for 10 points
 
-    ->Args({0, 10, 80}) // XS - query for 10 points
-    ->Args({1, 10, 80}) // S  - query for 10 points
+    // ->Args({0, 10, 80}) // XS - query for 10 points
+    // ->Args({1, 10, 80}) // S  - query for 10 points
 
     ->Args({0, 10, 90}) // XS - query for 10 points
     ->Args({1, 10, 90}) // S  - query for 10 points
