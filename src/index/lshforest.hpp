@@ -25,7 +25,7 @@ class LSHForest : public Index<D> {
   const std::vector<LSHMap<D>*>& maps;
 
 public:
-
+  ui32 stop_found;
   ui32 stop_hdist;
   ui32 stop_mask_index;
   LSHForest(std::vector<LSHMap<D>*> &maps, std::vector<Point<D>> &input, QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
@@ -90,6 +90,7 @@ public:
         mask_index = 0;
       }
     }
+    this->stop_found = found.size();
     this->stop_hdist = hdist;
     this->stop_mask_index = mask_index;
 

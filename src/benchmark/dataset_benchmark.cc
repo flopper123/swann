@@ -95,7 +95,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 
   std::cout << "Running benchmark" << std::endl;
 
-  double recalls = 0.0, recall = state.range(2) / 100.0;
+  double recalls = 0.0, recall = state.range(2) / 100.0, avg_found = 0.0;
   double queriesLength = (double)dataset.queries.size();
 
   int nrToQuery = state.range(1);
@@ -131,7 +131,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
       auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
       if (i % (dataset.queries.size() / 100) == 0)
       {
-        std::cout << "Stopped at dist " << index->stop_hdist << " with mask index " << index->stop_mask_index << std::endl;
+        std::cout << "Stopped at dist " << index->stop_hdist << " with mask index " << index->stop_mask_index << " and a total of " << index->stop_found << " found points" << std::endl;
         std::cout << "Time taken: " << elapsed_time << std::endl;
         std::cout << "Recall: " << calculateRecall(result, q.nearest_neighbors) << std::endl << std::endl;
       }
@@ -142,17 +142,21 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
       
       state.SetIterationTime(elapsed_time);
 
+      avg_found += index->stop_found;
       total_time += elapsed_time;
 
       i++;
     }
   }
-
+  std::cout << ((double)avg_found / queriesLength) << std::endl;
   recalls /= queriesLength;
-
   state.counters["recall"] = recalls;
   state.counters["kNN"] = nrToQuery;
+  state.counters["trie_depth"] = depth;
+  state.counters["trie_count"] = count;
   state.counters["timePerQuery"] = (double)total_time / queriesLength;
+  state.counters["slowestQuery"] = slowest_time;
+  state.counters["foundPerQuery"] = (double)avg_found / queriesLength;
 
   std::cout << "Slowest query: " << slowest_time << std::endl;
 
@@ -252,5 +256,5 @@ BENCHMARK(BM_query_x_points_LSHForest)
 
     ->Args({0, 10, 90}) // XS - query for 10 points
     ->Args({1, 10, 90}) // S  - query for 10 points
-    ->Args({2, 10, 90}) // M  - query for 10 points
+    // ->Args({2, 10, 90}) // M  - query for 10 points
     ->UseManualTime();
