@@ -3,6 +3,7 @@
 #include "../hash/hashfamily.hpp"
 #include "lsharraymap.hpp"
 #include "../statistics/lshmapanalyzer.hpp"
+#include "../util/ranges.hpp"
 
 template<ui32 D> 
 class LSHMapFactory {
@@ -43,8 +44,9 @@ public:
 
   static std::vector<LSHMap<D> *> create_optimized(std::vector<Point<D>> &points, HashFamily<D> &H, ui32 depth, ui32 k) {
     // Vars for optimization
-    auto OPTIMIZATION_ITERATIONS = 100;//D/2;
-    auto OPTIMIZATION_THRESHOLD  = points.size() / (6 * depth);
+    ui32 OPTIMIZATION_ITERATIONS      = 100;//D/2;
+    ui32 LARGEST_BUCKET_THRESHOLD     = points.size() / (3 * depth);
+    float STANDAR_DEVIATION_THRESHOLD = 5.0;
 
     std::vector<LSHMap<D> *> ret;
 
@@ -52,6 +54,7 @@ public:
     {
       LSHMap<D> *hi = NULL;
       ui32 hi_count = UINT32_MAX;
+      float hi_dev  = 100 * STANDAR_DEVIATION_THRESHOLD;
 
 
       for (int i = 0; i < OPTIMIZATION_ITERATIONS; i++)
@@ -67,26 +70,31 @@ public:
 
         auto distribution = analyzer.getBucketDistribution();
 
+        auto stdDev = (float)Util::norm_std_dev(ALL(distribution));
+
         // Check if new best bucket has been found
-        if (distribution.front() < hi_count)
+        if (stdDev <= hi_dev)
         {
           std::cout << std::endl
                     << "New best bucket found for " << m << " at step " << i << std::endl
-                    << "Threshold factor: " << (float)OPTIMIZATION_THRESHOLD / distribution.front() << std::endl
+                    << "Threshold factor: " << (float)LARGEST_BUCKET_THRESHOLD / distribution.front() << std::endl
+                    << "Standard dev factor: " << stdDev / STANDAR_DEVIATION_THRESHOLD << std::endl
                     << std::endl
                     << std::endl;
           hi_count = distribution.front();
+          hi_dev   = stdDev;
           hi = map;
         } else {
           delete map;
         }
 
         // Exit early if threshold is met
-        if (hi_count < OPTIMIZATION_THRESHOLD)
+        if (stdDev <= STANDAR_DEVIATION_THRESHOLD)
         {
           std::cout << "Threshold met for " << m << " at step " << i << std::endl;
           break;
         }
+
       }
 
       ret.emplace_back(hi);

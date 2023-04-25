@@ -80,7 +80,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   // HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
   ui32 depth = log(dataset.points.size()) + 2;
-  ui32 count = 30;//sqrt(dataset.points.size()) / 20;
+  ui32 count = (sqrt(dataset.points.size()) / log(dataset.points.size())) / 1.5;
   std::cout << "Depth: " << depth << std::endl
             << "Count: " << count << std::endl
             << "Points: " << dataset.points.size() << std::endl;
@@ -103,6 +103,8 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   ui32 i = 1;
 
   double total_time = 0;
+
+  double slowest_time = 0.0;
 
   // Measure
   for (auto _ : state)
@@ -133,6 +135,11 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
         std::cout << "Time taken: " << elapsed_time << std::endl;
         std::cout << "Recall: " << calculateRecall(result, q.nearest_neighbors) << std::endl << std::endl;
       }
+
+      if (slowest_time < elapsed_time) {
+        slowest_time = elapsed_time;
+      }
+      
       state.SetIterationTime(elapsed_time);
 
       total_time += elapsed_time;
@@ -146,7 +153,9 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   state.counters["recall"] = recalls;
   state.counters["kNN"] = nrToQuery;
   state.counters["timePerQuery"] = (double)total_time / queriesLength;
-  
+
+  std::cout << "Slowest query: " << slowest_time << std::endl;
+
   // // Print bucket distribution
   // std::cout << "Bucket distribution:" << std::endl;
   // StatsGenerator<D>::runStats((LSHForest<D> *)index);

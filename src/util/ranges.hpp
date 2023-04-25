@@ -54,6 +54,11 @@ namespace Util {
     return std::sqrt(variance(beg, end));
   }
 
+  template <iterator TIterator>
+  static inline double norm_std_dev(TIterator beg, TIterator end)
+  {
+    return std_dev(beg, end) / mean(beg, end);
+  }
 
   // Note: I am too lazy to write a proper iterator for this
   template<typename T>
