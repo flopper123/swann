@@ -15,6 +15,8 @@ public:
 
   LSHMap(HashFamily<D>& hashFamily) : hashes(hashFamily) {}
 
+  virtual void build(HashFamily<D>& hashFamily) = 0;
+
   /**
    * @returns Number of points in the map
    */

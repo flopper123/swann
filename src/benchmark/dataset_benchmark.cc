@@ -252,4 +252,5 @@ BENCHMARK(BM_query_x_points_LSHForest)
 
     ->Args({0, 10, 90}) // XS - query for 10 points
     ->Args({1, 10, 90}) // S  - query for 10 points
+    ->Args({2, 10, 90}) // M  - query for 10 points
     ->UseManualTime();
