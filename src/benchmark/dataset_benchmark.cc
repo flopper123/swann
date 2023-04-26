@@ -79,13 +79,13 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   std::cout << "Instantiating hash LSHMap" << std::endl;
   // HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
-  ui32 depth = log(dataset.points.size()) + 2;
-  ui32 count = (sqrt(dataset.points.size()) / log(dataset.points.size())) / 1.5;
+  ui32 depth = log(dataset.points.size()) + 2 + (state.range(0) == 0 ? 0 : 2);
+  ui32 count = (state.range(0) == 0 ? 20 : 25);//(sqrt(dataset.points.size()) / log(dataset.points.size())) / 1.5;
   std::cout << "Depth: " << depth << std::endl
             << "Count: " << count << std::endl
             << "Points: " << dataset.points.size() << std::endl;
 
-  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
+  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(4 * D);
 
   auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count);
 
@@ -256,5 +256,5 @@ BENCHMARK(BM_query_x_points_LSHForest)
 
     ->Args({0, 10, 90}) // XS - query for 10 points
     ->Args({1, 10, 90}) // S  - query for 10 points
-    ->Args({2, 10, 90}) // M  - query for 10 points
+    // ->Args({2, 10, 90}) // M  - query for 10 points
     ->UseManualTime();

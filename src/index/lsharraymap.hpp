@@ -107,7 +107,7 @@ public:
    */
   inline bool has_next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const 
   {
-    return LSHArrayMap<D>::masks[hdist][mask_idx] < this->bucketCount() && mask_idx < LSHArrayMap<D>::masks[hdist].size();
+    return mask_idx < LSHArrayMap<D>::masks[hdist].size() && LSHArrayMap<D>::masks[hdist][mask_idx] < this->bucketCount();
   }
   
   /**
