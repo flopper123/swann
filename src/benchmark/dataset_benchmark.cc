@@ -85,7 +85,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
             << "Count: " << count << std::endl
             << "Points: " << dataset.points.size() << std::endl;
 
-  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(4 * D);
+  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
 
   auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count);
 
