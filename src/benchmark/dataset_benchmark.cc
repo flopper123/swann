@@ -158,7 +158,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   state.counters["slowestQuery"] = slowest_time;
   state.counters["foundPerQuery"] = (double)avg_found / queriesLength;
 
-  std::cout << "Slowest query: " << slowest_time << std::endl;
+  std::cout << "Querying for " << dataset.queries.size() << " points " << std::endl;
 
   // // Print bucket distribution
   // std::cout << "Bucket distribution:" << std::endl;
@@ -256,5 +256,5 @@ BENCHMARK(BM_query_x_points_LSHForest)
 
     ->Args({0, 10, 90}) // XS - query for 10 points
     ->Args({1, 10, 90}) // S  - query for 10 points
-    // ->Args({2, 10, 90}) // M  - query for 10 points
+    ->Args({2, 10, 90}) // M  - query for 10 points
     ->UseManualTime();
