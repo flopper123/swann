@@ -1,0 +1,618 @@
+2023-04-27T08:14:20+00:00
+Running /swann/build/benchmark
+Run on (20 X 3600 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 256 KiB (x10)
+  L3 Unified 20480 KiB (x1)
+Load Average: 0.76, 0.62, 0.44
+
+
+| name                                        | real_time | cpu_time  | time_unit | "foundPerQuery" | "kNN" | "recall" | "slowestQuery" | "timePerQuery" | "trie_count" | "trie_depth" |
+| "QueryXPointsLSHForest/0/10/70/manual_time" | 8627.39   | 8642.76   | ms        |  5323.71        | 10    | 0.80503  | 0.00510504     | 0.000862739    | 17           | 13           |
+| "QueryXPointsLSHForest/0/10/80/manual_time" | 10229.4   | 10245.7   | ms        |  6208.32        | 10    | 0.82257  | 0.00635884     | 0.00102294     | 17           | 13           |
+| "QueryXPointsLSHForest/0/10/90/manual_time" | 12258.4   | 12276.3   | ms        |  6945.87        | 10    | 0.84938  | 0.00751365     | 0.00122584     | 17           | 13           |
+| "QueryXPointsLSHForest/1/10/90/manual_time" | 31645     | 31668.7   | ms        |  15655.5        | 10    | 0.86716  | 0.0273068      | 0.0031645      | 28           | 14           |
+| "QueryXPointsLSHForest/2/10/90/manual_time" | 249755    | 249785    | ms        |  96639.5        | 10    | 0.7803   | 0.764034       | 0.0249755      | 131          | 18           |
+logs FROM 2/10/90 QUERY:
+
+  Stopped at dist 0 with mask index 0 and a total of 104711 found points
+  swann-benchmark-1  | Time taken: 0.025888
+  swann-benchmark-1  | Recall: 0.2
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 2% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 98101 found points
+  swann-benchmark-1  | Time taken: 0.025458
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 3% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 96924 found points
+  swann-benchmark-1  | Time taken: 0.0248042
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 4% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 81617 found points
+  swann-benchmark-1  | Time taken: 0.0201199
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 5% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 86626 found points
+  swann-benchmark-1  | Time taken: 0.0250354
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 6% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 95194 found points
+  swann-benchmark-1  | Time taken: 0.0260356
+  swann-benchmark-1  | Recall: 0.6
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 7% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 81370 found points
+  swann-benchmark-1  | Time taken: 0.0213198
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 8% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 88742 found points
+  swann-benchmark-1  | Time taken: 0.0247066
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 9% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 90687 found points
+  swann-benchmark-1  | Time taken: 0.024914
+  swann-benchmark-1  | Recall: 0.6
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 10% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 90841 found points
+  swann-benchmark-1  | Time taken: 0.0237056
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 11% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 82019 found points
+  swann-benchmark-1  | Time taken: 0.0206689
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 12% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 99795 found points
+  swann-benchmark-1  | Time taken: 0.0270375
+  swann-benchmark-1  | Recall: 0.6
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 13% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 96494 found points
+  swann-benchmark-1  | Time taken: 0.0248444
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 14% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 93714 found points
+  swann-benchmark-1  | Time taken: 0.0247588
+  swann-benchmark-1  | Recall: 0.4
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 15% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 97686 found points
+  swann-benchmark-1  | Time taken: 0.0254203
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 16% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 77006 found points
+  swann-benchmark-1  | Time taken: 0.0183064
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 17% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 98140 found points
+  swann-benchmark-1  | Time taken: 0.0261935
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 18% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 75238 found points
+  swann-benchmark-1  | Time taken: 0.018686
+  swann-benchmark-1  | Recall: 0.4
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 19% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 56203 found points
+  swann-benchmark-1  | Time taken: 0.0141118
+  swann-benchmark-1  | Recall: 0.6
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 20% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 96467 found points
+  swann-benchmark-1  | Time taken: 0.025743
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 21% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 91162 found points
+  swann-benchmark-1  | Time taken: 0.0249301
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 22% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 86282 found points
+  swann-benchmark-1  | Time taken: 0.0239917
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 23% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 87317 found points
+  swann-benchmark-1  | Time taken: 0.022524
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 24% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 87040 found points
+  swann-benchmark-1  | Time taken: 0.0255908
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 25% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 90004 found points
+  swann-benchmark-1  | Time taken: 0.0241213
+  swann-benchmark-1  | Recall: 0.4
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 26% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 86723 found points
+  swann-benchmark-1  | Time taken: 0.0239056
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 27% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 96563 found points
+  swann-benchmark-1  | Time taken: 0.0253949
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 28% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 1 with mask index 0 and a total of 179688 found points
+  swann-benchmark-1  | Time taken: 0.0482191
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 29% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 94260 found points
+  swann-benchmark-1  | Time taken: 0.0252278
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 30% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 93017 found points
+  swann-benchmark-1  | Time taken: 0.0258068
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 31% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 94198 found points
+  swann-benchmark-1  | Time taken: 0.025649
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 32% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 99681 found points
+  swann-benchmark-1  | Time taken: 0.0267775
+  swann-benchmark-1  | Recall: 0.4
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 33% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 86637 found points
+  swann-benchmark-1  | Time taken: 0.0249342
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 34% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 101534 found points
+  swann-benchmark-1  | Time taken: 0.0269185
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 35% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 95907 found points
+  swann-benchmark-1  | Time taken: 0.028508
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 36% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 103517 found points
+  swann-benchmark-1  | Time taken: 0.0262691
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 37% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 97747 found points
+  swann-benchmark-1  | Time taken: 0.0252858
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 38% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 95917 found points
+  swann-benchmark-1  | Time taken: 0.0256342
+  swann-benchmark-1  | Recall: 0.6
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 39% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 57023 found points
+  swann-benchmark-1  | Time taken: 0.0146343
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 40% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 98069 found points
+  swann-benchmark-1  | Time taken: 0.025939
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 41% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 97940 found points
+  swann-benchmark-1  | Time taken: 0.0249866
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 42% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 94556 found points
+  swann-benchmark-1  | Time taken: 0.0255147
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 43% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 94151 found points
+  swann-benchmark-1  | Time taken: 0.0265792
+  swann-benchmark-1  | Recall: 0.2
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 44% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 78632 found points
+  swann-benchmark-1  | Time taken: 0.0192451
+  swann-benchmark-1  | Recall: 0.3
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 45% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 98007 found points
+  swann-benchmark-1  | Time taken: 0.0256966
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 46% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 94530 found points
+  swann-benchmark-1  | Time taken: 0.0251619
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 47% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 87833 found points
+  swann-benchmark-1  | Time taken: 0.0249988
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 48% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 58003 found points
+  swann-benchmark-1  | Time taken: 0.0154289
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 49% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 78422 found points
+  swann-benchmark-1  | Time taken: 0.0200702
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 50% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 72153 found points
+  swann-benchmark-1  | Time taken: 0.019392
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 51% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 95510 found points
+  swann-benchmark-1  | Time taken: 0.0256846
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 52% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 95846 found points
+  swann-benchmark-1  | Time taken: 0.0263792
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 53% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 97525 found points
+  swann-benchmark-1  | Time taken: 0.0254046
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 54% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 89247 found points
+  swann-benchmark-1  | Time taken: 0.0231473
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 55% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 67533 found points
+  swann-benchmark-1  | Time taken: 0.0168888
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 56% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 43806 found points
+  swann-benchmark-1  | Time taken: 0.0117466
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 57% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 89273 found points
+  swann-benchmark-1  | Time taken: 0.0236969
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 58% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 98746 found points
+  swann-benchmark-1  | Time taken: 0.0256377
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 59% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 105394 found points
+  swann-benchmark-1  | Time taken: 0.0269368
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 60% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 102515 found points
+  swann-benchmark-1  | Time taken: 0.02756
+  swann-benchmark-1  | Recall: 0.4
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 61% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 97335 found points
+  swann-benchmark-1  | Time taken: 0.0252507
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 62% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 84668 found points
+  swann-benchmark-1  | Time taken: 0.0229791
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 63% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 99596 found points
+  swann-benchmark-1  | Time taken: 0.0258443
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 64% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 93656 found points
+  swann-benchmark-1  | Time taken: 0.0240514
+  swann-benchmark-1  | Recall: 0.4
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 65% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 79513 found points
+  swann-benchmark-1  | Time taken: 0.0206447
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 66% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 90128 found points
+  swann-benchmark-1  | Time taken: 0.0248386
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 67% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 90476 found points
+  swann-benchmark-1  | Time taken: 0.024212
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 68% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 60427 found points
+  swann-benchmark-1  | Time taken: 0.017299
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 69% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 98486 found points
+  swann-benchmark-1  | Time taken: 0.0271932
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 70% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 96439 found points
+  swann-benchmark-1  | Time taken: 0.0273773
+  swann-benchmark-1  | Recall: 0.6
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 71% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 88989 found points
+  swann-benchmark-1  | Time taken: 0.0242535
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 72% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 63943 found points
+  swann-benchmark-1  | Time taken: 0.0171719
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 73% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 1 with mask index 0 and a total of 113492 found points
+  swann-benchmark-1  | Time taken: 0.0291695
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 74% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 98372 found points
+  swann-benchmark-1  | Time taken: 0.0275814
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 75% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 96702 found points
+  swann-benchmark-1  | Time taken: 0.02586
+  swann-benchmark-1  | Recall: 0.2
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 76% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 89730 found points
+  swann-benchmark-1  | Time taken: 0.0243368
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 77% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 96208 found points
+  swann-benchmark-1  | Time taken: 0.02586
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 78% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 85167 found points
+  swann-benchmark-1  | Time taken: 0.0225932
+  swann-benchmark-1  | Recall: 0.6
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 79% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 94523 found points
+  swann-benchmark-1  | Time taken: 0.0263975
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 80% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 105833 found points
+  swann-benchmark-1  | Time taken: 0.0264396
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 81% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 90907 found points
+  swann-benchmark-1  | Time taken: 0.0253494
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 82% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 98227 found points
+  swann-benchmark-1  | Time taken: 0.0270834
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 83% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 92731 found points
+  swann-benchmark-1  | Time taken: 0.024827
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 84% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 90433 found points
+  swann-benchmark-1  | Time taken: 0.0263032
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 85% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 87475 found points
+  swann-benchmark-1  | Time taken: 0.0237764
+  swann-benchmark-1  | Recall: 0.4
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 86% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 97632 found points
+  swann-benchmark-1  | Time taken: 0.0255495
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 87% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 75523 found points
+  swann-benchmark-1  | Time taken: 0.0191075
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 88% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 86128 found points
+  swann-benchmark-1  | Time taken: 0.0216801
+  swann-benchmark-1  | Recall: 0.8
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 89% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 75054 found points
+  swann-benchmark-1  | Time taken: 0.0213365
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 90% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 89691 found points
+  swann-benchmark-1  | Time taken: 0.0257662
+  swann-benchmark-1  | Recall: 0.3
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 91% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 94965 found points
+  swann-benchmark-1  | Time taken: 0.0266865
+  swann-benchmark-1  | Recall: 0.6
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 92% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 81481 found points
+  swann-benchmark-1  | Time taken: 0.0210088
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 93% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 86909 found points
+  swann-benchmark-1  | Time taken: 0.0249548
+  swann-benchmark-1  | Recall: 0.3
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 94% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 99317 found points
+  swann-benchmark-1  | Time taken: 0.0250228
+  swann-benchmark-1  | Recall: 0.6
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 95% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 84059 found points
+  swann-benchmark-1  | Time taken: 0.0216818
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 96% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 68332 found points
+  swann-benchmark-1  | Time taken: 0.016883
+  swann-benchmark-1  | Recall: 0.9
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 97% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 90728 found points
+  swann-benchmark-1  | Time taken: 0.0238929
+  swann-benchmark-1  | Recall: 0.6
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 98% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 78167 found points
+  swann-benchmark-1  | Time taken: 0.0209023
+  swann-benchmark-1  | Recall: 0.7
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 99% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 88440 found points
+  swann-benchmark-1  | Time taken: 0.0231997
+  swann-benchmark-1  | Recall: 0.5
+  swann-benchmark-1  |
+  swann-benchmark-1  | LSHForest 100% complete
+  swann-benchmark-1  |
+  swann-benchmark-1  | Stopped at dist 0 with mask index 0 and a total of 82101 found points
+  swann-benchmark-1  | Time taken: 0.0196129
+  swann-benchmark-1  | Recall: 1
+  swann-benchmark-1  |
+  swann-benchmark-1  | 96639.5

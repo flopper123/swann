@@ -121,25 +121,21 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
       auto start = std::chrono::high_resolution_clock::now();
       auto result = index->query(q.query, nrToQuery, recall);
       auto end = std::chrono::high_resolution_clock::now();
+      // Save result
+      auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
       std::transform(ALL(result), result.begin(), [&index, &q](ui32 i)
                      { return q.query.distance((*index)[i]); });
 
       recalls += calculateRecall(result, q.nearest_neighbors);
 
-      // Save result
-      auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
       if (i % (dataset.queries.size() / 100) == 0)
       {
         std::cout << "Stopped at dist " << index->stop_hdist << " with mask index " << index->stop_mask_index << " and a total of " << index->stop_found << " found points" << std::endl;
         std::cout << "Time taken: " << elapsed_time << std::endl;
         std::cout << "Recall: " << calculateRecall(result, q.nearest_neighbors) << std::endl << std::endl;
       }
-
-      if (slowest_time < elapsed_time) {
-        slowest_time = elapsed_time;
-      }
-      
+      slowest_time = std::max(slowest_time, elapsed_time);
       state.SetIterationTime(elapsed_time);
 
       avg_found += index->stop_found;
