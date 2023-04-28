@@ -44,13 +44,18 @@ public:
   
   void build() {
     for (auto &map : this->maps) {
-
       if (map->size() < this->size()) {
         map->add(this->points);
       }
     }
   };
   
+  // N / (loge(N) + 1) + 200
+  inline float get_bucket_factor(const float recall) const noexcept {
+    const float recall_factor = (1.0 - recall) / 0.05;
+    return (this->size() * (std::pow(recall,recall_factor-1))) / ((1000.0 + std::log(this->maps.front()->bucketCount())) * this->maps.size()) + 80.0;
+  }
+
   /**
    * @brief Returns the indices of the @k nearest neighbors to @point where
    *        atleast a @recall fraction of the points are among the true kNN.
@@ -64,9 +69,11 @@ public:
   {
     // std::cout << "Querying for point: " << point << " with k = " << k << " and recall = " << recall << std::endl;
     PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points
-    
-    const ui32 M = this->maps.size(), BUCKET_FACTOR = 100, BATCH_SIZE = k * BUCKET_FACTOR;
-
+     
+    const ui32 M = this->maps.size(), BATCH_SIZE = k * this->get_bucket_factor(recall);
+    // std::cout << "Batch size: " << BATCH_SIZE << std::endl
+    //           << "Bucket factor: " << this->get_bucket_factor(recall) << std::endl
+    //           << "Bucket count: " << std::endl;
     std::vector<ui32> hash(M); // hash[m] : contains the hash of point in map[m]
     for (ui32 m = 0; m < M; ++m){
       hash[m] = this->maps[m]->hash(point);

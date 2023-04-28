@@ -140,9 +140,9 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 
       avg_found += index->stop_found;
       total_time += elapsed_time;
-
       i++;
     }
+    std::cout << "bucket factor: " << static_cast<LSHForest<D> *>(index)->get_bucket_factor(recall) << std::endl;
   }
   std::cout << ((double)avg_found / queriesLength) << std::endl;
   recalls /= queriesLength;
@@ -244,11 +244,11 @@ BENCHMARK(BM_query_x_points_LSHForest)
     ->Name("QueryXPointsLSHForest")
     ->Unit(benchmark::kMillisecond)
     ->Args({0, 10, 70}) // XS - query for 10 points
-    // ->Args({1, 10, 70}) // S  - query for 10 points
+    ->Args({1, 10, 70}) // S  - query for 10 points
     // ->Args({2, 10, 70}) // M  - query for 10 points
 
     ->Args({0, 10, 80}) // XS - query for 10 points
-    // ->Args({1, 10, 80}) // S  - query for 10 points
+    ->Args({1, 10, 80}) // S  - query for 10 points
 
     ->Args({0, 10, 90}) // XS - query for 10 points
     ->Args({1, 10, 90}) // S  - query for 10 points
