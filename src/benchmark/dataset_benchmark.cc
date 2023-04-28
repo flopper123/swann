@@ -128,14 +128,14 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
       auto start = std::chrono::high_resolution_clock::now();
       auto result = index->query(q.query, nrToQuery, recall);
       auto end = std::chrono::high_resolution_clock::now();
+      // Save result
+      auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
       std::transform(ALL(result), result.begin(), [&index, &q](ui32 i)
                      { return q.query.distance((*index)[i]); });
 
       recalls += calculateRecall(result, q.nearest_neighbors);
 
-      // Save result
-      auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
       if (i % (dataset.queries.size() / 100) == 0)
       {
         std::cout << "Stopped at dist " << index->stop_hdist << " with mask index " << index->stop_mask_index << " and a total of " << index->stop_found << " found points" << std::endl;
@@ -143,18 +143,14 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
         std::cout << "Recall: " << calculateRecall(result, q.nearest_neighbors) << std::endl;
         std::cout << "Visited: " << index->buckets_visited << std::endl << std::endl;
       }
-
-      if (slowest_time < elapsed_time) {
-        slowest_time = elapsed_time;
-      }
-      
+      slowest_time = std::max(slowest_time, elapsed_time);
       state.SetIterationTime(elapsed_time);
 
       avg_found += index->stop_found;
       total_time += elapsed_time;
-
       i++;
     }
+    std::cout << "bucket factor: " << static_cast<LSHForest<D> *>(index)->get_bucket_factor(recall) << std::endl;
   }
   std::cout << ((double)avg_found / queriesLength) << std::endl;
   recalls /= queriesLength;
@@ -255,12 +251,12 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
 BENCHMARK(BM_query_x_points_LSHForest)
     ->Name("QueryXPointsLSHForest")
     ->Unit(benchmark::kMillisecond)
-    // ->Args({0, 10, 70}) // XS - query for 10 points
-    // ->Args({1, 10, 70}) // S  - query for 10 points
+    ->Args({0, 10, 70}) // XS - query for 10 points
+    ->Args({1, 10, 70}) // S  - query for 10 points
     // ->Args({2, 10, 70}) // M  - query for 10 points
 
-    // ->Args({0, 10, 80}) // XS - query for 10 points
-    // ->Args({1, 10, 80}) // S  - query for 10 points
+    ->Args({0, 10, 80}) // XS - query for 10 points
+    ->Args({1, 10, 80}) // S  - query for 10 points
 
     // ->Args({0, 10, 90}) // XS - query for 10 points
     // ->Args({1, 10, 90}) // S  - query for 10 points
