@@ -19,18 +19,22 @@ public:
 
   // Creates 'size' different lambdas that either ORs or ANDs returned values from createRandomBits
   static HashFamily<D> createRandomBitsConcat(ui32 size) {
+    assert(size <= D);
+
     HashFamily<D> base;
     for (ui32 i = 0; i < D; ++i) {
       base.push_back([i](const Point<D> &p)
                    { return p[i]; });
     }
 
+    auto subset = base.subset(D);
+
     HashFamily<D> HF;
-    for (ui32 i = 0; i < size; ++i)
+    for (ui32 i = 0; i < size; i += 4)
     {
-      auto subset = base.subset(4);
-      HF.push_back([subset](const Point<D> &p)
-                   { return (subset[0](p) & subset[1](p)) | (subset[2](p) & subset[3](p)); });
+
+      HF.push_back([subset, i](const Point<D> &p)
+                   { return (subset[i](p) & subset[i+1](p)) | (subset[i+2](p) & subset[i+3](p)); });
     }
     return HF;
   }

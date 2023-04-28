@@ -20,7 +20,7 @@ public:
       auto distribution = analyzer.getBucketDistribution();
 
       std::cout << "LSHMap[" << ++m << "] with " << distribution.size() 
-                << " buckets" << std::endl << "\tdistribution: ";
+                << " buckets" << std::endl << "\tdistribution: " << std::endl;
       int i=0;
       for (ui32 bucket : distribution) {
         ++i;

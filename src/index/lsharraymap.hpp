@@ -37,16 +37,23 @@ class LSHArrayMap : public LSHMap<D> {
     }
   }
 
-
 public:
-  LSHArrayMap(HashFamily<D>& hf)
-      : LSHMap<D>(hf),
-        buckets(
-            (1ULL << hf.size()), // Number of buckets is 2^number_of_hashes
-            bucket()),
-        count(0)
+  LSHArrayMap(HashFamily<D>& hf) : LSHMap<D>(hf)
   {
-    if (masks.size() < this->depth()+1)
+    this->build(hf);
+  }
+
+  /**
+   * @brief Initialize this map with the given hashes. After this call, the map will be empty
+   * @warning This will reset the map, and all points inserted will be lost
+   * @param hf The hashfamily to build the map with
+   */
+  void build(HashFamily<D>& hf) {
+    this->hashes = hf;
+    buckets.clear();
+    buckets.resize((1ULL << hf.size()), bucket());
+    count = 0;
+    if (masks.size() < this->depth() + 1)
     {
       initMasks();
     }
@@ -100,7 +107,7 @@ public:
    */
   inline bool has_next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const 
   {
-    return LSHArrayMap<D>::masks[hdist][mask_idx] < this->bucketCount();
+    return LSHArrayMap<D>::masks[hdist][mask_idx] < this->bucketCount() && mask_idx < LSHArrayMap<D>::masks[hdist].size();
   }
   
   /**
