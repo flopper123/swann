@@ -46,11 +46,10 @@ public:
     std::vector<LSHMap<D> *> ret;
 
     // Vars for optimization
-    ui32 OPTIMIZATION_ITERATIONS = 100;
-    ui32 LARGEST_BUCKET_THRESHOLD = 4500;
-    ui32 LARGEST_LAYER_THRESHOLD = LARGEST_BUCKET_THRESHOLD * k;
+    ui32 OPTIMIZATION_ITERATIONS = 1000;
+    ui32 LARGEST_BUCKET_THRESHOLD = 5000;
 
-    assert(points.size() / std::pow(2, depth) < LARGEST_BUCKET_THRESHOLD);
+    assert(2 * (points.size() / std::pow(2, depth)) < LARGEST_BUCKET_THRESHOLD);
 
 
     ui32 largest_bucket = 0;
@@ -61,6 +60,8 @@ public:
                 *map = LSHMapFactory<D>::create(H, depth); // tmp map used to find the best hash family
 
       ui32 hi_count = UINT32_MAX;
+
+      bool threshold_met = false;
 
       for (ui32 i = 0; i < OPTIMIZATION_ITERATIONS; i++)
       {
@@ -74,9 +75,6 @@ public:
         // Check if new best bucket has been found
         if (distribution.front() <= hi_count)
         {
-          std::cout << "New best bucket found for " << m << " at step " << i << "\n"
-                    << "Threshold factor: " << (float)LARGEST_BUCKET_THRESHOLD / distribution.front() << "\n"
-                    << std::endl;
           hi_count = distribution.front();
           hi->build(hsubset); // Rebuild hi with the new hash family
         }
@@ -85,6 +83,7 @@ public:
         if (hi_count <= LARGEST_BUCKET_THRESHOLD)
         {
           std::cout << "Threshold met for " << m << " at step " << i << std::endl << std::endl;
+          threshold_met = true;
           break;
         }
       }
@@ -93,11 +92,15 @@ public:
         largest_bucket = hi_count;
       }
 
+      if (!threshold_met) {
+        std::cout << "Threshold not met for " << m << " with count " << hi_count << std::endl << std::endl;
+      }
+
       delete (map); // Delete the map we used for optimization to avoid memleak
       ret.emplace_back(hi);
     }
 
-    std::cout << "LARGEST BUCKET: " << largest_bucket << std::endl << std::endl;
+    std::cout << "Largest bucket: " << largest_bucket << std::endl << std::endl;
 
     return ret;
   }

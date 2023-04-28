@@ -79,19 +79,26 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   std::cout << "Instantiating hash LSHMap" << std::endl;
   // HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
-  ui32 depth = log(dataset.points.size()) + 2 + (state.range(0) == 0 ? 0 : 2);
-  ui32 count = (state.range(0) == 0 ? 20 : 25);//(sqrt(dataset.points.size()) / log(dataset.points.size())) / 1.5;
+  ui32 depth = 1.6 * log(dataset.points.size());//2 + log2(dataset.points.size());
+  ui32 count = 1;//1.0 / std::pow(0.83, depth);//sqrt(dataset.points.size())/2;//(sqrt(dataset.points.size()) / log(dataset.points.size())) / 1.5;
   std::cout << "Depth: " << depth << std::endl
             << "Count: " << count << std::endl
             << "Points: " << dataset.points.size() << std::endl;
 
   HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
 
-  auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count);
+  std::cout << "Instantiating maps" << std::endl;
+  // auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count);
+  auto maps = LSHMapFactory<D>::create(pool, depth, count);
 
   std::cout << "Building index" << std::endl;
   LSHForest<D> *index = new LSHForest<D>(maps, dataset.points, SingleBitFailure<D>);
   index->build();
+
+  std::cout << "Size: "<< LSHMapAnalyzer<D>(maps[0]).getBucketDistribution().front() << std::endl;
 
   std::cout << "Running benchmark" << std::endl;
 
@@ -133,7 +140,8 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
       {
         std::cout << "Stopped at dist " << index->stop_hdist << " with mask index " << index->stop_mask_index << " and a total of " << index->stop_found << " found points" << std::endl;
         std::cout << "Time taken: " << elapsed_time << std::endl;
-        std::cout << "Recall: " << calculateRecall(result, q.nearest_neighbors) << std::endl << std::endl;
+        std::cout << "Recall: " << calculateRecall(result, q.nearest_neighbors) << std::endl;
+        std::cout << "Visited: " << index->buckets_visited << std::endl << std::endl;
       }
 
       if (slowest_time < elapsed_time) {
@@ -254,7 +262,7 @@ BENCHMARK(BM_query_x_points_LSHForest)
     // ->Args({0, 10, 80}) // XS - query for 10 points
     // ->Args({1, 10, 80}) // S  - query for 10 points
 
-    ->Args({0, 10, 90}) // XS - query for 10 points
-    ->Args({1, 10, 90}) // S  - query for 10 points
-    // ->Args({2, 10, 90}) // M  - query for 10 points
+    // ->Args({0, 10, 90}) // XS - query for 10 points
+    // ->Args({1, 10, 90}) // S  - query for 10 points
+    ->Args({2, 10, 90}) // M  - query for 10 points
     ->UseManualTime();

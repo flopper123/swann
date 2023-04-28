@@ -21,12 +21,11 @@ public:
   static HashFamily<D> createRandomBitsConcat(ui32 size) {
 
     HashFamily<D> HF;
-    for (ui32 i = 0; i < size; i++)
+    for (ui32 i = 0; i < size; i += 1)
     {
-      HashFamily<D> base0 = getDimensionBits().subset(2);
-      HashFamily<D> base1 = getDimensionBits().subset(2);
-      HF.push_back([base0, base1](const Point<D> &p)
-                   { return (base0(p) | base1(p)); });
+      HashFamily<D> base = getDimensionBits().subset(1);
+      HF.push_back([base](const Point<D> &p)
+                   { return base[0](p); });
     }
     return HF;
   }

@@ -28,6 +28,7 @@ public:
   ui32 stop_found;
   ui32 stop_hdist;
   ui32 stop_mask_index;
+  ui32 buckets_visited;
   LSHForest(std::vector<LSHMap<D>*> &maps, std::vector<Point<D>> &input, QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
     : is_exit(failure_strategy), 
       depth(maps.empty() ? 0 : maps.front()->depth()), 
@@ -71,14 +72,15 @@ public:
     }
 
     // Loop through all buckets within hamming distance of hdist of point
-    ui32 hdist = 0, mask_index = 0;
+    ui32 hdist = 0, mask_index = 0, buckets = 0;
     while (hdist < this->depth) {
       for (ui32 m = 0; m < M; ++m) {
         ui32 bucket_index = maps[m]->next_bucket(hash[m], hdist, mask_index);
         found.insert(ALL((*maps[m])[bucket_index]));
       }
+      buckets++;
 
-      if (stop_query(recall, hdist, found.size(), k, found.get_kth_dist())) {
+      if (stop_query(recall, log2(buckets), found.size(), k, found.get_kth_dist())) {
         break;
       }
 
@@ -93,6 +95,7 @@ public:
     this->stop_found = found.size();
     this->stop_hdist = hdist;
     this->stop_mask_index = mask_index;
+    this->buckets_visited = buckets;
 
     return found.extract_k_nearest();
   }
@@ -110,7 +113,11 @@ private:
   */
   bool stop_query(float recall, ui32 curDepth, ui32 found, ui32 tar, ui32 kthHammingDist) const
   {
+      
+    // http://madscience.ucsd.edu/2020/notes/lec13.pdf
+    const bool earlyFinish = 100*this->maps.size() < found;
+
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar, kthHammingDist);
-    return (failure_prob <= (1.0 - recall) && found >= tar) || (curDepth >= 2 && found >= tar);
+    return earlyFinish || (failure_prob <= (1.0 - recall) && found >= tar);
   }
 };
