@@ -79,8 +79,12 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   std::cout << "Instantiating hash LSHMap" << std::endl;
   // HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
-  ui32 depth = 1.6 * log(dataset.points.size());//2 + log2(dataset.points.size());
-  ui32 count = 1;//1.0 / std::pow(0.83, depth);//sqrt(dataset.points.size())/2;//(sqrt(dataset.points.size()) / log(dataset.points.size())) / 1.5;
+  const float depth_factor = 1.2;
+  const float count_factor = 0.766;
+
+  ui32 depth = depth_factor * log(dataset.points.size());
+  ui32 count = (1.0 / std::pow(count_factor, depth));
+
   std::cout << "Depth: " << depth << std::endl
             << "Count: " << count << std::endl
             << "Points: " << dataset.points.size() << std::endl;
@@ -91,8 +95,8 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   pool += HashFamilyFactory<D>::createRandomBits(D);
 
   std::cout << "Instantiating maps" << std::endl;
-  // auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count);
-  auto maps = LSHMapFactory<D>::create(pool, depth, count);
+  auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count);
+  // auto maps = LSHMapFactory<D>::create(pool, depth, count);
 
   std::cout << "Building index" << std::endl;
   LSHForest<D> *index = new LSHForest<D>(maps, dataset.points, SingleBitFailure<D>);
@@ -163,6 +167,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   state.counters["foundPerQuery"] = (double)avg_found / queriesLength;
 
   std::cout << "Querying for " << dataset.queries.size() << " points " << std::endl;
+
 
   // // Print bucket distribution
   // std::cout << "Bucket distribution:" << std::endl;
@@ -251,14 +256,15 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
 BENCHMARK(BM_query_x_points_LSHForest)
     ->Name("QueryXPointsLSHForest")
     ->Unit(benchmark::kMillisecond)
-    ->Args({0, 10, 70}) // XS - query for 10 points
-    ->Args({1, 10, 70}) // S  - query for 10 points
+    // ->Args({0, 10, 70}) // XS - query for 10 points
+    // ->Args({1, 10, 70}) // S  - query for 10 points
     // ->Args({2, 10, 70}) // M  - query for 10 points
 
-    ->Args({0, 10, 80}) // XS - query for 10 points
-    ->Args({1, 10, 80}) // S  - query for 10 points
+    // ->Args({0, 10, 80}) // XS - query for 10 points
+    // ->Args({1, 10, 80}) // S  - query for 10 points
 
-    // ->Args({0, 10, 90}) // XS - query for 10 points
-    // ->Args({1, 10, 90}) // S  - query for 10 points
+    ->Args({0, 10, 90}) // XS - query for 10 points
+    ->Args({1, 10, 90}) // S  - query for 10 points
     ->Args({2, 10, 90}) // M  - query for 10 points
-    ->UseManualTime();
+    ->UseManualTime()
+    ->Complexity(benchmark::oN);;

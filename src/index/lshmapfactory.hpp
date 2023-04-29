@@ -46,7 +46,7 @@ public:
     std::vector<LSHMap<D> *> ret;
 
     // Vars for optimization
-    ui32 OPTIMIZATION_ITERATIONS = 1000;
+    ui32 OPTIMIZATION_ITERATIONS = 2.7 * depth;
     ui32 LARGEST_BUCKET_THRESHOLD = 5000;
 
     assert(2 * (points.size() / std::pow(2, depth)) < LARGEST_BUCKET_THRESHOLD);
@@ -61,7 +61,6 @@ public:
 
       ui32 hi_count = UINT32_MAX;
 
-      bool threshold_met = false;
 
       for (ui32 i = 0; i < OPTIMIZATION_ITERATIONS; i++)
       {
@@ -78,23 +77,13 @@ public:
           hi_count = distribution.front();
           hi->build(hsubset); // Rebuild hi with the new hash family
         }
-        
-        // Exit early if threshold is met to avoid overfitting (i.e. using the same hash family for all maps)
-        if (hi_count <= LARGEST_BUCKET_THRESHOLD)
-        {
-          std::cout << "Threshold met for " << m << " at step " << i << std::endl << std::endl;
-          threshold_met = true;
-          break;
-        }
       }
 
       if (largest_bucket < hi_count) {
         largest_bucket = hi_count;
       }
 
-      if (!threshold_met) {
-        std::cout << "Threshold not met for " << m << " with count " << hi_count << std::endl << std::endl;
-      }
+      std::cout << "Bucket " << m << " has largest size " << hi_count << std::endl << std::endl;
 
       delete (map); // Delete the map we used for optimization to avoid memleak
       ret.emplace_back(hi);
