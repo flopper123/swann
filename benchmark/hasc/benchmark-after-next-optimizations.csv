@@ -8,6 +8,6 @@ CPU Caches:
   L3 Unified 25600 KiB (x1)
 Load Average: 0.42, 0.52, 0.41
 name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"foundPerQuery","kNN","recall","slowestQuery","timePerQuery","trie_count","trie_depth"
-"QueryXPointsLSHForest/0/10/90/manual_time",1,15785.3,15805.7,ms,,,,,,11193,10,0.94134,0.00473121,0.00157853,31,13
-"QueryXPointsLSHForest/1/10/90/manual_time",1,37733.5,37758.2,ms,,,,,,21429.4,10,0.93746,0.0101228,0.00377335,54,15
-"QueryXPointsLSHForest/2/10/90/manual_time",1,334703,334760,ms,,,,,,133027,10,0.8666,0.0930105,0.0334703,158,19
+"QueryXPointsLSHForest/0/10/90/manual_time",1,15785.3,15805.7,ms,,,,,,11193,10,   0.94134, 0.00473121, 0.00157853, 31,13
+"QueryXPointsLSHForest/1/10/90/manual_time",1,37733.5,37758.2,ms,,,,,,21429.4,10, 0.93746, 0.0101228,  0.00377335, 54,15
+"QueryXPointsLSHForest/2/10/90/manual_time",1,334703,334760,ms,,,,,,133027,10,    0.8666,  0.0930105,  0.0334703,  158,19
