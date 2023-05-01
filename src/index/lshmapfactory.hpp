@@ -2,6 +2,7 @@
 
 #include "../hash/hashfamily.hpp"
 #include "lsharraymap.hpp"
+#include "lshhashmap.hpp"
 #include "../statistics/lshmapanalyzer.hpp"
 #include "../util/ranges.hpp"
 
@@ -13,7 +14,7 @@ private:
 public:
   static LSHMap<D>* create(HashFamily<D>& H, ui32 depth) {
     auto hf = H.subset(depth);
-    return new LSHArrayMap<D>(hf);
+    return new LSHHashMap<D>(hf);
   }
 
   /** 
@@ -35,7 +36,7 @@ public:
       );
 
       ret.push_back(
-        new LSHArrayMap<D>(hf)
+        new LSHHashMap<D>(hf)
       );
     }
 

@@ -10,10 +10,7 @@ public:
   }
   
   std::vector<ui32> getBucketDistribution() {
-    std::vector<ui32> res;
-    for (ui32 i = 0; i < lshMap->bucketCount(); i++) {
-      res.push_back((*lshMap)[i].size());
-    }
+    std::vector<ui32> res = lshMap->get_bucket_sizes();
 
     // sort the vector from high to low
     std::sort(res.begin(), res.end(), std::greater<ui32>());

@@ -3,19 +3,20 @@
 #include "lshmap.hpp"
 
 template <ui32 D>
-class LSHArrayMap : public LSHMap<D> {
+class LSHHashMap : public LSHMap<D> {
   // all possible masks by hamming distance 
   static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
   
   void initMasks() {
+    ui32 constructed_masks = 0;
     for (ui32 hdist = 0; hdist <= this->depth(); ++hdist) {
       // The case might be that we have already initialized this hdist, 
       // so we recompute since each time the depth increases new options emerge.
-      if (LSHArrayMap<D>::masks.size() > hdist) 
+      if (LSHHashMap<D>::masks.size() > hdist) 
       {
-        LSHArrayMap<D>::masks[hdist] = std::vector<ui32>(); 
+        LSHHashMap<D>::masks[hdist] = std::vector<ui32>(); 
       } else {
-        LSHArrayMap<D>::masks.emplace_back(std::vector<ui32>());
+        LSHHashMap<D>::masks.emplace_back(std::vector<ui32>());
       } 
 
       // Initalize a bitset of size depth with hdist bits set
@@ -29,16 +30,21 @@ class LSHArrayMap : public LSHMap<D> {
       do {
         // Transform vmask to ui32
         ui32 m = accumulate(vmask.rbegin(), vmask.rend(), 0, [](ui32 x, ui32 y) { return (x << 1UL) + y; });
-        LSHArrayMap<D>::masks[hdist].emplace_back(m);
+        LSHHashMap<D>::masks[hdist].emplace_back(m);
         // Ensure we don't go out of bound
       } while (std::next_permutation(ALL(vmask)));
       
-      std::sort(ALL(LSHArrayMap<D>::masks[hdist])); // sort ascending to ensure query stays within bound for multiple depths
+      std::sort(ALL(LSHHashMap<D>::masks[hdist])); // sort ascending to ensure query stays within bound for multiple depths
+
+      constructed_masks += LSHHashMap<D>::masks[hdist].size();
     }
+
+    std::cout << "Masks size: " << this->masks.size() << std::endl
+              << "Total masks: " << constructed_masks << std::endl;
   }
 
 public:
-  LSHArrayMap(HashFamily<D>& hf) : LSHMap<D>(hf)
+  LSHHashMap(HashFamily<D>& hf) : LSHMap<D>(hf)
   {
     this->build(hf);
   }
@@ -50,9 +56,13 @@ public:
    */
   void build(HashFamily<D>& hf) {
     this->hashes = hf;
-    buckets.clear();
-    buckets.resize((1ULL << hf.size()), bucket());
+
+    this->buckets.clear();
+
     count = 0;
+    
+    this->number_virtual_buckets = 1ULL << this->hashes.size();
+
     if (masks.size() < this->depth() + 1)
     {
       initMasks();
@@ -72,13 +82,18 @@ public:
   /**
    * @returns Number of buckets in the map
    */
-  ui32 bucketCount() const { return this->buckets.size(); };
+  ui32 bucketCount() const { return this->number_virtual_buckets; };
 
   /**
    * @brief Inserts a point into the map
    */
   void add(const Point<D> &point) {
     const hash_idx index = this->hash(point);
+
+    if (!this->buckets.contains(index)) {
+      this->buckets.insert({ index, bucket() });
+    }
+
     buckets[index].emplace_back(count++);
   };
 
@@ -89,6 +104,8 @@ public:
     for (const auto& p : points) {
       this->add(p);
     }
+
+    // this->buckets.rehash(0);
   };
 
   /**
@@ -103,13 +120,13 @@ public:
    */
   std::vector<ui32> get_bucket_sizes() const {
     std::vector<ui32> sizes;
-    for (const auto& b : this->buckets) {
+    for (const auto& [ _, b ] : this->buckets) {
       sizes.emplace_back(b.size());
     }
     return sizes;
   };
 
-  
+
   /**
    * @brief Returns true if there is a next bucket with hamming distance of hdist
    * @param bucket 
@@ -118,7 +135,7 @@ public:
    */
   inline bool has_next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const 
   {
-    return mask_idx < LSHArrayMap<D>::masks[hdist].size() && LSHArrayMap<D>::masks[hdist][mask_idx] < this->bucketCount();
+    return mask_idx < LSHHashMap<D>::masks[hdist].size() && LSHHashMap<D>::masks[hdist][mask_idx] < this->bucketCount();
   }
   
   /**
@@ -131,7 +148,7 @@ public:
    */
   inline hash_idx next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const
   {
-    return bucket ^ LSHArrayMap<D>::masks[hdist][mask_idx];
+    return bucket ^ LSHHashMap<D>::masks[hdist][mask_idx];
   }
   
   /**
@@ -142,7 +159,7 @@ public:
    */
   std::vector<hash_idx> query(hash_idx bidx, ui32 hdist = 0) const {
 
-    const ui32 MI = LSHArrayMap<D>::masks[hdist].size();
+    const ui32 MI = LSHHashMap<D>::masks[hdist].size();
     std::vector<hash_idx> res;
     
     for (ui32 mi = 0; 
@@ -159,12 +176,17 @@ public:
    * @brief Retrieve the bucket at the specified bucket-index
    */
   bucket& operator[](hash_idx bidx) {
+    // Return empty bucket if the bucket does not exist
+    if (!this->buckets.contains(bidx)) {
+      return this->empty_bucket;
+    }
     
-    assert(bidx < this->buckets.size());
     return this->buckets[bidx];
   }
   
 private:
-  std::vector<bucket> buckets;
+  std::unordered_map<hash_idx, bucket> buckets;
+  bucket empty_bucket;
   ui64 count;
+  ui32 number_virtual_buckets;
 };

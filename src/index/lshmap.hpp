@@ -53,6 +53,11 @@ public:
   virtual inline bool has_next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const = 0;
 
   /**
+   * @returns Returns bucket distribution
+   */
+  virtual std::vector<ui32> get_bucket_sizes() const = 0;
+
+  /**
    * @brief Returns the next bucket index with hamming distance of hdist
    * @param bucket 
    * @param hdist 
