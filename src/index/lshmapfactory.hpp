@@ -46,18 +46,23 @@ public:
     std::vector<LSHMap<D> *> ret;
 
     // Vars for optimization
-    ui32 OPTIMIZATION_ITERATIONS = 100;
-    ui32 LARGEST_BUCKET_THRESHOLD = points.size() / (3 * depth);
-    float STD_DEV_THRESHOLD = 5.0; // 5.0 is the std dev of a uniform distribution, so we want to be below that
+    ui32 OPTIMIZATION_ITERATIONS = 2.7 * depth;
+    ui32 LARGEST_BUCKET_THRESHOLD = 5000;
+
+    assert(2 * (points.size() / std::pow(2, depth)) < LARGEST_BUCKET_THRESHOLD);
+
+
+    ui32 largest_bucket = 0;
 
     for (ui32 m = 0; m < k; ++m)
     {
       LSHMap<D> *hi = LSHMapFactory<D>::create(H, depth),  // points are never inserted into hi
                 *map = LSHMapFactory<D>::create(H, depth); // tmp map used to find the best hash family
 
-      float hi_dev  = 100 * STD_DEV_THRESHOLD;
+      ui32 hi_count = UINT32_MAX;
 
-      for (ui32 i = 0, hi_count = UINT32_MAX; i < OPTIMIZATION_ITERATIONS; i++)
+
+      for (ui32 i = 0; i < OPTIMIZATION_ITERATIONS; i++)
       {
         HashFamily<D> hsubset = H.subset(depth);
         map->build(hsubset);
@@ -66,30 +71,25 @@ public:
         // Map anaylzation, one line it to make it explicit that we dont need to remember the ptr to map
         std::vector<ui32> distribution = LSHMapAnalyzer<D>(map).getBucketDistribution();
 
-        float stdDev = (float)Util::norm_std_dev(ALL(distribution));
-
         // Check if new best bucket has been found
-        if (stdDev <= hi_dev)
+        if (distribution.front() <= hi_count)
         {
-          std::cout << "New best bucket found for " << m << " at step " << i << "\n"
-                    << "Threshold factor: " << (float)LARGEST_BUCKET_THRESHOLD / distribution.front() << "\n"
-                    << "Standard dev factor: " << stdDev / STD_DEV_THRESHOLD << "\n"
-                    << std::endl;
           hi_count = distribution.front();
-          hi_dev = stdDev;
           hi->build(hsubset); // Rebuild hi with the new hash family
         }
-        
-        // Exit early if threshold is met to avoid overfitting (i.e. using the same hash family for all maps)
-        if (stdDev <= STD_DEV_THRESHOLD)
-        {
-          std::cout << "Threshold met for " << m << " at step " << i << std::endl;
-          break;
-        }
       }
+
+      if (largest_bucket < hi_count) {
+        largest_bucket = hi_count;
+      }
+
+      std::cout << "Bucket " << m << " has largest size " << hi_count << std::endl << std::endl;
+
       delete (map); // Delete the map we used for optimization to avoid memleak
       ret.emplace_back(hi);
     }
+
+    std::cout << "Largest bucket: " << largest_bucket << std::endl << std::endl;
 
     return ret;
   }

@@ -28,6 +28,7 @@ public:
   ui32 stop_found;
   ui32 stop_hdist;
   ui32 stop_mask_index;
+  ui32 buckets_visited;
   LSHForest(std::vector<LSHMap<D>*> &maps, std::vector<Point<D>> &input, QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
     : is_exit(failure_strategy), 
       depth(maps.empty() ? 0 : maps.front()->depth()), 
@@ -44,13 +45,19 @@ public:
   
   void build() {
     for (auto &map : this->maps) {
-
       if (map->size() < this->size()) {
         map->add(this->points);
       }
     }
   };
   
+  // N / (loge(N) + 1) + 200
+  inline float get_bucket_factor(const float recall) const noexcept {
+    const float recall_factor = (1.0 - recall) / 0.05;
+    const float val = (this->size() * (std::pow(recall,recall_factor-1))) / ((1000.0 + std::log2(this->maps.front()->bucketCount())) * this->maps.size()) + 40.0;
+    return 2 * val;
+  }
+
   /**
    * @brief Returns the indices of the @k nearest neighbors to @point where
    *        atleast a @recall fraction of the points are among the true kNN.
@@ -62,37 +69,78 @@ public:
    */
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8)
   {
+    // std::cout << "Querying for point: " << point << " with k = " << k << " and recall = " << recall << std::endl;
     PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points
-    
-    const ui32 M = this->maps.size();
-    std::vector<ui32> hash(M);                  // hash[m] : contains the hash of point in map[m]
+     
+    const ui32 M = this->maps.size(), BATCH_SIZE = k * this->get_bucket_factor(recall);
+    // std::cout << "Batch size: " << BATCH_SIZE << std::endl
+    //           << "Bucket factor: " << this->get_bucket_factor(recall) << std::endl
+    //           << "Bucket count: " << std::endl;
+    std::vector<ui32> hash(M); // hash[m] : contains the hash of point in map[m]
     for (ui32 m = 0; m < M; ++m){
       hash[m] = this->maps[m]->hash(point);
     }
-
+    
     // Loop through all buckets within hamming distance of hdist of point
-    ui32 hdist = 0, mask_index = 0;
-    while (hdist < this->depth) {
-      for (ui32 m = 0; m < M; ++m) {
+    ui32 hdist = 0, mask_index = 0, buckets = 0;
+    while (hdist < this->depth) 
+    {
+      ui32 hi = found.get_kth_dist();
+      std::vector<ui32> bucket[M];
+      std::queue<std::pair<ui32,ui32>> bucket_q; // bucket_q : contains the indices of the points in bucket[m] that are not in found
+      for (ui32 m = 0; m < M; ++m)
+      {
         ui32 bucket_index = maps[m]->next_bucket(hash[m], hdist, mask_index);
-        found.insert(ALL((*maps[m])[bucket_index]));
+        bucket[m] = (*maps[m])[bucket_index];
+        bucket_q.emplace(m, 0);
+      }
+        
+      // To circumvent having to check the entire bucket, we start by checking the first BATCH_SIZE points in each bucket
+      for (ui32 i = 0; !bucket_q.empty(); ++i)
+      {
+        auto [m, j] = bucket_q.front();
+        bucket_q.pop();
+
+        const ui32 end_idx = std::min(j + BATCH_SIZE, (ui32) bucket[m].size());
+
+        // add points from bucket[m][j..j+BATCH_SIZE]
+        found.insert(bucket[m].begin()+j, bucket[m].begin() + end_idx);
+        
+        // add the next batch from bucket to bucket_q if there is one
+        if (end_idx < bucket[m].size()) 
+        {
+          bucket_q.emplace(m, end_idx);
+        }
+
+        // If we have a new kth distance and we have checked atleast M batches, then we check if we should stop
+        if (i >= M && (hi != found.get_kth_dist()) && stop_query(recall, log2(buckets), found.size(), k, found.get_kth_dist()))
+        {
+          hi = found.get_kth_dist();
+          this->stop_found = found.size();
+          this->stop_hdist = hdist;
+          this->stop_mask_index = mask_index;
+          this->buckets_visited = buckets;
+          return found.extract_k_nearest();
+        }
       }
 
-      if (stop_query(recall, hdist, found.size(), k, found.get_kth_dist())) {
+      // Extra stop in-case we need to stop because of hdist
+      if (stop_query(recall, log2(buckets), found.size(), k, found.get_kth_dist()))
         break;
-      }
-
-      mask_index++;
 
       // If one map has next bucket they all do, so we just check for an arbitrary map
-      if (!this->maps[0]->has_next_bucket(hash[0], hdist, mask_index)) {
+      if (!this->maps[0]->has_next_bucket(hash[0], hdist, ++mask_index)) {
         ++hdist;
         mask_index = 0;
       }
+
+      buckets++;
     }
+
     this->stop_found = found.size();
     this->stop_hdist = hdist;
     this->stop_mask_index = mask_index;
+    this->buckets_visited = buckets;
 
     return found.extract_k_nearest();
   }
@@ -110,7 +158,11 @@ private:
   */
   bool stop_query(float recall, ui32 curDepth, ui32 found, ui32 tar, ui32 kthHammingDist) const
   {
+      
+    // http://madscience.ucsd.edu/2020/notes/lec13.pdf
+    const bool earlyFinish = 1500 * this->maps.size() < found;
+
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar, kthHammingDist);
-    return (failure_prob <= (1.0 - recall) && found >= tar) || (curDepth >= 2 && found >= tar);
+    return earlyFinish || (failure_prob <= (1.0 - recall) && found >= tar);
   }
 };
