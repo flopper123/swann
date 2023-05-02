@@ -87,11 +87,16 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 
 
   std::cout << "Instantiating maps" << std::endl;
-  const float depth_factor = 1.75;
+  const float depth_factor = 1.65;
   const float count_factor = 0.82;
 
-  ui32 depth = depth_factor * log(dataset.points.size());
-  ui32 count = (1.0 / std::pow(count_factor, depth_factor * log(dataset.points.size())));
+  // Calcualte depth - ensure max is 31
+  ui32 depth = std::min(
+    depth_factor * log(dataset.points.size()),
+    31.0
+  );
+
+  ui32 count = (1.0 / std::pow(count_factor, depth));
 
   std::cout << "Depth: " << depth << std::endl
             << "Count: " << count << std::endl
@@ -267,6 +272,6 @@ BENCHMARK(BM_query_x_points_LSHForest)
 
     ->Args({0, 10, 90}) // XS - query for 10 points
     ->Args({1, 10, 90}) // S  - query for 10 points
-    // ->Args({2, 10, 90}) // M  - query for 10 points
+    ->Args({2, 10, 90}) // M  - query for 10 points
     ->UseManualTime();
     // ->Complexity(benchmark::oN);;
