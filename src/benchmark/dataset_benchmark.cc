@@ -72,37 +72,43 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 {
   srand(time(NULL));
 
-  std::cout << "Loading benchmark dataset" << std::endl;
   // Setup
+  std::cout << "Loading benchmark dataset" << std::endl;
   BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(static_cast<DataSize>(state.range(0)));
-
-  std::cout << "Instantiating hash LSHMap" << std::endl;
   // HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
-  const float depth_factor = 1.2;
-  const float count_factor = 0.766;
 
-  ui32 depth = depth_factor * log(dataset.points.size());
+  std::cout << "Instantiating hash LSHMap" << std::endl;
+  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+
+
+
+  std::cout << "Instantiating maps" << std::endl;
+  const float depth_factor = 1.65;
+  const float count_factor = 0.82;
+
+  // Calcualte depth - ensure max is 31
+  ui32 depth = std::min(
+    depth_factor * log(dataset.points.size()),
+    31.0
+  );
+
   ui32 count = (1.0 / std::pow(count_factor, depth));
 
   std::cout << "Depth: " << depth << std::endl
             << "Count: " << count << std::endl
             << "Points: " << dataset.points.size() << std::endl;
 
-  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
-  pool += HashFamilyFactory<D>::createRandomBits(D);
-  pool += HashFamilyFactory<D>::createRandomBits(D);
-  pool += HashFamilyFactory<D>::createRandomBits(D);
-
-  std::cout << "Instantiating maps" << std::endl;
   auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count);
   // auto maps = LSHMapFactory<D>::create(pool, depth, count);
+
 
   std::cout << "Building index" << std::endl;
   LSHForest<D> *index = new LSHForest<D>(maps, dataset.points, SingleBitFailure<D>);
   index->build();
-
-  std::cout << "Size: "<< LSHMapAnalyzer<D>(maps[0]).getBucketDistribution().front() << std::endl;
 
   std::cout << "Running benchmark" << std::endl;
 
@@ -154,8 +160,8 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
       total_time += elapsed_time;
       i++;
     }
-    std::cout << "bucket factor: " << static_cast<LSHForest<D> *>(index)->get_bucket_factor(recall) << std::endl;
   }
+  std::cout << "bucket factor: " << static_cast<LSHForest<D> *>(index)->get_bucket_factor(recall) << std::endl;
   std::cout << ((double)avg_found / queriesLength) << std::endl;
   recalls /= queriesLength;
   state.counters["recall"] = recalls;
@@ -167,7 +173,6 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   state.counters["foundPerQuery"] = (double)avg_found / queriesLength;
 
   std::cout << "Querying for " << dataset.queries.size() << " points " << std::endl;
-
 
   // // Print bucket distribution
   // std::cout << "Bucket distribution:" << std::endl;
@@ -265,6 +270,6 @@ BENCHMARK(BM_query_x_points_LSHForest)
 
     ->Args({0, 10, 90}) // XS - query for 10 points
     ->Args({1, 10, 90}) // S  - query for 10 points
-    ->Args({2, 10, 90}) // M  - query for 10 points
-    ->UseManualTime()
-    ->Complexity(benchmark::oN);;
+    // ->Args({2, 10, 90}) // M  - query for 10 points
+    ->UseManualTime();
+    // ->Complexity(benchmark::oN);;

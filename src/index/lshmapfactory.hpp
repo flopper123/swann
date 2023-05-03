@@ -2,6 +2,7 @@
 
 #include "../hash/hashfamily.hpp"
 #include "lsharraymap.hpp"
+#include "lshhashmap.hpp"
 #include "../statistics/lshmapanalyzer.hpp"
 #include "../util/ranges.hpp"
 
@@ -13,7 +14,7 @@ private:
 public:
   static LSHMap<D>* create(HashFamily<D>& H, ui32 depth) {
     auto hf = H.subset(depth);
-    return new LSHArrayMap<D>(hf);
+    return new LSHHashMap<D>(hf);
   }
 
   /** 
@@ -35,7 +36,7 @@ public:
       );
 
       ret.push_back(
-        new LSHArrayMap<D>(hf)
+        new LSHHashMap<D>(hf)
       );
     }
 
@@ -45,12 +46,9 @@ public:
   static std::vector<LSHMap<D> *> create_optimized(std::vector<Point<D>> &points, HashFamily<D> &H, ui32 depth, ui32 k) {
     std::vector<LSHMap<D> *> ret;
 
-    // Vars for optimization
-    ui32 OPTIMIZATION_ITERATIONS = 2.7 * depth;
-    ui32 LARGEST_BUCKET_THRESHOLD = 5000;
+    ui32 OPTIMIZATION_ITERATIONS = std::pow(depth, 1.4);
 
-    assert(2 * (points.size() / std::pow(2, depth)) < LARGEST_BUCKET_THRESHOLD);
-
+    std::cout << "Optimizing buckets with " << OPTIMIZATION_ITERATIONS << " iterations" << std::endl << std::endl;
 
     ui32 largest_bucket = 0;
 
@@ -89,7 +87,7 @@ public:
       ret.emplace_back(hi);
     }
 
-    std::cout << "Largest bucket: " << largest_bucket << std::endl << std::endl;
+    std::cout << "Largest bucket in all tries: " << largest_bucket << std::endl << std::endl;
 
     return ret;
   }

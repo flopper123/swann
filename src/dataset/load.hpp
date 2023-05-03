@@ -13,6 +13,12 @@ static inline std::string DATA_SIZES_LIST[] = {"100K", "300K", "10M", "30M", "10
 
 constexpr ui32 D = 1024;
 
+inline static std::string get_dataset_string(DataSize size) {
+  const std::string laion2b_path = "/swann/data/laion2B-en/";
+  const std::string file_name = laion2b_path + "hdf5/laion2B-" + DATA_SIZES_LIST[size] + ".h5";
+  return file_name;
+}
+
 /**
  * @brief Downloads 1024-binary sketches from Laion2B-en and 
  *        returns a string holding the path to the file
@@ -36,8 +42,7 @@ inline static std::string download_laion2B_dataset(DataSize size)
   // Execute download script
   std::system(command.c_str());
 
-  const std::string file_name = laion2b_path + "hdf5/laion2B-" + DATA_SIZES_LIST[size] + ".h5";
-  return file_name;
+  return get_dataset_string(size);
 }
 
 /** @returns A pair containing the number of rows and cols of the dataset */
@@ -72,12 +77,12 @@ inline static H5::DataSet fetch_points_dataset(DataSize size)
 
 inline static H5::DataSet fetch_query_dataset(DataSize size)
 {
-  return fetch_local_dataset( size, download_laion2B_dataset(size), "/queries", "points" );
+  return fetch_local_dataset( size, get_dataset_string(size), "/queries", "points" );
 }
 
 inline static H5::DataSet fetch_answers_dataset(DataSize size) 
 {
-  return fetch_local_dataset( size, download_laion2B_dataset(size), "/queries", "answers" );
+  return fetch_local_dataset( size, get_dataset_string(size), "/queries", "answers" );
 }
 
 template<ui32 D>
