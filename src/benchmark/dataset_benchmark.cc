@@ -110,8 +110,6 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   LSHForest<D> *index = new LSHForest<D>(maps, dataset.points, SingleBitFailure<D>);
   index->build();
 
-  std::cout << "Size: "<< LSHMapAnalyzer<D>(maps[0]).getBucketDistribution().front() << std::endl;
-
   std::cout << "Running benchmark" << std::endl;
 
   double recalls = 0.0, recall = state.range(2) / 100.0, avg_found = 0.0;
@@ -272,6 +270,6 @@ BENCHMARK(BM_query_x_points_LSHForest)
 
     ->Args({0, 10, 90}) // XS - query for 10 points
     ->Args({1, 10, 90}) // S  - query for 10 points
-    ->Args({2, 10, 90}) // M  - query for 10 points
+    // ->Args({2, 10, 90}) // M  - query for 10 points
     ->UseManualTime();
     // ->Complexity(benchmark::oN);;

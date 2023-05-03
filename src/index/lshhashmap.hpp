@@ -89,11 +89,7 @@ public:
    */
   void add(const Point<D> &point) {
     const hash_idx index = this->hash(point);
-
-    if (!this->buckets.contains(index)) {
-      this->buckets.insert({ index, bucket() });
-    }
-
+    
     buckets[index].emplace_back(count++);
   };
 
