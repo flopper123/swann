@@ -72,7 +72,7 @@ inline static H5::DataSet fetch_local_dataset(
 
 inline static H5::DataSet fetch_points_dataset(DataSize size)
 {
-  return fetch_local_dataset( size, download_laion2B_dataset(size), "/", "hamming" );
+  return fetch_local_dataset( size, get_dataset_string(size), "/", "hamming" );
 }
 
 inline static H5::DataSet fetch_query_dataset(DataSize size)

@@ -46,7 +46,7 @@ public:
   static std::vector<LSHMap<D> *> create_optimized(std::vector<Point<D>> &points, HashFamily<D> &H, ui32 depth, ui32 k) {
     std::vector<LSHMap<D> *> ret;
 
-    ui32 OPTIMIZATION_ITERATIONS = std::pow(depth, 1.4);
+    ui32 OPTIMIZATION_ITERATIONS = 5;
 
     std::cout << "Optimizing buckets with " << OPTIMIZATION_ITERATIONS << " iterations" << std::endl << std::endl;
 
