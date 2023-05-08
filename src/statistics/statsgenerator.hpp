@@ -21,17 +21,17 @@ public:
 
       std::cout << "LSHMap[" << ++m << "] with " << distribution.size() 
                 << " buckets" << std::endl << "\tdistribution: " << std::endl;
-      int i=0;
-      for (ui32 bucket : distribution) {
-        ++i;
-        if (bucket == 0)
-        { 
-          std::cout << "0*" << (distribution.size() - i);
-          break;
-        }
-        std::cout << bucket << " ";
-      }
-      std::cout << std::endl;
+      // int i=0;
+      // for (ui32 bucket : distribution) {
+      //   ++i;
+      //   if (bucket == 0)
+      //   { 
+      //     std::cout << "0*" << (distribution.size() - i);
+      //     break;
+      //   }
+      //   std::cout << bucket << " ";
+      // }
+      // std::cout << std::endl;
       
       double var = Util::variance(ALL(distribution)),
              std_dev = Util::std_dev(ALL(distribution));
