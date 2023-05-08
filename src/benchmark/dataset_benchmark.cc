@@ -86,9 +86,12 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 
 
   std::cout << "Instantiating maps" << std::endl;
+  
+  float P1s[] = {0.86, 0.865, 0.87 };
+  float P2s[] = {0.5,  0.52,  0.535};
 
-  const float P1 = state.range(3);
-  const float P2 = state.range(4);
+  const float P1 = P1s[state.range(3)];
+  const float P2 = P2s[state.range(4)];
 
   const float depth_val = std::min(
     std::ceil(log(dataset.points.size()) / log(1 / P2)),
@@ -265,50 +268,44 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
 BENCHMARK(BM_query_x_points_LSHForest)
     ->Name("QueryXPointsLSHForest")
     ->Unit(benchmark::kMillisecond)
-    // ->Args({0, 10, 70}) // XS - query for 10 points
-    // ->Args({1, 10, 70}) // S  - query for 10 points
-    // ->Args({2, 10, 70}) // M  - query for 10 points
 
-    // ->Args({0, 10, 80}) // XS - query for 10 points
-    // ->Args({1, 10, 80}) // S  - query for 10 points
+    ->Args({0, 10, 90, 0, 0}) // XS - query for 10 points
+    ->Args({0, 10, 90, 0, 1}) // XS - query for 10 points
+    ->Args({0, 10, 90, 0, 2}) // XS - query for 10 points
 
-    ->Args({0, 10, 90, 0.860, 0.500}) // XS - query for 10 points
-    ->Args({0, 10, 90, 0.860, 0.520}) // XS - query for 10 points
-    ->Args({0, 10, 90, 0.860, 0.535}) // XS - query for 10 points
+    ->Args({0, 10, 90, 1, 0}) // XS - query for 10 points
+    ->Args({0, 10, 90, 1, 1}) // XS - query for 10 points
+    ->Args({0, 10, 90, 1, 2}) // XS - query for 10 points
 
-    ->Args({0, 10, 90, 0.865, 0.500}) // XS - query for 10 points
-    ->Args({0, 10, 90, 0.865, 0.520}) // XS - query for 10 points
-    ->Args({0, 10, 90, 0.865, 0.535}) // XS - query for 10 points
-
-    ->Args({0, 10, 90, 0.870, 0.500}) // XS - query for 10 points
-    ->Args({0, 10, 90, 0.870, 0.520}) // XS - query for 10 points
-    ->Args({0, 10, 90, 0.870, 0.535}) // XS - query for 10 points
+    ->Args({0, 10, 90, 2, 0}) // XS - query for 10 points
+    ->Args({0, 10, 90, 2, 1}) // XS - query for 10 points
+    ->Args({0, 10, 90, 2, 2}) // XS - query for 10 points
 
 
-    ->Args({1, 10, 90, 0.860, 0.500}) // S - query for 10 points
-    ->Args({1, 10, 90, 0.860, 0.520}) // S - query for 10 points
-    ->Args({1, 10, 90, 0.860, 0.535}) // S - query for 10 points
+    ->Args({1, 10, 90, 0, 0}) // S - query for 10 points
+    ->Args({1, 10, 90, 0, 1}) // S - query for 10 points
+    ->Args({1, 10, 90, 0, 2}) // S - query for 10 points
 
-    ->Args({1, 10, 90, 0.865, 0.500}) // S - query for 10 points
-    ->Args({1, 10, 90, 0.865, 0.520}) // S - query for 10 points
-    ->Args({1, 10, 90, 0.865, 0.535}) // S - query for 10 points
+    ->Args({1, 10, 90, 1, 0}) // S - query for 10 points
+    ->Args({1, 10, 90, 1, 1}) // S - query for 10 points
+    ->Args({1, 10, 90, 1, 2}) // S - query for 10 points
 
-    ->Args({1, 10, 90, 0.870, 0.500}) // S - query for 10 points
-    ->Args({1, 10, 90, 0.870, 0.520}) // S - query for 10 points
-    ->Args({1, 10, 90, 0.870, 0.535}) // S - query for 10 points
+    ->Args({1, 10, 90, 2, 0}) // S - query for 10 points
+    ->Args({1, 10, 90, 2, 1}) // S - query for 10 points
+    ->Args({1, 10, 90, 2, 2}) // S - query for 10 points
 
 
-    ->Args({2, 10, 90, 0.860, 0.500}) // M - query for 10 points
-    ->Args({2, 10, 90, 0.860, 0.520}) // M - query for 10 points
-    ->Args({2, 10, 90, 0.860, 0.535}) // M - query for 10 points
+    ->Args({2, 10, 90, 0, 0}) // M - query for 10 points
+    ->Args({2, 10, 90, 0, 1}) // M - query for 10 points
+    ->Args({2, 10, 90, 0, 2}) // M - query for 10 points
 
-    ->Args({2, 10, 90, 0.865, 0.500}) // M - query for 10 points
-    ->Args({2, 10, 90, 0.865, 0.520}) // M - query for 10 points
-    ->Args({2, 10, 90, 0.865, 0.535}) // M - query for 10 points
+    ->Args({2, 10, 90, 1, 0}) // M - query for 10 points
+    ->Args({2, 10, 90, 1, 1}) // M - query for 10 points
+    ->Args({2, 10, 90, 1, 2}) // M - query for 10 points
 
-    ->Args({2, 10, 90, 0.870, 0.500}) // M - query for 10 points
-    ->Args({2, 10, 90, 0.870, 0.520}) // M - query for 10 points
-    ->Args({2, 10, 90, 0.870, 0.535}) // M - query for 10 points
-    
+    ->Args({2, 10, 90, 2, 0}) // M - query for 10 points
+    ->Args({2, 10, 90, 2, 1}) // M - query for 10 points
+    ->Args({2, 10, 90, 2, 2}) // M - query for 10 points
+
     ->UseManualTime();
 // ->Complexity(benchmark::oN);;
