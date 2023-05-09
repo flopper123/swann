@@ -72,22 +72,39 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 {
   srand(time(NULL));
 
-  std::cout << "Loading benchmark dataset" << std::endl;
   // Setup
+  std::cout << "Loading benchmark dataset" << std::endl;
   BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(static_cast<DataSize>(state.range(0)));
-
-  std::cout << "Instantiating hash LSHMap" << std::endl;
   // HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
-  ui32 depth = log(dataset.points.size()) + 2;
-  ui32 count = (sqrt(dataset.points.size()) / log(dataset.points.size())) / 1.5;
+
+  std::cout << "Instantiating hash LSHMap" << std::endl;
+  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+
+
+
+  std::cout << "Instantiating maps" << std::endl;
+  const float depth_factor = 1.65;
+  const float count_factor = 0.82;
+
+  // Calcualte depth - ensure max is 31
+  ui32 depth = std::min(
+    depth_factor * log(dataset.points.size()),
+    31.0
+  );
+
+  ui32 count = (1.0 / std::pow(count_factor, depth));
+
   std::cout << "Depth: " << depth << std::endl
             << "Count: " << count << std::endl
             << "Points: " << dataset.points.size() << std::endl;
 
-  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
-
   auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count);
+  // auto maps = LSHMapFactory<D>::create(pool, depth, count);
+
 
   std::cout << "Building index" << std::endl;
   LSHForest<D> *index = new LSHForest<D>(maps, dataset.points, SingleBitFailure<D>);
@@ -133,7 +150,8 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
       {
         std::cout << "Stopped at dist " << index->stop_hdist << " with mask index " << index->stop_mask_index << " and a total of " << index->stop_found << " found points" << std::endl;
         std::cout << "Time taken: " << elapsed_time << std::endl;
-        std::cout << "Recall: " << calculateRecall(result, q.nearest_neighbors) << std::endl << std::endl;
+        std::cout << "Recall: " << calculateRecall(result, q.nearest_neighbors) << std::endl;
+        std::cout << "Visited: " << index->buckets_visited << std::endl << std::endl;
       }
       slowest_time = std::max(slowest_time, elapsed_time);
       state.SetIterationTime(elapsed_time);
@@ -142,8 +160,8 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
       total_time += elapsed_time;
       i++;
     }
-    std::cout << "bucket factor: " << static_cast<LSHForest<D> *>(index)->get_bucket_factor(recall) << std::endl;
   }
+  std::cout << "bucket factor: " << static_cast<LSHForest<D> *>(index)->get_bucket_factor(recall) << std::endl;
   std::cout << ((double)avg_found / queriesLength) << std::endl;
   recalls /= queriesLength;
   state.counters["recall"] = recalls;

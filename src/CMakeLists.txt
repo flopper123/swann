@@ -66,6 +66,7 @@ add_executable(
   "test/hash/dependenthashfamilyfactory.cc"
   "test/index/query/pointmap.cc"
   "test/index/lsharraymap.cc"
+  "test/index/lshhashmap.cc"
   "test/index/lshmapfactory.cc"
   "test/index/pointarithmeticresult.cc"
   "test/index/point_fast.cc"

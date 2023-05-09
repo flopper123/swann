@@ -28,6 +28,7 @@ public:
   ui32 stop_found;
   ui32 stop_hdist;
   ui32 stop_mask_index;
+  ui32 buckets_visited;
   LSHForest(std::vector<LSHMap<D>*> &maps, std::vector<Point<D>> &input, QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
     : is_exit(failure_strategy), 
       depth(maps.empty() ? 0 : maps.front()->depth()), 
@@ -53,7 +54,8 @@ public:
   // N / (loge(N) + 1) + 200
   inline float get_bucket_factor(const float recall) const noexcept {
     const float recall_factor = (1.0 - recall) / 0.05;
-    return (this->size() * (std::pow(recall,recall_factor-1))) / ((1000.0 + std::log(this->maps.front()->bucketCount())) * this->maps.size()) + 80.0;
+    const float val = (this->size() * (std::pow(recall,recall_factor-1))) / ((1000.0 + std::log2(this->maps.front()->bucketCount())) * this->maps.size()) + 40.0;
+    return 2 * val;
   }
 
   /**
@@ -80,7 +82,7 @@ public:
     }
     
     // Loop through all buckets within hamming distance of hdist of point
-    ui32 hdist = 0, mask_index = 0;
+    ui32 hdist = 0, mask_index = 0, buckets = 0;
     while (hdist < this->depth) 
     {
       ui32 hi = found.get_kth_dist();
@@ -111,18 +113,19 @@ public:
         }
 
         // If we have a new kth distance and we have checked atleast M batches, then we check if we should stop
-        if (i >= M && (hi != found.get_kth_dist()) && stop_query(recall, hdist, found.size(), k, found.get_kth_dist()))
+        if (i >= M && (hi != found.get_kth_dist()) && stop_query(recall, log2(buckets), found.size(), k, found.get_kth_dist()))
         {
           hi = found.get_kth_dist();
           this->stop_found = found.size();
           this->stop_hdist = hdist;
           this->stop_mask_index = mask_index;
+          this->buckets_visited = buckets;
           return found.extract_k_nearest();
         }
       }
 
       // Extra stop in-case we need to stop because of hdist
-      if (stop_query(recall, hdist, found.size(), k, found.get_kth_dist()))
+      if (stop_query(recall, log2(buckets), found.size(), k, found.get_kth_dist()))
         break;
 
       // If one map has next bucket they all do, so we just check for an arbitrary map
@@ -130,11 +133,14 @@ public:
         ++hdist;
         mask_index = 0;
       }
+
+      buckets++;
     }
 
     this->stop_found = found.size();
     this->stop_hdist = hdist;
     this->stop_mask_index = mask_index;
+    this->buckets_visited = buckets;
 
     return found.extract_k_nearest();
   }
@@ -152,8 +158,12 @@ private:
   */
   bool stop_query(float recall, ui32 curDepth, ui32 found, ui32 tar, ui32 kthHammingDist) const
   {
+      
+    // http://madscience.ucsd.edu/2020/notes/lec13.pdf
+    const bool earlyFinish = 1500 * this->maps.size() < found;
+
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar, kthHammingDist);
-    return (failure_prob <= (1.0 - recall) && found >= tar) || (curDepth >= 2 && found >= tar);
+    return earlyFinish || (failure_prob <= (1.0 - recall) && found >= tar) || (curDepth >= 8 && found >= tar);
   }
 };
   

@@ -19,22 +19,13 @@ public:
 
   // Creates 'size' different lambdas that either ORs or ANDs returned values from createRandomBits
   static HashFamily<D> createRandomBitsConcat(ui32 size) {
-    assert(size <= D);
-
-    HashFamily<D> base;
-    for (ui32 i = 0; i < D; ++i) {
-      base.push_back([i](const Point<D> &p)
-                   { return p[i]; });
-    }
-
-    auto subset = base.subset(D);
 
     HashFamily<D> HF;
-    for (ui32 i = 0; i < size; i += 4)
+    for (ui32 i = 0; i < size; i += 1)
     {
-
-      HF.push_back([subset, i](const Point<D> &p)
-                   { return (subset[i](p) & subset[i+1](p)) | (subset[i+2](p) & subset[i+3](p)); });
+      HashFamily<D> base = getDimensionBits().subset(1);
+      HF.push_back([base](const Point<D> &p)
+                   { return base[0](p); });
     }
     return HF;
   }
@@ -102,5 +93,20 @@ public:
       HF += createRandomHDist(size);
     }
     return HF;
+  }
+
+private:
+  inline static HashFamily<D> *baseFam = new HashFamily<D>();
+  static HashFamily<D> getDimensionBits() {
+    if (baseFam->size() != 0) {
+      return *baseFam;
+    }
+
+    for (ui32 i = 0; i < D; ++i) {
+      baseFam->push_back([i](const Point<D> &p)
+                   { return p[i]; });
+    }
+
+    return *baseFam;
   }
 };
