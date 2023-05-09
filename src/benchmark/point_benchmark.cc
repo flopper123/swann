@@ -91,35 +91,34 @@ static void BM_distance_point(benchmark::State &state) {
   state.counters["avg_distance"] = acc_distance / N;
 }
 
+// BENCHMARK(BM_count_pointfast)
+//     ->Name("Count Set Bits for Point")
+//     ->Unit(benchmark::kMillisecond)
+//     ->Arg(1000)
+//     ->Arg(10000)
+//     ->Arg(100000)
+//     ->Arg(1000000);
 
-BENCHMARK(BM_count_pointfast)
-    ->Name("Count Set Bits for Point")
-    ->Unit(benchmark::kMillisecond)
-    ->Arg(1000)
-    ->Arg(10000)
-    ->Arg(100000)
-    ->Arg(1000000);
+// BENCHMARK(BM_count_point)
+//     ->Name("Count Set Bits for OldPoint")
+//     ->Unit(benchmark::kMillisecond)
+//     ->Arg(1000)
+//     ->Arg(10000)
+//     ->Arg(100000)
+//     ->Arg(1000000);
 
-BENCHMARK(BM_count_point)
-    ->Name("Count Set Bits for OldPoint")
-    ->Unit(benchmark::kMillisecond)
-    ->Arg(1000)
-    ->Arg(10000)
-    ->Arg(100000)
-    ->Arg(1000000);
+// BENCHMARK(BM_distance_pointfast)
+//     ->Name("Hamming Distance for Point")
+//     ->Unit(benchmark::kMillisecond)
+//     ->Arg(1000)
+//     ->Arg(10000)
+//     ->Arg(100000)
+//     ->Arg(1000000);
 
-BENCHMARK(BM_distance_pointfast)
-    ->Name("Hamming Distance for Point")
-    ->Unit(benchmark::kMillisecond)
-    ->Arg(1000)
-    ->Arg(10000)
-    ->Arg(100000)
-    ->Arg(1000000);
-
-BENCHMARK(BM_distance_point)
-    ->Name("Hamming Distance for OldPoint")
-    ->Unit(benchmark::kMillisecond)
-    ->Arg(1000)
-    ->Arg(10000)
-    ->Arg(100000)
-    ->Arg(1000000);
+// BENCHMARK(BM_distance_point)
+//     ->Name("Hamming Distance for OldPoint")
+//     ->Unit(benchmark::kMillisecond)
+//     ->Arg(1000)
+//     ->Arg(10000)
+//     ->Arg(100000)
+//     ->Arg(1000000);
