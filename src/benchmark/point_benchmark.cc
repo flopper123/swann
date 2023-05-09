@@ -1,11 +1,11 @@
 #include <benchmark/benchmark.h>
 #include <iostream>
+#include "../index/old_point.hpp"
 #include "../index/point.hpp"
-#include "../index/point_fast.hpp"
 
 static void BM_count_point(benchmark::State &state) {
   // Setup
-  std::vector<Point<1024>> points;
+  std::vector<OldPoint<1024>> points;
   ui64 N = state.range(0);
   for (ui32 i = 0; i < N; i++) {
     points.push_back(random_point<1024>(0.5));
@@ -25,10 +25,10 @@ static void BM_count_point(benchmark::State &state) {
 }
 
 static void BM_count_pointfast(benchmark::State &state) {
-  std::vector<PointFast<1024>> points;
+  std::vector<Point<1024>> points;
   ui64 N = state.range(0);
   for (ui32 i = 0; i < N; i++) {
-    points.push_back(PointFast<1024>::Random(0.5));
+    points.push_back(Point<1024>::Random(0.5));
   }
 
   double acc_cnt = 0;
@@ -47,10 +47,10 @@ static void BM_count_pointfast(benchmark::State &state) {
 }
 
 static void BM_distance_pointfast(benchmark::State &state) {
-  std::vector<std::pair<PointFast<1024>,PointFast<1024>>> points;
+  std::vector<std::pair<Point<1024>,Point<1024>>> points;
   ui64 N = state.range(0);
   for (ui32 i = 0; i < N; i++) {
-    points.push_back({PointFast<1024>::Random(0.5), PointFast<1024>::Random(0.5)});
+    points.push_back({Point<1024>::Random(0.5), Point<1024>::Random(0.5)});
   }
 
   double acc_distance = 0;
@@ -70,7 +70,7 @@ static void BM_distance_pointfast(benchmark::State &state) {
 
 
 static void BM_distance_point(benchmark::State &state) {
-  std::vector<std::pair<Point<1024>,Point<1024>>> points;
+  std::vector<std::pair<OldPoint<1024>,OldPoint<1024>>> points;
   ui64 N = state.range(0);
   for (ui32 i = 0; i < N; i++) {
     points.push_back({random_point<1024>(0.5), random_point<1024>(0.5)});
@@ -93,14 +93,6 @@ static void BM_distance_point(benchmark::State &state) {
 
 
 BENCHMARK(BM_count_pointfast)
-    ->Name("Count Set Bits for PointFast")
-    ->Unit(benchmark::kMillisecond)
-    ->Arg(1000)
-    ->Arg(10000)
-    ->Arg(100000)
-    ->Arg(1000000);
-
-BENCHMARK(BM_count_point)
     ->Name("Count Set Bits for Point")
     ->Unit(benchmark::kMillisecond)
     ->Arg(1000)
@@ -108,8 +100,16 @@ BENCHMARK(BM_count_point)
     ->Arg(100000)
     ->Arg(1000000);
 
+BENCHMARK(BM_count_point)
+    ->Name("Count Set Bits for OldPoint")
+    ->Unit(benchmark::kMillisecond)
+    ->Arg(1000)
+    ->Arg(10000)
+    ->Arg(100000)
+    ->Arg(1000000);
+
 BENCHMARK(BM_distance_pointfast)
-    ->Name("Hamming Distance for PointFast")
+    ->Name("Hamming Distance for Point")
     ->Unit(benchmark::kMillisecond)
     ->Arg(1000)
     ->Arg(10000)
@@ -117,7 +117,7 @@ BENCHMARK(BM_distance_pointfast)
     ->Arg(1000000);
 
 BENCHMARK(BM_distance_point)
-    ->Name("Hamming Distance for Point")
+    ->Name("Hamming Distance for OldPoint")
     ->Unit(benchmark::kMillisecond)
     ->Arg(1000)
     ->Arg(10000)

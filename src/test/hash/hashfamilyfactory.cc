@@ -37,8 +37,8 @@ TEST(HashFamilyFactoryCreateRandomMasks, ConstructsHFContaining_RandomMasks)
   auto HF_ALL = HashFamilyFactory<D>::createRandomMasks(N, 1.0),
        HF_NONE = HashFamilyFactory<D>::createRandomMasks(N, 0.0);
   // Assert
-  ASSERT_EQ(HF_ALL(random_point<D>(1.0)), 0b1111111111);
-  ASSERT_EQ(HF_NONE(random_point<D>(0.0)), 0b1111111111);
+  ASSERT_EQ(HF_ALL(Point<D>::Random(1.0)), 0b1111111111);
+  ASSERT_EQ(HF_NONE(Point<D>::Random(0.0)), 0b1111111111);
 }
 
 TEST(HashFamilyFactoryCreateHDist, ConstructsHFContaining_SizeHashFunctions)

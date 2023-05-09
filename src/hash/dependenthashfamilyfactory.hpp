@@ -24,7 +24,7 @@ public:
     HashFamily<D> HF;
     for (ui32 i = 0; i < size; ++i)
     {
-      auto p1 = random_point<D>();
+      auto p1 = Point<D>::Random();
       std::sort(sample_beg, sample_end, [&p1](const Point<D>& a, const Point<D>& b) {
         return p1.distance(a) < p1.distance(b);
       });
