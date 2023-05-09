@@ -1,0 +1,26 @@
+2023-05-08T18:33:41+00:00
+Running /swann/build/benchmark
+Run on (20 X 3599.99 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 256 KiB (x10)
+  L3 Unified 20480 KiB (x1)
+Load Average: 0.22, 0.19, 0.19
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"N","acc_cnt","avg_cnt"
+"Count Set Bits for PointFast/1000",40942,0.0171884,0.0171883,ms,,,,,,1000,2.09155e+10,2.09155e+07
+"Count Set Bits for PointFast/10000",3998,0.174155,0.174154,ms,,,,,,10000,2.04729e+10,2.04729e+06
+"Count Set Bits for PointFast/100000",375,1.87461,1.87366,ms,,,,,,100000,1.92014e+10,192014
+"Count Set Bits for PointFast/1000000",34,20.2991,20.2991,ms,,,,,,1e+06,1.74086e+10,17408.6
+"Count Set Bits for Point/1000",22920,0.0305498,0.0305496,ms,,,,,,1000,1.17445e+10,1.17445e+07
+"Count Set Bits for Point/10000",2243,0.307925,0.307907,ms,,,,,,10000,1.14846e+10,1.14846e+06
+"Count Set Bits for Point/100000",216,3.32619,3.32465,ms,,,,,,100000,1.10601e+10,110601
+"Count Set Bits for Point/1000000",21,33.7235,33.7232,ms,,,,,,1e+06,1.07522e+10,10752.2
+"Hamming Distance for PointFast/1000",35474,0.0196738,0.0196736,ms,,,,,,1000,,
+"Hamming Distance for PointFast/10000",3489,0.200407,0.200406,ms,,,,,,10000,,
+"Hamming Distance for PointFast/100000",274,2.53285,2.53283,ms,,,,,,100000,,
+"Hamming Distance for PointFast/1000000",26,27.3465,27.3438,ms,,,,,,1e+06,,
+"Hamming Distance for Point/1000",22172,0.0317285,0.0317283,ms,,,,,,1000,,
+"Hamming Distance for Point/10000",2205,0.319537,0.319535,ms,,,,,,10000,,
+"Hamming Distance for Point/100000",190,3.68267,3.68262,ms,,,,,,100000,,
+"Hamming Distance for Point/1000000",19,39.5691,39.5686,ms,,,,,,1e+06,,

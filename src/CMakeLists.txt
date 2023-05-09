@@ -68,6 +68,7 @@ add_executable(
   "test/index/lsharraymap.cc"
   "test/index/lshmapfactory.cc"
   "test/index/pointarithmeticresult.cc"
+  "test/index/point_fast.cc"
   "test/index/lshforest.cc"
   "test/index/bfindex.cc"
   "test/index/lshtrie.cc"
