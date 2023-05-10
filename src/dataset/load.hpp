@@ -114,6 +114,7 @@ inline static PointsDataset<D> parse_hdf5_points(H5::DataSet dataset) {
   std::vector<ui64> data_output(rows * cols);
 
   dataset.read(&data_output[0], H5::PredType::NATIVE_UINT64);
+  dataset.close();
 
   return parse_points_dataset<D>(data_output, rows, cols);
 }
@@ -125,6 +126,7 @@ inline static std::vector<std::vector<ui32>> parse_hdf5_answers(H5::DataSet data
   ui32* ans = new ui32[rows * cols];
   
   dataset.read(&ans[0], H5::PredType::NATIVE_UINT32);
+  dataset.close();
 
   std::vector<std::vector<ui32>> ans_vec(rows, std::vector<ui32>(cols, 0));
 

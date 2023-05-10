@@ -70,10 +70,12 @@ static void BM_bucket_distribution(benchmark::State &state) {
 //     ->Args({1, 4})
 //     ->Args({1, 8})
 //     ->Args({1, 16})
+//     ->Repetitions(3)
+//     ->DisplayAggregatesOnly(true);
 
-//     ->Args({2, 0})
-//     ->Args({2, 1})
-//     ->Args({2, 2})
-//     ->Args({2, 4})
-//     ->Args({2, 8})
-//     ->Args({2, 16});
+// ->Args({2, 0})
+// ->Args({2, 1})
+// ->Args({2, 2})
+// ->Args({2, 4})
+// ->Args({2, 8})
+// ->Args({2, 16});

@@ -1,6 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <iostream>
 #include <chrono>
+#include <thread>
 #include <random>
 #include <ctime>
 
@@ -87,11 +88,10 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 
   std::cout << "Instantiating maps" << std::endl;
   
-  float P1s[] = {0.86, 0.865, 0.87 };
-  float P2s[] = {0.5,  0.52,  0.535};
 
-  const float P1 = P1s[state.range(3)];
-  const float P2 = P2s[state.range(4)];
+
+  const float P1 = state.range(3) / 1000.0;
+  const float P2 = state.range(4) / 1000.0;
 
   const float depth_val = std::min(
     std::ceil(log(dataset.points.size()) / log(1 / P2)),
@@ -106,7 +106,8 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
             << "Count: " << count << std::endl
             << "Points: " << dataset.points.size() << std::endl;
 
-  auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count, 8);
+  const ui32 optimization_steps = 8;
+  auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count, optimization_steps);
   // auto maps = LSHMapFactory<D>::create(pool, depth, count);
 
 
@@ -169,6 +170,8 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   std::cout << ((double)avg_found / queriesLength) << std::endl;
   recalls /= queriesLength;
   state.counters["recall"] = recalls;
+  state.counters["inputRecall"] = recall;
+  state.counters["optimizationSteps"] = optimization_steps;
   state.counters["kNN"] = nrToQuery;
   state.counters["P1"] = P1;
   state.counters["P2"] = P2;
@@ -180,6 +183,10 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 
 
   std::cout << "Querying for " << dataset.queries.size() << " points " << std::endl;
+
+  delete index;
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
 
   // // Print bucket distribution
   // std::cout << "Bucket distribution:" << std::endl;
@@ -225,9 +232,9 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
   ui32 i = 1;
 
   // Measure
-  for (auto _ : state)
+  for (auto &q : dataset.queries)
   {
-    for (auto &q : dataset.queries)
+    for (auto _ : state)
     {
 
       if (i % (dataset.queries.size() / 100) == 0)
@@ -265,47 +272,114 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
 //     ->Args({0, 10}) // XS
 //     ->UseManualTime();
 
+struct Benchies {
+  int s, knn, recall, p1, p2;
+};
+
+std::vector<int64_t> benchies[] = {
+    // XS
+    std::vector<int64_t>({0, 10, 90, 850, 500}),
+    std::vector<int64_t>({0, 10, 90, 850, 535}),
+    std::vector<int64_t>({0, 10, 90, 850, 550}),
+
+    std::vector<int64_t>({0, 10, 90, 860, 500}),
+    std::vector<int64_t>({0, 10, 90, 860, 535}),
+    std::vector<int64_t>({0, 10, 90, 860, 550}),
+
+    std::vector<int64_t>({0, 10, 90, 865, 500}),
+    std::vector<int64_t>({0, 10, 90, 865, 535}),
+    std::vector<int64_t>({0, 10, 90, 865, 550}),
+
+    std::vector<int64_t>({0, 10, 95, 850, 500}),
+    std::vector<int64_t>({0, 10, 95, 850, 535}),
+    std::vector<int64_t>({0, 10, 95, 850, 550}),
+
+    std::vector<int64_t>({0, 10, 95, 860, 500}),
+    std::vector<int64_t>({0, 10, 95, 860, 535}),
+    std::vector<int64_t>({0, 10, 95, 860, 550}),
+
+    std::vector<int64_t>({0, 10, 95, 865, 500}),
+    std::vector<int64_t>({0, 10, 95, 865, 535}),
+    std::vector<int64_t>({0, 10, 95, 865, 550}),
+
+    // S
+    std::vector<int64_t>({1, 10, 90, 850, 500}),
+    std::vector<int64_t>({1, 10, 90, 850, 535}),
+    std::vector<int64_t>({1, 10, 90, 850, 550}),
+
+    std::vector<int64_t>({1, 10, 90, 860, 500}),
+    std::vector<int64_t>({1, 10, 90, 860, 535}),
+    std::vector<int64_t>({1, 10, 90, 860, 550}),
+
+    std::vector<int64_t>({1, 10, 90, 865, 500}),
+    std::vector<int64_t>({1, 10, 90, 865, 535}),
+    std::vector<int64_t>({1, 10, 90, 865, 550}),
+
+    std::vector<int64_t>({1, 10, 95, 850, 500}),
+    std::vector<int64_t>({1, 10, 95, 850, 535}),
+    std::vector<int64_t>({1, 10, 95, 850, 550}),
+
+    std::vector<int64_t>({1, 10, 95, 860, 500}),
+    std::vector<int64_t>({1, 10, 95, 860, 535}),
+    std::vector<int64_t>({1, 10, 95, 860, 550}),
+
+    std::vector<int64_t>({1, 10, 95, 865, 500}),
+    std::vector<int64_t>({1, 10, 95, 865, 535}),
+    std::vector<int64_t>({1, 10, 95, 865, 550}),
+
+    // M
+    std::vector<int64_t>({2, 10, 90, 860, 535}),
+    std::vector<int64_t>({2, 100, 90, 860, 535}),
+};
+
 BENCHMARK(BM_query_x_points_LSHForest)
-    ->Name("QueryXPointsLSHForest")
-    ->Unit(benchmark::kMillisecond)
+  ->Name("QueryXPointsLSHForest")
+  ->Unit(benchmark::kMillisecond)
 
-    ->Args({0, 10, 90, 0, 0}) // XS - query for 10 points
-    ->Args({0, 10, 90, 0, 1}) // XS - query for 10 points
-    ->Args({0, 10, 90, 0, 2}) // XS - query for 10 points
+  ->Args(benchies[0])
 
-    ->Args({0, 10, 90, 1, 0}) // XS - query for 10 points
-    ->Args({0, 10, 90, 1, 1}) // XS - query for 10 points
-    ->Args({0, 10, 90, 1, 2}) // XS - query for 10 points
+  ->UseManualTime();
+//     // ->Args({0, 10, 90, 0, 1}) // XS - query for 10 points
+//     // ->Args({0, 10, 90, 0, 2}) // XS - query for 10 points
 
-    ->Args({0, 10, 90, 2, 0}) // XS - query for 10 points
-    ->Args({0, 10, 90, 2, 1}) // XS - query for 10 points
-    ->Args({0, 10, 90, 2, 2}) // XS - query for 10 points
+//     // ->Args({0, 10, 90, 1, 0}) // XS - query for 10 points
+//     // ->Args({1, 10, 50, 1, 1}) // XS - query for 10 points
+//     // ->Args({1, 10, 60, 1, 1}) // XS - query for 10 points
+//     // ->Args({1, 10, 70, 1, 1}) // XS - query for 10 points
+//     // ->Args({1, 10, 80, 1, 1}) // XS - query for 10 points
+//     ->Args({1, 10, 90, 1, 1}) // XS - query for 10 points
+//     ->Args({1, 10, 95, 1, 1}) // XS - query for 10 points
+//     // ->Args({0, 10, 90, 1, 2}) // XS - query for 10 points
 
+//     // ->Args({0, 10, 90, 2, 0}) // XS - query for 10 points
+//     // ->Args({0, 10, 90, 2, 1}) // XS - query for 10 points
+//     // ->Args({0, 10, 90, 2, 2}) // XS - query for 10 points
 
-    ->Args({1, 10, 90, 0, 0}) // S - query for 10 points
-    ->Args({1, 10, 90, 0, 1}) // S - query for 10 points
-    ->Args({1, 10, 90, 0, 2}) // S - query for 10 points
+//     // ->Args({1, 10, 90, 0, 0}) // S - query for 10 points
+//     // ->Args({1, 10, 90, 0, 1}) // S - query for 10 points
+//     // ->Args({1, 10, 90, 0, 2}) // S - query for 10 points
 
-    ->Args({1, 10, 90, 1, 0}) // S - query for 10 points
-    ->Args({1, 10, 90, 1, 1}) // S - query for 10 points
-    ->Args({1, 10, 90, 1, 2}) // S - query for 10 points
+//     // ->Args({1, 10, 90, 1, 0}) // S - query for 10 points
+//     // ->Args({1, 10, 90, 1, 1}) // S - query for 10 points
+//     // ->Args({1, 10, 90, 1, 2}) // S - query for 10 points
 
-    ->Args({1, 10, 90, 2, 0}) // S - query for 10 points
-    ->Args({1, 10, 90, 2, 1}) // S - query for 10 points
-    ->Args({1, 10, 90, 2, 2}) // S - query for 10 points
+//     // ->Args({1, 10, 90, 2, 0}) // S - query for 10 points
+//     // ->Args({1, 10, 90, 2, 1}) // S - query for 10 points
+//     // ->Args({1, 10, 90, 2, 2}) // S - query for 10 points
 
+//     // ->Args({2, 10, 90, 0, 0}) // M - query for 10 points
+//     // ->Args({2, 10, 90, 0, 1}) // M - query for 10 points
+//     // ->Args({2, 10, 90, 0, 2}) // M - query for 10 points
 
-    ->Args({2, 10, 90, 0, 0}) // M - query for 10 points
-    ->Args({2, 10, 90, 0, 1}) // M - query for 10 points
-    ->Args({2, 10, 90, 0, 2}) // M - query for 10 points
+//     // ->Args({2, 10, 90, 1, 0}) // M - query for 10 points
+//     // ->Args({2, 10, 90, 1, 1}) // M - query for 10 points
+//     // ->Args({2, 10, 90, 1, 2}) // M - query for 10 points
 
-    ->Args({2, 10, 90, 1, 0}) // M - query for 10 points
-    ->Args({2, 10, 90, 1, 1}) // M - query for 10 points
-    ->Args({2, 10, 90, 1, 2}) // M - query for 10 points
+//     // ->Args({2, 10, 90, 2, 0}) // M - query for 10 points
+//     // ->Args({2, 10, 90, 2, 1}) // M - query for 10 points
+//     // ->Args({2, 10, 90, 2, 2}) // M - query for 10 points
 
-    ->Args({2, 10, 90, 2, 0}) // M - query for 10 points
-    ->Args({2, 10, 90, 2, 1}) // M - query for 10 points
-    ->Args({2, 10, 90, 2, 2}) // M - query for 10 points
-
-    ->UseManualTime();
-// ->Complexity(benchmark::oN);;
+//     ->Repetitions(10)
+//     ->DisplayAggregatesOnly(false)
+//     ->UseManualTime();
+// // ->Complexity(benchmark::oN);;

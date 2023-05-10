@@ -22,7 +22,7 @@ class LSHForest : public Index<D> {
   std::vector<Point<D>>& points;
 
   // The trees (LSHMaps) in the forest
-  const std::vector<LSHMap<D>*>& maps;
+  std::vector<LSHMap<D>*>& maps;
 
 public:
   ui32 stop_found;
@@ -35,6 +35,19 @@ public:
       points(input), 
       maps(maps)
   {};
+
+  ~LSHForest() {
+    this->points.clear();
+    
+    while(!this->maps.empty())
+    {
+      LSHMap<D>* m = this->maps.back();
+      
+      this->maps.pop_back();
+
+      delete m;
+    }
+  }
   
   const std::vector<LSHMap<D>*>& getMaps() { return maps; }
 
