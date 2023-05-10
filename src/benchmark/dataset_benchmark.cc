@@ -266,12 +266,6 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
   state.counters["timePerQuery"] = (double)total_time / queriesLength;
 }
 
-// BENCHMARK(BM_query_x_points_LSHForest_HammingDistanceDependent)
-//     ->Name("Query10Points_LSHForest_HammingDistanceDependent")
-//     ->Unit(benchmark::kMillisecond)
-//     ->Args({0, 10}) // XS
-//     ->UseManualTime();
-
 struct Benchies {
   int s, knn, recall, p1, p2;
 };
@@ -337,8 +331,45 @@ BENCHMARK(BM_query_x_points_LSHForest)
   ->Unit(benchmark::kMillisecond)
 
   ->Args(benchies[0])
-
+  ->Args(benchies[1])
+  ->Args(benchies[2])
+  ->Args(benchies[3])
+  ->Args(benchies[4])
+  ->Args(benchies[5])
+  ->Args(benchies[6])
+  ->Args(benchies[7])
+  ->Args(benchies[8])
+  ->Args(benchies[9])
+  ->Args(benchies[10])
+  ->Args(benchies[11])
+  ->Args(benchies[12])
+  ->Args(benchies[13])
+  ->Args(benchies[14])
+  ->Args(benchies[15])
+  ->Args(benchies[16])
+  ->Args(benchies[17])
+  ->Args(benchies[18])
+  ->Args(benchies[19])
+  ->Args(benchies[20])
+  ->Args(benchies[21])
+  ->Args(benchies[22])
+  ->Args(benchies[23])
+  ->Args(benchies[24])
+  ->Args(benchies[25])
+  ->Args(benchies[26])
+  ->Args(benchies[27])
+  ->Args(benchies[28])
+  ->Args(benchies[29])
+  ->Args(benchies[30])
+  ->Args(benchies[31])
+  ->Args(benchies[32])
+  ->Args(benchies[33])
+  ->Args(benchies[34])
+  ->Args(benchies[35])
+  ->Args(benchies[36])
+  ->Repetitions(3)
   ->UseManualTime();
+  // ->UseManualTime();
 //     // ->Args({0, 10, 90, 0, 1}) // XS - query for 10 points
 //     // ->Args({0, 10, 90, 0, 2}) // XS - query for 10 points
 
@@ -379,7 +410,6 @@ BENCHMARK(BM_query_x_points_LSHForest)
 //     // ->Args({2, 10, 90, 2, 1}) // M - query for 10 points
 //     // ->Args({2, 10, 90, 2, 2}) // M - query for 10 points
 
-//     ->Repetitions(10)
 //     ->DisplayAggregatesOnly(false)
 //     ->UseManualTime();
 // // ->Complexity(benchmark::oN);;

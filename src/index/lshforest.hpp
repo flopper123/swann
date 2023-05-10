@@ -176,6 +176,6 @@ private:
     const bool earlyFinish = 1500 * this->maps.size() < found;
 
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar, kthHammingDist);
-    return earlyFinish || (failure_prob <= (1.0 - recall) && found >= tar) || (curDepth >= 8 && found >= tar);
+    return earlyFinish || ((found >= tar) && ((curDepth >= MAX_SEARCH_DEPTH) || (failure_prob <= (1.0 - recall))));
   }
 };

@@ -36,3 +36,5 @@ concept iterator_to =
 
 template <typename IteratorType>
 concept iterator = std::input_iterator<IteratorType>;
+
+constexpr ui32 MAX_SEARCH_DEPTH = 8;

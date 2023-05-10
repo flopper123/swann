@@ -5,11 +5,14 @@
 template <ui32 D>
 class LSHHashMap : public LSHMap<D> {
   // all possible masks by hamming distance 
-  static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
-  
-  void initMasks() {
+  static inline std::vector<std::vector<ui32>> masks;
+  static inline ui32 mask_depth = 0; // race condition care for threaded solutions
+
+  void initMasks()
+  {
+    LSHHashMap<D>::mask_depth = this->depth(); // Number of bits the mask should have
     ui32 constructed_masks = 0;
-    for (ui32 hdist = 0; hdist <= this->depth(); ++hdist) {
+    for (ui32 hdist = 0; hdist <= MAX_SEARCH_DEPTH; ++hdist) {
       // The case might be that we have already initialized this hdist, 
       // so we recompute since each time the depth increases new options emerge.
       if (LSHHashMap<D>::masks.size() > hdist) 
@@ -62,10 +65,8 @@ public:
     count = 0;
     
     this->number_virtual_buckets = 1ULL << this->hashes.size();
-
-    if (masks.size() < this->depth() + 1)
-    {
-      initMasks();
+    if (LSHHashMap<D>::mask_depth < this->depth()) {
+      this->initMasks();
     }
   }
 
