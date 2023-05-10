@@ -43,14 +43,15 @@ public:
     return ret;
   }
 
-  static std::vector<LSHMap<D> *> create_optimized(std::vector<Point<D>> &points, HashFamily<D> &H, ui32 depth, ui32 k) {
+  static std::vector<LSHMap<D> *> create_optimized(std::vector<Point<D>> &points, HashFamily<D> &H, ui32 depth, ui32 k, ui32 steps = 1) {
     std::vector<LSHMap<D> *> ret;
 
-    ui32 OPTIMIZATION_ITERATIONS = std::pow(depth, 1.4);
+    ui32 OPTIMIZATION_ITERATIONS = steps;
 
     std::cout << "Optimizing buckets with " << OPTIMIZATION_ITERATIONS << " iterations" << std::endl << std::endl;
 
     ui32 largest_bucket = 0;
+    double largest_dev = 0.0;
 
     for (ui32 m = 0; m < k; ++m)
     {
@@ -58,6 +59,7 @@ public:
                 *map = LSHMapFactory<D>::create(H, depth); // tmp map used to find the best hash family
 
       ui32 hi_count = UINT32_MAX;
+      double hi_dev = 0.0;
 
 
       for (ui32 i = 0; i < OPTIMIZATION_ITERATIONS; i++)
@@ -73,6 +75,8 @@ public:
         if (distribution.front() <= hi_count)
         {
           hi_count = distribution.front();
+          hi_dev = Util::norm_std_dev(ALL(distribution));
+
           hi->build(hsubset); // Rebuild hi with the new hash family
         }
       }
@@ -81,13 +85,21 @@ public:
         largest_bucket = hi_count;
       }
 
-      std::cout << "Bucket " << m << " has largest size " << hi_count << std::endl << std::endl;
+      if (largest_dev < hi_dev) {
+        largest_dev = hi_dev;
+      }
+
+      // std::cout << "Bucket " << m << std::endl
+      //           << "\t- Largest bucket: " << hi_count << std::endl
+      //           << "\t- Norm. std. dev: " << hi_dev << std::endl
+      //           << std::endl;
 
       delete (map); // Delete the map we used for optimization to avoid memleak
       ret.emplace_back(hi);
     }
 
-    std::cout << "Largest bucket in all tries: " << largest_bucket << std::endl << std::endl;
+    std::cout << "Largest bucket in all tries: " << largest_bucket << std::endl;
+    std::cout << "Largest dev in all tries: " << largest_dev << std::endl << std::endl;
 
     return ret;
   }
