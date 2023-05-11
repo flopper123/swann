@@ -89,10 +89,10 @@ public:
         largest_dev = hi_dev;
       }
 
-      // std::cout << "Bucket " << m << std::endl
-      //           << "\t- Largest bucket: " << hi_count << std::endl
-      //           << "\t- Norm. std. dev: " << hi_dev << std::endl
-      //           << std::endl;
+      std::cout << "Bucket " << m << std::endl
+                << "\t- Largest bucket: " << hi_count << std::endl
+                << "\t- Norm. std. dev: " << hi_dev << std::endl
+                << std::endl;
 
       delete (map); // Delete the map we used for optimization to avoid memleak
       ret.emplace_back(hi);

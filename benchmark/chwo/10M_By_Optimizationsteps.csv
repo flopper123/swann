@@ -1,0 +1,16 @@
+2023-05-11T07:14:52+00:00
+Running /swann/build/benchmark
+Run on (20 X 3600 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 256 KiB (x10)
+  L3 Unified 20480 KiB (x1)
+Load Average: 0.48, 0.23, 0.13
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"P1","P2","foundPerQuery","inputRecall","kNN","optimizationSteps","recall","slowestQuery","timePerQuery","trie_count","trie_depth"
+"QueryXPointsLSHForest/2/10/90/860/550/1/manual_time",1,265417,265462,ms,,,,,,0.86,0.55,109322,0.9,10,1,0.87608,0.0688988,0.0265417,59,27
+"QueryXPointsLSHForest/2/10/90/860/550/8/manual_time",1,252212,252256,ms,,,,,,0.86,0.535,87600.5,0.9,10,8,0.88152,0.0912786,0.0252212,51,26
+"QueryXPointsLSHForest/2/10/90/860/550/10/manual_time",1,241495,236804,ms,,,,,,0.86,0.55,91182.9,0.9,10,10,0.89992,3.42791,0.0241495,59,27
+"QueryXPointsLSHForest/2/10/90/860/550/32/manual_time",1,222056,222113,ms,,,,,,0.86,0.535,76890.3,0.9,10,32,0.88754,0.0717852,0.0222056,51,26
+"QueryXPointsLSHForest/2/10/90/860/550/50/manual_time",1,175908,175937,ms,,,,,,0.86,0.55,70943.9,0.9,10,50,0.89822,0.0579153,0.0175908,59,27
+"QueryXPointsLSHForest/2/10/90/860/550/100/manual_time",1,167706,167756,ms,,,,,,0.86,0.55,66688.4,0.9,10,100,0.89564,0.0469056,0.0167706,59,27

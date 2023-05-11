@@ -89,7 +89,6 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   std::cout << "Instantiating maps" << std::endl;
   
 
-
   const float P1 = state.range(3) / 1000.0;
   const float P2 = state.range(4) / 1000.0;
 
@@ -106,7 +105,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
             << "Count: " << count << std::endl
             << "Points: " << dataset.points.size() << std::endl;
 
-  const ui32 optimization_steps = 8;
+  const ui32 optimization_steps = state.range(5);
   auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count, optimization_steps);
   // auto maps = LSHMapFactory<D>::create(pool, depth, count);
 
@@ -180,7 +179,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   state.counters["timePerQuery"] = (double)total_time / queriesLength;
   state.counters["slowestQuery"] = slowest_time;
   state.counters["foundPerQuery"] = (double)avg_found / queriesLength;
-
+  
 
   std::cout << "Querying for " << dataset.queries.size() << " points " << std::endl;
 
@@ -272,86 +271,72 @@ struct Benchies {
 
 std::vector<int64_t> benchies[] = {
     // XS
-    std::vector<int64_t>({0, 10, 90, 850, 500}),
-    std::vector<int64_t>({0, 10, 90, 850, 535}),
-    std::vector<int64_t>({0, 10, 90, 850, 550}),
+    std::vector<int64_t>({0, 10, 90, 850, 500,8}),
+    std::vector<int64_t>({0, 10, 90, 850, 535,8}),
+    std::vector<int64_t>({0, 10, 90, 850, 550,8}),
 
-    std::vector<int64_t>({0, 10, 90, 860, 500}),
-    std::vector<int64_t>({0, 10, 90, 860, 535}),
-    std::vector<int64_t>({0, 10, 90, 860, 550}),
+    std::vector<int64_t>({0, 10, 90, 860, 500,8}),
+    std::vector<int64_t>({0, 10, 90, 860, 535,8}),
+    std::vector<int64_t>({0, 10, 90, 860, 550,8}),
 
-    std::vector<int64_t>({0, 10, 90, 865, 500}),
-    std::vector<int64_t>({0, 10, 90, 865, 535}),
-    std::vector<int64_t>({0, 10, 90, 865, 550}),
+    std::vector<int64_t>({0, 10, 90, 865, 500,8}),
+    std::vector<int64_t>({0, 10, 90, 865, 535,8}),
+    std::vector<int64_t>({0, 10, 90, 865, 550,8}),
 
-    std::vector<int64_t>({0, 10, 95, 850, 500}),
-    std::vector<int64_t>({0, 10, 95, 850, 535}),
-    std::vector<int64_t>({0, 10, 95, 850, 550}),
+    std::vector<int64_t>({0, 10, 95, 850, 500,8}),
+    std::vector<int64_t>({0, 10, 95, 850, 535,8}),
+    std::vector<int64_t>({0, 10, 95, 850, 550,8}),
 
-    std::vector<int64_t>({0, 10, 95, 860, 500}),
-    std::vector<int64_t>({0, 10, 95, 860, 535}),
-    std::vector<int64_t>({0, 10, 95, 860, 550}),
+    std::vector<int64_t>({0, 10, 95, 860, 500,8}),
+    std::vector<int64_t>({0, 10, 95, 860, 535,8}),
+    std::vector<int64_t>({0, 10, 95, 860, 550,8}),
 
-    std::vector<int64_t>({0, 10, 95, 865, 500}),
-    std::vector<int64_t>({0, 10, 95, 865, 535}),
-    std::vector<int64_t>({0, 10, 95, 865, 550}),
+    std::vector<int64_t>({0, 10, 95, 865, 500,8}),
+    std::vector<int64_t>({0, 10, 95, 865, 535,8}),
+    std::vector<int64_t>({0, 10, 95, 865, 550,8}),
 
     // S
-    std::vector<int64_t>({1, 10, 90, 850, 500}),
-    std::vector<int64_t>({1, 10, 90, 850, 535}),
-    std::vector<int64_t>({1, 10, 90, 850, 550}),
+    std::vector<int64_t>({1, 10, 90, 850, 500, 8}),
+    std::vector<int64_t>({1, 10, 90, 850, 535, 8}),
+    std::vector<int64_t>({1, 10, 90, 850, 550, 8}),
 
-    std::vector<int64_t>({1, 10, 90, 860, 500}),
-    std::vector<int64_t>({1, 10, 90, 860, 535}),
-    std::vector<int64_t>({1, 10, 90, 860, 550}),
+    std::vector<int64_t>({1, 10, 90, 860, 500, 8}),
+    std::vector<int64_t>({1, 10, 90, 860, 535, 8}),
+    std::vector<int64_t>({1, 10, 90, 860, 550, 8}),
 
-    std::vector<int64_t>({1, 10, 90, 865, 500}),
-    std::vector<int64_t>({1, 10, 90, 865, 535}),
-    std::vector<int64_t>({1, 10, 90, 865, 550}),
+    std::vector<int64_t>({1, 10, 90, 865, 500, 8}),
+    std::vector<int64_t>({1, 10, 90, 865, 535, 8}),
+    std::vector<int64_t>({1, 10, 90, 865, 550, 8}),
 
-    std::vector<int64_t>({1, 10, 95, 850, 500}),
-    std::vector<int64_t>({1, 10, 95, 850, 535}),
-    std::vector<int64_t>({1, 10, 95, 850, 550}),
+    std::vector<int64_t>({1, 10, 95, 850, 500, 8}),
+    std::vector<int64_t>({1, 10, 95, 850, 535, 8}),
+    std::vector<int64_t>({1, 10, 95, 850, 550, 8}),
 
-    std::vector<int64_t>({1, 10, 95, 860, 500}),
-    std::vector<int64_t>({1, 10, 95, 860, 535}),
-    std::vector<int64_t>({1, 10, 95, 860, 550}),
+    std::vector<int64_t>({1, 10, 95, 860, 500, 8}),
+    std::vector<int64_t>({1, 10, 95, 860, 535, 8}),
+    std::vector<int64_t>({1, 10, 95, 860, 550, 8}),
 
-    std::vector<int64_t>({1, 10, 95, 865, 500}),
-    std::vector<int64_t>({1, 10, 95, 865, 535}),
-    std::vector<int64_t>({1, 10, 95, 865, 550}),
+    std::vector<int64_t>({1, 10, 95, 865, 500, 8}),
+    std::vector<int64_t>({1, 10, 95, 865, 535, 8}),
+    std::vector<int64_t>({1, 10, 95, 865, 550, 8}),
 
     // M
-    std::vector<int64_t>({2, 10, 90, 860, 535}),
-    std::vector<int64_t>({2, 100, 90, 860, 535}),
+    std::vector<int64_t>({2, 10, 90, 860, 535, 32}),
+    std::vector<int64_t>({2, 100, 90, 860, 535, 32}),
+    std::vector<int64_t>({2, 1000, 90, 860, 535, 32}),
+    std::vector<int64_t>({2, 10000, 90, 860, 535, 32}),
+
+    std::vector<int64_t>({2, 10, 90, 860, 550, 1}),
+    std::vector<int64_t>({2, 10, 90, 860, 550, 10}),
+    std::vector<int64_t>({2, 10, 90, 860, 550, 100}),
+    std::vector<int64_t>({2, 10, 90, 860, 550, 32}),
+    std::vector<int64_t>({2, 10, 90, 860, 550, 50}),
+
 };
 
 BENCHMARK(BM_query_x_points_LSHForest)
   ->Name("QueryXPointsLSHForest")
   ->Unit(benchmark::kMillisecond)
-
-  ->Args(benchies[0])
-  ->Args(benchies[1])
-  ->Args(benchies[2])
-  ->Args(benchies[3])
-  ->Args(benchies[4])
-  ->Args(benchies[5])
-  ->Args(benchies[6])
-  ->Args(benchies[7])
-  ->Args(benchies[8])
-  ->Args(benchies[9])
-  ->Args(benchies[10])
-  ->Args(benchies[11])
-  ->Args(benchies[12])
-  ->Args(benchies[13])
-  ->Args(benchies[14])
-  ->Args(benchies[15])
-  ->Args(benchies[16])
-  ->Args(benchies[17])
-  ->Args(benchies[18])
-  ->Args(benchies[19])
-  ->Args(benchies[20])
-  ->Args(benchies[21])
   ->Args(benchies[22])
   ->Args(benchies[23])
   ->Args(benchies[24])
@@ -366,50 +351,6 @@ BENCHMARK(BM_query_x_points_LSHForest)
   ->Args(benchies[33])
   ->Args(benchies[34])
   ->Args(benchies[35])
-  ->Args(benchies[36])
-  ->Repetitions(3)
+  ->Repetitions(8)
   ->UseManualTime();
-  // ->UseManualTime();
-//     // ->Args({0, 10, 90, 0, 1}) // XS - query for 10 points
-//     // ->Args({0, 10, 90, 0, 2}) // XS - query for 10 points
-
-//     // ->Args({0, 10, 90, 1, 0}) // XS - query for 10 points
-//     // ->Args({1, 10, 50, 1, 1}) // XS - query for 10 points
-//     // ->Args({1, 10, 60, 1, 1}) // XS - query for 10 points
-//     // ->Args({1, 10, 70, 1, 1}) // XS - query for 10 points
-//     // ->Args({1, 10, 80, 1, 1}) // XS - query for 10 points
-//     ->Args({1, 10, 90, 1, 1}) // XS - query for 10 points
-//     ->Args({1, 10, 95, 1, 1}) // XS - query for 10 points
-//     // ->Args({0, 10, 90, 1, 2}) // XS - query for 10 points
-
-//     // ->Args({0, 10, 90, 2, 0}) // XS - query for 10 points
-//     // ->Args({0, 10, 90, 2, 1}) // XS - query for 10 points
-//     // ->Args({0, 10, 90, 2, 2}) // XS - query for 10 points
-
-//     // ->Args({1, 10, 90, 0, 0}) // S - query for 10 points
-//     // ->Args({1, 10, 90, 0, 1}) // S - query for 10 points
-//     // ->Args({1, 10, 90, 0, 2}) // S - query for 10 points
-
-//     // ->Args({1, 10, 90, 1, 0}) // S - query for 10 points
-//     // ->Args({1, 10, 90, 1, 1}) // S - query for 10 points
-//     // ->Args({1, 10, 90, 1, 2}) // S - query for 10 points
-
-//     // ->Args({1, 10, 90, 2, 0}) // S - query for 10 points
-//     // ->Args({1, 10, 90, 2, 1}) // S - query for 10 points
-//     // ->Args({1, 10, 90, 2, 2}) // S - query for 10 points
-
-//     // ->Args({2, 10, 90, 0, 0}) // M - query for 10 points
-//     // ->Args({2, 10, 90, 0, 1}) // M - query for 10 points
-//     // ->Args({2, 10, 90, 0, 2}) // M - query for 10 points
-
-//     // ->Args({2, 10, 90, 1, 0}) // M - query for 10 points
-//     // ->Args({2, 10, 90, 1, 1}) // M - query for 10 points
-//     // ->Args({2, 10, 90, 1, 2}) // M - query for 10 points
-
-//     // ->Args({2, 10, 90, 2, 0}) // M - query for 10 points
-//     // ->Args({2, 10, 90, 2, 1}) // M - query for 10 points
-//     // ->Args({2, 10, 90, 2, 2}) // M - query for 10 points
-
-//     ->DisplayAggregatesOnly(false)
-//     ->UseManualTime();
 // // ->Complexity(benchmark::oN);;

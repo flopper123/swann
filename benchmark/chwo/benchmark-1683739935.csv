@@ -1,0 +1,24 @@
+2023-05-10T17:32:15+00:00
+Running /swann/build/benchmark
+Run on (20 X 3599.99 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 256 KiB (x10)
+  L3 Unified 20480 KiB (x1)
+Load Average: 0.43, 0.23, 0.16
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"P1","P2","foundPerQuery","inputRecall","kNN","optimizationSteps","recall","slowestQuery","timePerQuery","trie_count","trie_depth"
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time",1,20086.1,20102.8,ms,,,,,,0.85,0.5,10487.5,0.9,10,8,0.91829,0.00934413,0.00200861,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time",1,20042.2,20059.8,ms,,,,,,0.85,0.5,10267.4,0.9,10,8,0.92341,0.0081208,0.00200422,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time",1,22120,22141.1,ms,,,,,,0.85,0.5,10185.6,0.9,10,8,0.91545,0.0119569,0.002212,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time",1,23068.2,23092.5,ms,,,,,,0.85,0.5,10554.6,0.9,10,8,0.92483,0.0120516,0.00230682,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time",1,18310.1,18329.2,ms,,,,,,0.85,0.5,8698.04,0.9,10,8,0.89984,0.0107216,0.00183101,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time",1,21262.6,21284.6,ms,,,,,,0.85,0.5,10291.5,0.9,10,8,0.91962,0.0101419,0.00212626,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time",1,22449.4,22473.6,ms,,,,,,0.85,0.5,10337,0.9,10,8,0.92326,0.00911642,0.00224494,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time",1,21665.5,21687.4,ms,,,,,,0.85,0.5,10506.5,0.9,10,8,0.9222,0.0121871,0.00216655,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time",1,23078.7,23101.2,ms,,,,,,0.85,0.5,11380.2,0.9,10,8,0.91829,0.00926154,0.00230787,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time",1,21278.3,21299.4,ms,,,,,,0.85,0.5,10401.8,0.9,10,8,0.91668,0.00898512,0.00212783,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time_mean",10,21336.1,21357.2,ms,,,,,,0.85,0.5,10311,0.9,10,8,0.918187,0.0101887,0.00213361,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time_median",10,21471.9,21493.4,ms,,,,,,0.85,0.5,10369.4,0.9,10,8,0.918955,0.00974303,0.00214719,16,17
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time_stddev",10,1505.59,1507.65,ms,,,,,,0,0,658.311,0,0,0,0.00716239,0.00146531,0.000150559,0,0
+"QueryXPointsLSHForest/0/10/90/850/500/repeats:10/manual_time_cv",10,7.05651,7.05922,ms,,,,,,0,0,0.0638454,0,0,0,0.00780057,0.143817,0.0705651,0,0

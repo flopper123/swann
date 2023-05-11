@@ -38,13 +38,10 @@ public:
 
   ~LSHForest() {
     this->points.clear();
-    
     while(!this->maps.empty())
     {
       LSHMap<D>* m = this->maps.back();
-      
       this->maps.pop_back();
-
       delete m;
     }
   }
@@ -82,13 +79,10 @@ public:
    */
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8)
   {
-    // std::cout << "Querying for point: " << point << " with k = " << k << " and recall = " << recall << std::endl;
+
     PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points
-     
     const ui32 M = this->maps.size(), BATCH_SIZE = k * this->get_bucket_factor(recall);
-    // std::cout << "Batch size: " << BATCH_SIZE << std::endl
-    //           << "Bucket factor: " << this->get_bucket_factor(recall) << std::endl
-    //           << "Bucket count: " << std::endl;
+
     std::vector<ui32> hash(M); // hash[m] : contains the hash of point in map[m]
     for (ui32 m = 0; m < M; ++m){
       hash[m] = this->maps[m]->hash(point);
@@ -169,11 +163,11 @@ private:
    * @param found Number of points found so far
    * @param tar Number of kNN to find
   */
-  bool stop_query(float recall, ui32 curDepth, ui32 found, ui32 tar, ui32 kthHammingDist) const
+  inline bool stop_query(float recall, ui32 curDepth, ui32 found, ui32 tar, ui32 kthHammingDist) const noexcept
   {
       
     // http://madscience.ucsd.edu/2020/notes/lec13.pdf
-    const bool earlyFinish = 1500 * this->maps.size() < found;
+    const bool earlyFinish = (1500 * this->maps.size()) < found;
 
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar, kthHammingDist);
     return earlyFinish || ((found >= tar) && ((curDepth >= MAX_SEARCH_DEPTH) || (failure_prob <= (1.0 - recall))));
