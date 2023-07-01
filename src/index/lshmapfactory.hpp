@@ -42,8 +42,12 @@ public:
 
     return ret;
   }
-
+  
+  /**
+   * @brief Construct k LSHMaps with @depth hashfunctions chosen at random from @H by rebuilding @steps times
+  */
   static std::vector<LSHMap<D> *> create_optimized(std::vector<Point<D>> &points, HashFamily<D> &H, ui32 depth, ui32 k, ui32 steps = 1) {
+    
     std::vector<LSHMap<D> *> ret;
 
     ui32 OPTIMIZATION_ITERATIONS = steps;

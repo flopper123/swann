@@ -80,7 +80,7 @@ public:
    * @return std::vector<ui32> A vector of size @k containing the indices of the k-nearest-neighbours 
    *         in ascending order by distance. 
    */
-  std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8)
+  std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.9)
   {
     // std::cout << "Querying for point: " << point << " with k = " << k << " and recall = " << recall << std::endl;
     PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points

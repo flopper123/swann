@@ -8,10 +8,6 @@
 #include <H5Cpp.h>
 #include <sstream>
 
-enum DataSize : int { XS=0, S, M, L, XL};
-static inline std::string DATA_SIZES_LIST[] = {"100K", "300K", "10M", "30M", "100M"};
-
-constexpr ui32 D = 1024;
 
 inline static std::string get_dataset_string(DataSize size) {
   const std::string laion2b_path = "/swann/data/laion2B-en/";

@@ -1,0 +1,35 @@
+name: SISAP Eval
+
+on:
+  push:
+    branches:    
+      - main
+      - feature/sisap
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Installing dependencies
+        run: pip install -U cython numpy h5py scikit-learn tqdm
+        
+      - name: Run SISAP challenge
+        run: docker compose run sisap
+
+      - name: Run evaluation
+        run: |
+          python3 eval/eval.py
+          python3 eval/plot.py res.csv
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Upload results
+          path: | 
+            res.csv
+            result_100K.png
+
+        

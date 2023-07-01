@@ -29,13 +29,33 @@
 #
 # ---------------------------------------------------------------------------------------
 
+# http://ingeotec.mx/~sadit/metric-datasets/LAION/SISAP23-Challenge/hamming/en-bundles
+
 N="${1}"
-DEST="$(dirname ${BASH_SOURCE})/hdf5"
+DEST="$(dirname ${BASH_SOURCE})/sisap23"
+
+function extract_queries() {
+
+  url="https://sisap-23-challenge.s3.amazonaws.com/SISAP23-Challenge/public-queries-en-hammingv2.h5"
+
+  dest_filename="sisap23-queries.h5"
+  dest_file="$DEST/$dest_filename"
+  
+  echo "[+] Checking if $dest_file file exists locally"
+  if [ -e $dest_file ]
+  then
+    echo "[+] Data file already exists... Skipping download"
+  else
+    echo "[+] Data file not found locally. Downloading to $dest_file..."
+    wget -c $url -O $dest_file
+  fi
+}
 
 function extract_dataset() {
   count=$1 # Denotes N:the dataset to extract
+  
+  url="https://sisap-23-challenge.s3.amazonaws.com/SISAP23-Challenge/laion2B-en-hammingv2-n=${count}.h5"
 
-  url="http://ingeotec.mx/~sadit/metric-datasets/LAION/SISAP23-Challenge/hamming/en-bundles/laion2B-en-hamming-n=${count}.h5"
   dest_filename="laion2B-${count}.h5"
   dest_file="$DEST/$dest_filename"
   
@@ -47,7 +67,6 @@ function extract_dataset() {
     echo "[+] Data file not found locally. Downloading to $dest_file..."
     wget -c $url -O $dest_file
   fi
-  python3 $(dirname ${BASH_SOURCE})/preprocess.py $dest_file
 }
 
 if [[ -z "$1" ]]; then
@@ -58,8 +77,10 @@ elif [[ $1 = 'all' ]]; then
   for n in 100M 30M 10M 300K 100K;
   do
     extract_dataset $n
+    extract_queries $n
   done
 
 else
 	extract_dataset $1
+	extract_queries $1
 fi
