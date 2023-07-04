@@ -4,11 +4,11 @@
 
 #include "../global.hpp"
 #include "../hash/hashpool.hpp"
+#include "../hash/hashfamilyfactory.hpp"
 #include "../index/lshmapfactory.hpp"
 #include "../index/lshforest.hpp"
 #include "../statistics/statsgenerator.hpp"
 #include "../util/ranges.hpp"
-#include "../hash/dependenthashfamilyfactory.hpp"
 #include "../hash/hashfamilyfactory.hpp"
 
 #include "./io.hpp"
@@ -65,7 +65,7 @@ int main()
     ++counter;
     if (counter % (queries.size() / 100) == 0)
     {
-      std::cout << "LSHForest " << ((100 * counter) / queries.size()) << "\% complete" << std::endl << std::endl;
+      std::cout << "Querying " << ((100 * counter) / queries.size()) << "\% complete" << std::endl << std::endl;
     }
 
     // Query
@@ -83,7 +83,7 @@ int main()
     std::transform(ALL(query_result), result.begin(), [&index, &q](ui32 i)
                     { return std::pair<ui32,ui32>(i, q.distance((*index)[i])); });
     
-    //! TO:DO Transform points to hdf5 1024 format and distnace to hdf5
+    //! TO:DO Transform points to hdf5 1024 format and distance to hdf5
     
     
   }

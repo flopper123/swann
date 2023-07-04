@@ -32,11 +32,11 @@
 # http://ingeotec.mx/~sadit/metric-datasets/LAION/SISAP23-Challenge/hamming/en-bundles
 
 N="${1}"
-DEST="$(dirname ${BASH_SOURCE})/sisap23"
+DEST="$(dirname ${BASH_SOURCE})/laion2B-en/sisap23"
 
 function extract_queries() {
 
-  url="https://sisap-23-challenge.s3.amazonaws.com/SISAP23-Challenge/public-queries-en-hammingv2.h5"
+  url="https://sisap-23-challenge.s3.amazonaws.com/SISAP23-Challenge/public-queries-10k-hammingv2.h5"
 
   dest_filename="sisap23-queries.h5"
   dest_file="$DEST/$dest_filename"

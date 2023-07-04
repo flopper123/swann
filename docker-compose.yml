@@ -25,6 +25,7 @@ services:
     profiles: [ "sisap" ]
     volumes:
       - ./build:/swann/build
+      - ./data:/swann/data
       - ./result:/swann/result
     depends_on:
       compile:
