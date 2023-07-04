@@ -18,7 +18,7 @@ jobs:
       - name: Installing dependencies
         run: pip install -U cython numpy h5py scikit-learn tqdm
         
-      - name: Run SISAP challenge
+      - name: Compile and run SISAP challenge
         run: docker compose run sisap
 
       - name: Run evaluation

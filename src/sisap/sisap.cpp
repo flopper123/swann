@@ -54,10 +54,21 @@ int main()
   auto maps = LSHMapFactory<D>::create_optimized(dataset, pool, depth, count, optimization_steps);
 
   std::cout << "Building index" << std::endl;
+  
+  auto start_build = std::chrono::high_resolution_clock::now();
+
   LSHForest<D> *index = new LSHForest<D>(maps, dataset, SingleBitFailure<D>);
   index->build();
 
+  auto end_build = std::chrono::high_resolution_clock::now();
+
+  double total_build_time = std::chrono::duration_cast<std::chrono::duration<double>>(end_build - start_build).count();
+
   std::cout << "Running query" << std::endl;
+
+  std::vector<std::vector<std::pair<ui32, ui32>>> results;
+
+  double total_time = 0;
 
   int counter = 0;
   for (auto &q : queries)
@@ -78,14 +89,24 @@ int main()
     // Save result
     auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     
+    total_time += elapsed_time;
+
     // Vector of pairs of { point index, distance to query point } 
     std::vector<std::pair<ui32, ui32>> result(query_result.size()); 
     std::transform(ALL(query_result), result.begin(), [&index, &q](ui32 i)
                     { return std::pair<ui32,ui32>(i, q.distance((*index)[i])); });
-    
-    //! TO:DO Transform points to hdf5 1024 format and distance to hdf5
-    
-    
+
+    results.push_back(result);
   }
+  
+  // Save results
+  std::cout << "Saving results" << std::endl;
+
+  std::stringstream ss;
+
+  ss << "P1=" << P1 << ", P2=" << P2 << ", depth=" << depth << ", tries=" << count << ", optimization_steps=" << optimization_steps;
+
+  save_results_to_hdf5("results_test.h5", results, dataset_size, total_build_time, total_time, ss.str());
+
   return 0;
 }
