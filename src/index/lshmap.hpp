@@ -6,7 +6,6 @@
 typedef std::vector<ui32> bucket; // index bucket
 typedef ui32 hash_idx;
 
-//! Implement functions with const flag 
 template<ui32 D>
 class LSHMap {
 

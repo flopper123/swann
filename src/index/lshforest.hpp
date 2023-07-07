@@ -29,6 +29,7 @@ public:
   ui32 stop_hdist;
   ui32 stop_mask_index;
   ui32 buckets_visited;
+  
   LSHForest(std::vector<LSHMap<D>*> &maps, std::vector<Point<D>> &input, QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
     : is_exit(failure_strategy), 
       depth(maps.empty() ? 0 : maps.front()->depth()), 
