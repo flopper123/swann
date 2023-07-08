@@ -19,7 +19,7 @@ int main()
 
   DataSize dataset_size = DataSize::XS;
 
-  const float recall = 0.9f;
+  const float recall = 0.92f;
   
   const ui32 nr_to_query = 10; 
 
@@ -94,7 +94,7 @@ int main()
     // Vector of pairs of { point index, distance to query point } 
     std::vector<std::pair<ui32, ui32>> result(query_result.size()); 
     std::transform(ALL(query_result), result.begin(), [&index, &q](ui32 i)
-                    { return std::pair<ui32,ui32>(i, q.distance((*index)[i])); });
+                    { return std::pair<ui32,ui32>(i+1, q.distance((*index)[i])); });
 
     results.push_back(result);
   }

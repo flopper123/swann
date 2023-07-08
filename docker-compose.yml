@@ -21,10 +21,12 @@ services:
 
   sisap:
     build: .
-    command: /swann/build/sisap
+    command: /swann/scripts/run_sisap.sh 
     profiles: [ "sisap" ]
     volumes:
       - ./build:/swann/build
+      - ./scripts:/swann/scripts
+      - ./eval:/swann/eval
       - ./data:/swann/data
       - ./result:/swann/result
     depends_on:
