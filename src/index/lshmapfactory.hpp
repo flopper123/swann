@@ -103,4 +103,22 @@ public:
 
     return ret;
   }
+  /**
+   * @brief Construct @k LSHMaps with @depth hashfunctions chosen from @H
+   *        The hash functions are chosen to minimize the size of the largest bucket
+   *        and the building process is handled by multiple threads
+  */
+  static std::vector<LSHMap<D> *> mthread_create_optimized(
+    std::vector<Point<D>> &points, 
+    HashFamily<D> &H, 
+    ui32 depth, 
+    ui32 k, 
+    ui32 steps = 1) 
+  {
+    // https://www.educba.com/c-plus-plus-thread-pool/
+    const THREAD_CNT = std::thread::hardware_concurrency();
+    std::thread_pool pool(THREAD_CNT);
+
+    return std::vector<LSHMap<D> *>();
+  }
 };
