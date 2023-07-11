@@ -4,15 +4,14 @@
 
 template <ui32 D>
 class LSHHashMap : public LSHMap<D> {
-  // all possible masks by hamming distance 
-  static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
-  
-
 public:
   LSHHashMap(HashFamily<D>& hf) : LSHMap<D>(hf)
   {
     this->build(hf);
   }
+
+  // all possible masks by hamming distance 
+  static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
 
   static void initMasks(ui32 depth) {
     ui32 constructed_masks = 0;

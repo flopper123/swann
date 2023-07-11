@@ -72,6 +72,7 @@ public:
 
     if (topSize > mpSize)
     {
+      delete (pqueue.top());
       pqueue.pop();
       pqueue.push(mp);
       hasPushed = true;

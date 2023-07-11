@@ -141,6 +141,7 @@ public:
     for (int i = 0; i < THREAD_CNT; ++i) {
       pool[i] = std::thread(build_map, i);
     }
+    
     // wait for threads to finish
     for (auto& th : pool) {
       th.join();
