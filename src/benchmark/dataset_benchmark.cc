@@ -110,7 +110,6 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   auto maps = LSHMapFactory<D>::mthread_create_optimized(dataset.points, pool, depth, count, optimization_steps);
   // auto maps = LSHMapFactory<D>::create(pool, depth, count);
 
-
   std::cout << "Building index" << std::endl;
   LSHForest<D> *index = new LSHForest<D>(maps, dataset.points, SingleBitFailure<D>);
   index->build();

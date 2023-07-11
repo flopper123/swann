@@ -101,8 +101,6 @@ public:
     for (const auto& p : points) {
       this->add(p);
     }
-
-    // this->buckets.rehash(0);
   };
 
   /**
