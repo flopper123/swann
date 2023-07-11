@@ -16,3 +16,11 @@ TEST(LSHMapFactoryInit, CanCreateMultipleMaps) {
   ASSERT_EQ(maps.size(), k);
   ASSERT_EQ(maps.front()->depth(), 1);
 }
+
+TEST(LSHMapFactoryThreadedTrieRebuilding, ReturnsExcatlyKMaps) {
+  const int k = 4, steps = 3;
+  auto points = createCompleteInput();
+  std::vector<LSHMap<D> *> maps = LSHMapFactory<D>::mthread_create_optimized(points, H, 1, k, steps);
+  ASSERT_EQ(maps.size(), k);
+  ASSERT_EQ(maps.front()->depth(), 1);
+}

@@ -27,7 +27,7 @@ int main()
   HashFamily<D> pool = HashFamilyFactory<D>::createRandomBitsConcat(D);
 
   std::cout << "[+] Loading Index..." << std::endl;
-  auto maps = LSHMapFactory<D>::create_optimized(dataset, pool, depth, count);
+  auto maps = LSHMapFactory<D>::mthread_create_optimized(dataset, pool, depth, count, 3);
 
   std::cout << "Building index" << std::endl;
   LSHForest<D> index(maps, dataset, SingleBitFailure<D>);

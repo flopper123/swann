@@ -107,7 +107,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
             << "Points: " << dataset.points.size() << std::endl;
 
   const ui32 optimization_steps = 8;
-  auto maps = LSHMapFactory<D>::create_optimized(dataset.points, pool, depth, count, optimization_steps);
+  auto maps = LSHMapFactory<D>::mthread_create_optimized(dataset.points, pool, depth, count, optimization_steps);
   // auto maps = LSHMapFactory<D>::create(pool, depth, count);
 
 

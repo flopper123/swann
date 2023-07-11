@@ -7,9 +7,16 @@ class LSHHashMap : public LSHMap<D> {
   // all possible masks by hamming distance 
   static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
   
-  void initMasks() {
+
+public:
+  LSHHashMap(HashFamily<D>& hf) : LSHMap<D>(hf)
+  {
+    this->build(hf);
+  }
+
+  static void initMasks(ui32 depth) {
     ui32 constructed_masks = 0;
-    for (ui32 hdist = 0; hdist <= this->depth(); ++hdist) {
+    for (ui32 hdist = 0; hdist <= depth; ++hdist) {
       // The case might be that we have already initialized this hdist, 
       // so we recompute since each time the depth increases new options emerge.
       if (LSHHashMap<D>::masks.size() > hdist) 
@@ -20,7 +27,7 @@ class LSHHashMap : public LSHMap<D> {
       } 
 
       // Initalize a bitset of size depth with hdist bits set
-      std::vector<bool> vmask(this->depth(), false);
+      std::vector<bool> vmask(depth, false);
       
       // Set n first bits to true
       std::fill(vmask.begin(), vmask.begin() + hdist, true);
@@ -39,16 +46,10 @@ class LSHHashMap : public LSHMap<D> {
       constructed_masks += LSHHashMap<D>::masks[hdist].size();
     }
 
-    std::cout << "Masks size: " << this->masks.size() << std::endl
+    std::cout << "Masks size: " << LSHHashMap<D>::masks.size() << std::endl
               << "Total masks: " << constructed_masks << std::endl;
   }
-
-public:
-  LSHHashMap(HashFamily<D>& hf) : LSHMap<D>(hf)
-  {
-    this->build(hf);
-  }
-
+  
   /**
    * @brief Initialize this map with the given hashes. After this call, the map will be empty
    * @warning This will reset the map, and all points inserted will be lost
@@ -63,9 +64,9 @@ public:
     
     this->number_virtual_buckets = 1ULL << this->hashes.size();
 
-    if (masks.size() < this->depth() + 1)
+    if (LSHHashMap<D>::masks.size() < this->depth() + 1)
     {
-      initMasks();
+      LSHHashMap<D>::initMasks(this->depth());
     }
   }
 

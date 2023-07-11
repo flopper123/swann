@@ -3,8 +3,10 @@
 #include "../hash/hashfamily.hpp"
 #include "lsharraymap.hpp"
 #include "lshhashmap.hpp"
+#include "lshmapprioqueue.hpp"
 #include "../statistics/lshmapanalyzer.hpp"
 #include "../util/ranges.hpp"
+#include <thread>
 
 template<ui32 D> 
 class LSHMapFactory {
@@ -61,7 +63,6 @@ public:
       ui32 hi_count = UINT32_MAX;
       double hi_dev = 0.0;
 
-
       for (ui32 i = 0; i < OPTIMIZATION_ITERATIONS; i++)
       {
         HashFamily<D> hsubset = H.subset(depth);
@@ -89,11 +90,6 @@ public:
         largest_dev = hi_dev;
       }
 
-      // std::cout << "Bucket " << m << std::endl
-      //           << "\t- Largest bucket: " << hi_count << std::endl
-      //           << "\t- Norm. std. dev: " << hi_dev << std::endl
-      //           << std::endl;
-
       delete (map); // Delete the map we used for optimization to avoid memleak
       ret.emplace_back(hi);
     }
@@ -115,10 +111,43 @@ public:
     ui32 k, 
     ui32 steps = 1) 
   {
-    // https://www.educba.com/c-plus-plus-thread-pool/
-    const THREAD_CNT = std::thread::hardware_concurrency();
-    std::thread_pool pool(THREAD_CNT);
+    // Make sure to initialize the masks before starting threads
+    LSHHashMap<D>::initMasks(depth);
 
-    return std::vector<LSHMap<D> *>();
+    const ui32 THREAD_CNT = std::thread::hardware_concurrency();
+    assert(THREAD_CNT * steps >= k); 
+
+    LSHMapPriorityQueue<D> mqueue(k);
+
+    // Each thread builds @steps LSHMaps from @points
+    // and try to insert them into the priority queue
+    auto build_map = [&mqueue, &points, &depth, &H, &steps](int id)
+    {
+      for (ui32 i = 0; i < steps; i++)
+      {
+        LSHMap<D> *map = LSHMapFactory<D>::create(H, depth);
+        HashFamily<D> hsubset = H.subset(depth);
+        map->build(hsubset);
+        map->add(points);
+
+        // if there is a higher ranked map in queue delete the build map
+        if (!mqueue.push(map)) delete map;
+        else std::cout << "Thread " << id << " found a new map at step " << i << std::endl;
+      }
+    };
+    
+    // spawn threads that build_map
+    std::vector<std::thread> pool(THREAD_CNT);
+    for (int i = 0; i < THREAD_CNT; ++i) {
+      pool[i] = std::thread(build_map, i);
+    }
+    // wait for threads to finish
+    for (auto& th : pool) {
+      th.join();
+    }
+
+    auto ret = mqueue.get_all();
+    assert(ret.size() == k);
+    return ret;
   }
 };
