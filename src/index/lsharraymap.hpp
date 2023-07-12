@@ -43,6 +43,16 @@ public:
     this->build(hf);
   }
 
+  ui32 maxBucketSize() {
+    ui32 max = 0;
+    for (const auto& b : this->buckets) {
+      if (b.size() > max) {
+        max = b.size();
+      }
+    }
+    return max;
+  }
+  
   /**
    * @brief Initialize this map with the given hashes. After this call, the map will be empty
    * @warning This will reset the map, and all points inserted will be lost

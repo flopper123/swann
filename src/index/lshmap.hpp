@@ -15,6 +15,11 @@ public:
   LSHMap(HashFamily<D>& hashFamily) : hashes(hashFamily) {}
 
   virtual void build(HashFamily<D>& hashFamily) = 0;
+  
+  /**
+   * @returns Returns the maximum number of points that is stored in any bucket
+   */
+  virtual ui32 maxBucketSize() = 0;
 
   /**
    * @returns Number of points in the map

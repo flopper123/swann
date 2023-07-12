@@ -4,10 +4,19 @@
 
 template <ui32 D>
 class LSHHashMap : public LSHMap<D> {
+
 public:
   LSHHashMap(HashFamily<D>& hf) : LSHMap<D>(hf)
   {
     this->build(hf);
+  }
+  
+  /**
+   * @brief Return the number of points in the largest bucket in this map
+   *        The result is memoized, to avoid recalculating unnecessarily
+   */
+  ui32 maxBucketSize() {    
+    return max_bucket_size;
   }
 
   // all possible masks by hamming distance 
@@ -100,6 +109,9 @@ public:
     for (const auto& p : points) {
       this->add(p);
     }
+    for (const auto& [ _, b ] : this->buckets) {
+      this->max_bucket_size = std::max(this->max_bucket_size, (ui32) b.size());
+    }
   };
 
   /**
@@ -183,4 +195,5 @@ private:
   bucket empty_bucket;
   ui64 count;
   ui32 number_virtual_buckets;
+  ui32 max_bucket_size = 0; // number of points in largest bucket
 };

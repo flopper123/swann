@@ -88,8 +88,6 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 
   std::cout << "Instantiating maps" << std::endl;
   
-
-
   const float P1 = state.range(3) / 1000.0;
   const float P2 = state.range(4) / 1000.0;
 
@@ -106,7 +104,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
             << "Count: " << count << std::endl
             << "Points: " << dataset.points.size() << std::endl;
 
-  const ui32 optimization_steps = 8;
+  const ui32 optimization_steps = 20;
   auto maps = LSHMapFactory<D>::mthread_create_optimized(dataset.points, pool, depth, count, optimization_steps);
   // auto maps = LSHMapFactory<D>::create(pool, depth, count);
 
@@ -335,8 +333,8 @@ BENCHMARK(BM_query_x_points_LSHForest)
   ->Name("QueryXPointsLSHForest")
   ->Unit(benchmark::kMillisecond)
 
-  ->Args(benchies[0])
-
+  // ->Args(benchies[0])
+  ->Args({1, 10, 90, 850, 500})
   ->UseManualTime();
 //     // ->Args({0, 10, 90, 0, 1}) // XS - query for 10 points
 //     // ->Args({0, 10, 90, 0, 2}) // XS - query for 10 points

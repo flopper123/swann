@@ -9,16 +9,11 @@
 #include <mutex>
 #include <condition_variable>
 
-static ui32 maxBucketSize(LSHMap<D>* mp) {
-  auto sizes = mp->get_bucket_sizes();
-  return sizes.empty() ? 0 : *std::max_element(ALL(sizes));
-}
-
 template<ui32 D>
 class LSHMapBucketSizeCompare {
   public:
     bool operator()(LSHMap<D>* lhs, LSHMap<D>* rhs) const {
-      return maxBucketSize(lhs) < maxBucketSize(rhs);
+      return lhs->maxBucketSize() < rhs->maxBucketSize();
     }
 };
 
@@ -67,9 +62,11 @@ public:
 
     // If the queue is full, check if the top element has a larger bucket than the map to be pushed
     bool hasPushed = false;
-    const ui32 topSize = maxBucketSize(pqueue.top()),
-               mpSize = maxBucketSize(mp);
-
+    const ui32 topSize = pqueue.top()->maxBucketSize(),
+               mpSize = mp->maxBucketSize();
+    std::cout << "Queue is full, checking if top element has larger bucket than map to be pushed\n"
+              << "Top element has bucket size " << topSize << ", map to be pushed has bucket size " << mpSize << "\n"
+              << std::endl;
     if (topSize > mpSize)
     {
       delete (pqueue.top());
