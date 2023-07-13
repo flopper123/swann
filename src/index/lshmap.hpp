@@ -11,7 +11,8 @@ class LSHMap {
 
 public:
   HashFamily<D> hashes;
-
+  ui32 max_bucket_size = 0; // number of points in largest bucket
+  
   LSHMap(HashFamily<D>& hashFamily) : hashes(hashFamily) {}
 
   virtual void build(HashFamily<D>& hashFamily) = 0;

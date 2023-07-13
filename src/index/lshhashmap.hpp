@@ -16,7 +16,7 @@ public:
    *        The result is memoized, to avoid recalculating unnecessarily
    */
   ui32 maxBucketSize() {    
-    return max_bucket_size;
+    return this->max_bucket_size;
   }
 
   // all possible masks by hamming distance 
@@ -195,5 +195,4 @@ private:
   bucket empty_bucket;
   ui64 count;
   ui32 number_virtual_buckets;
-  ui32 max_bucket_size = 0; // number of points in largest bucket
 };

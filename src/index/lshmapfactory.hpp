@@ -102,7 +102,12 @@ public:
   /**
    * @brief Construct @k LSHMaps with @depth hashfunctions chosen from @H
    *        The hash functions are chosen to minimize the size of the largest bucket
-   *        and the building process is handled by multiple threads
+   *        and the building process is handled by multiple threads.
+   * @param points The input points to build the LSHMaps from
+   * @param H The hash family to choose hash functions from
+   * @param depth The number of hash functions per LSHMap
+   * @param steps The number of times to rebuild each LSHMap, the best ones out of @k*@steps builds are chosen.
+   *              It defaults to 1, which means that the LSHMaps are not rebuild.
   */
   static std::vector<LSHMap<D> *> mthread_create_optimized(
     std::vector<Point<D>> &points, 
@@ -113,27 +118,29 @@ public:
   {
     // Make sure to initialize the masks before starting threads
     LSHHashMap<D>::initMasks(depth);
-
+    
     const ui32 THREAD_CNT = std::thread::hardware_concurrency();
+    const ui32 THREAD_STEPS = std::ceil(k * steps / ((double) THREAD_CNT));
     assert(THREAD_CNT * steps >= k); 
+    
+    LSHMapPriorityQueue<D> mqueue(H, k, depth);
 
-    LSHMapPriorityQueue<D> mqueue(k);
-
-    // Each thread builds @steps LSHMaps from @points
+    // Each thread builds @THREAD_STEPS LSHMaps from @points
     // and try to insert them into the priority queue
-    auto build_map = [&mqueue, &points, &depth, &H, &steps](int id)
+    auto build_map = [&mqueue, &points, &depth, &H, &THREAD_STEPS](int id)
     {
-      for (ui32 i = 0; i < steps; i++)
+      LSHMap<D> *map = LSHMapFactory<D>::create(H, depth); // Temporary map to find good hash families
+      for (ui32 i = 0; i < THREAD_STEPS; i++)
       {
-        LSHMap<D> *map = LSHMapFactory<D>::create(H, depth);
         HashFamily<D> hsubset = H.subset(depth);
-        map->build(hsubset);
+        map->build(hsubset); // Clears the map and builds it with the new hash family
         map->add(points);
+        mqueue.push(map); // Attempt to push the map into the priority queue
 
-        // if there is a higher ranked map in queue delete the build map
-        if (!mqueue.push(map)) delete map;
-        else std::cout << "Thread " << id << " found a new map at step " << i << std::endl;
+        //! comment line above and uncomment this to see it works:
+        //! if (mqueue.push(map)) std::cout << "Thread " << id << " found a new map at step " << i << std::endl;
       }
+      delete map;
     };
     
     // spawn threads that build_map
