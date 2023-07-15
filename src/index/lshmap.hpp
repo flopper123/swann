@@ -6,16 +6,21 @@
 typedef std::vector<ui32> bucket; // index bucket
 typedef ui32 hash_idx;
 
-//! Implement functions with const flag 
 template<ui32 D>
 class LSHMap {
 
 public:
   HashFamily<D> hashes;
-
+  ui32 max_bucket_size = 0; // number of points in largest bucket
+  
   LSHMap(HashFamily<D>& hashFamily) : hashes(hashFamily) {}
 
   virtual void build(HashFamily<D>& hashFamily) = 0;
+  
+  /**
+   * @returns Returns the maximum number of points that is stored in any bucket
+   */
+  virtual ui32 maxBucketSize() = 0;
 
   /**
    * @returns Number of points in the map

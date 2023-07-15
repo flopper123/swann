@@ -3,8 +3,10 @@
 #include "../hash/hashfamily.hpp"
 #include "lsharraymap.hpp"
 #include "lshhashmap.hpp"
+#include "lshmapprioqueue.hpp"
 #include "../statistics/lshmapanalyzer.hpp"
 #include "../util/ranges.hpp"
+#include <thread>
 
 template<ui32 D> 
 class LSHMapFactory {
@@ -61,7 +63,6 @@ public:
       ui32 hi_count = UINT32_MAX;
       double hi_dev = 0.0;
 
-
       for (ui32 i = 0; i < OPTIMIZATION_ITERATIONS; i++)
       {
         HashFamily<D> hsubset = H.subset(depth);
@@ -89,11 +90,6 @@ public:
         largest_dev = hi_dev;
       }
 
-      // std::cout << "Bucket " << m << std::endl
-      //           << "\t- Largest bucket: " << hi_count << std::endl
-      //           << "\t- Norm. std. dev: " << hi_dev << std::endl
-      //           << std::endl;
-
       delete (map); // Delete the map we used for optimization to avoid memleak
       ret.emplace_back(hi);
     }
@@ -101,6 +97,58 @@ public:
     std::cout << "Largest bucket in all tries: " << largest_bucket << std::endl;
     std::cout << "Largest dev in all tries: " << largest_dev << std::endl << std::endl;
 
+    return ret;
+  }
+  /**
+   * @brief Construct @k LSHMaps with @depth hashfunctions chosen from @H
+   *        The hash functions are chosen to minimize the size of the largest bucket
+   *        and the building process is handled by multiple threads.
+   * @param points The input points to build the LSHMaps from
+   * @param H The hash family to choose hash functions from
+   * @param depth The number of hash functions per LSHMap
+   * @param steps The number of times to rebuild each LSHMap, the best ones out of @k*@steps builds are chosen.
+   *              It defaults to 1, which means that the LSHMaps are not rebuild.
+  */
+  static std::vector<LSHMap<D> *> mthread_create_optimized(
+    std::vector<Point<D>> &points, 
+    HashFamily<D> &H, 
+    ui32 depth, 
+    ui32 k, 
+    ui32 steps = 1) 
+  {
+    
+    const ui32 THREAD_CNT = std::thread::hardware_concurrency();
+    const ui32 THREAD_STEPS = std::ceil(k * steps / ((double) THREAD_CNT));
+    LSHMapPriorityQueue<D> mqueue(H, k, depth);
+
+    // Each thread builds @THREAD_STEPS LSHMaps from @points
+    // and try to insert them into the priority queue
+    auto build_map = [&mqueue, &points, &depth, &H, &THREAD_STEPS](int id)
+    {
+      LSHMap<D> *map = LSHMapFactory<D>::create(H, depth); // Temporary map to find good hash families
+      for (ui32 i = 0; i < THREAD_STEPS; i++)
+      {
+        HashFamily<D> hsubset = H.subset(depth);
+        map->build(hsubset); // Clears the map and builds it with the new hash family
+        map->add(points);
+        mqueue.push(map); // Attempt to push the map into the priority queue
+      }
+      delete map;
+    };
+
+    // spawn threads that build_map
+    std::vector<std::thread> pool(THREAD_CNT);
+    for (int i = 0; i < THREAD_CNT; ++i) {
+      pool[i] = std::thread(build_map, i);
+    }
+    
+    // wait for threads to finish
+    for (auto& th : pool) {
+      th.join();
+    }
+
+    auto ret = mqueue.get_all();
+    assert(ret.size() == k);
     return ret;
   }
 };

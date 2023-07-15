@@ -72,6 +72,7 @@ add_executable(
   "test/index/lshforest.cc"
   "test/index/bfindex.cc"
   "test/index/lshtrie.cc"
+  "test/index/lshmapprioqueue.cc"
 )
 
 target_link_libraries(

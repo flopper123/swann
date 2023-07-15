@@ -44,6 +44,7 @@ TEST(LSHForestBuild, BuildInsertPointsIntoAllMaps) {
 
 // Expect excatly K results and correct distance
 TEST(LSHForestQuery, QueryReturnsCorrectResults) {
+  LSHHashMap<D>::masks = std::vector<std::vector<ui32>>();
   // Arrange : Build all maps on all combinations of points  
   std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, 2, 2);
   std::vector<Point<D>> points = createCompleteInput();

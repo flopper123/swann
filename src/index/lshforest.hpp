@@ -29,6 +29,7 @@ public:
   ui32 stop_hdist;
   ui32 stop_mask_index;
   ui32 buckets_visited;
+  
   LSHForest(std::vector<LSHMap<D>*> &maps, std::vector<Point<D>> &input, QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
     : is_exit(failure_strategy), 
       depth(maps.empty() ? 0 : maps.front()->depth()), 
@@ -68,7 +69,7 @@ public:
   inline float get_bucket_factor(const float recall) const noexcept {
     const float recall_factor = (1.0 - recall) / 0.05;
     const float val = (this->size() * (std::pow(recall,recall_factor-1))) / ((1000.0 + std::log2(this->maps.front()->bucketCount())) * this->maps.size()) + 40.0;
-    return 2 * val;
+    return 3 * val;
   }
 
   /**
@@ -86,9 +87,7 @@ public:
     PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points
      
     const ui32 M = this->maps.size(), BATCH_SIZE = k * this->get_bucket_factor(recall);
-    // std::cout << "Batch size: " << BATCH_SIZE << std::endl
-    //           << "Bucket factor: " << this->get_bucket_factor(recall) << std::endl
-    //           << "Bucket count: " << std::endl;
+
     std::vector<ui32> hash(M); // hash[m] : contains the hash of point in map[m]
     for (ui32 m = 0; m < M; ++m){
       hash[m] = this->maps[m]->hash(point);
