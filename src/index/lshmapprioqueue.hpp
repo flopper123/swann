@@ -69,6 +69,7 @@ public:
     bool hasPushed = false;
     if (pqueue[0]->maxBucketSize() > mp->maxBucketSize())
     {
+      std::cout << "Pushing map with max bucket size " << mp->maxBucketSize() <<  " < " << pqueue[0]->maxBucketSize()<< std::endl;
       pqueue[0]->max_bucket_size = mp->maxBucketSize();
       pqueue[0]->build(mp->hashes);
       if (sz < max_size) ++sz;

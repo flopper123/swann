@@ -22,9 +22,10 @@ public:
   // all possible masks by hamming distance 
   static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
 
-  static void initMasks(ui32 depth) {
+  static void initMasks(ui32 depth = 32U, ui32 max_hdist = 4U) {
     ui32 constructed_masks = 0;
-    for (ui32 hdist = 0; hdist <= depth; ++hdist) {
+    if (max_hdist == 0) max_hdist = depth;
+    for (ui32 hdist = 0; hdist <= max_hdist; ++hdist) {
       // The case might be that we have already initialized this hdist, 
       // so we recompute since each time the depth increases new options emerge.
       if (LSHHashMap<D>::masks.size() > hdist) 
@@ -72,9 +73,9 @@ public:
     
     this->number_virtual_buckets = 1ULL << this->hashes.size();
 
-    if (LSHHashMap<D>::masks.size() < this->depth() + 1)
+    if (LSHHashMap<D>::masks.empty())
     {
-      LSHHashMap<D>::initMasks(this->depth());
+      LSHHashMap<D>::initMasks(32U, 4U);
     }
   }
 

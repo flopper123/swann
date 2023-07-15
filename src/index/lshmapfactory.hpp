@@ -116,13 +116,9 @@ public:
     ui32 k, 
     ui32 steps = 1) 
   {
-    // Make sure to initialize the masks before starting threads
-    LSHHashMap<D>::initMasks(depth);
     
     const ui32 THREAD_CNT = std::thread::hardware_concurrency();
     const ui32 THREAD_STEPS = std::ceil(k * steps / ((double) THREAD_CNT));
-    assert(THREAD_CNT * steps >= k); 
-    
     LSHMapPriorityQueue<D> mqueue(H, k, depth);
 
     // Each thread builds @THREAD_STEPS LSHMaps from @points
@@ -136,13 +132,10 @@ public:
         map->build(hsubset); // Clears the map and builds it with the new hash family
         map->add(points);
         mqueue.push(map); // Attempt to push the map into the priority queue
-
-        //! comment line above and uncomment this to see it works:
-        //! if (mqueue.push(map)) std::cout << "Thread " << id << " found a new map at step " << i << std::endl;
       }
       delete map;
     };
-    
+
     // spawn threads that build_map
     std::vector<std::thread> pool(THREAD_CNT);
     for (int i = 0; i < THREAD_CNT; ++i) {
