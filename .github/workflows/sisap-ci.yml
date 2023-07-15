@@ -20,6 +20,9 @@ jobs:
       
       - name: Change permissions
         run: chmod +x ./scripts/run_sisap.sh
+
+      - name: Fetch SISAP dataset
+        run: curl -L https://sisap-23-challenge.s3.amazonaws.com/SISAP23-Challenge/public-queries-10k-hammingv2.h5 -o data/laion2B-en/sisap23/laion2B-100K.h5
       
       - name: Compile and run SISAP challenge
         run: docker compose run sisap
