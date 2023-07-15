@@ -74,6 +74,7 @@ TEST(LSHMapPriorityQueue, OrdersMapsByTheNumberOfPointsInLargestBucket) {
   map1->add(points);
   ASSERT_TRUE(queue.push(map1));  
   ASSERT_TRUE(queue.push(map2));
+
   // Expect the one with most points in the largest bucket to be top
   ASSERT_EQ(queue.top()->maxBucketSize(), map1->maxBucketSize());
 }
