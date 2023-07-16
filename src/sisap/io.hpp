@@ -67,9 +67,9 @@ inline static void save_results_to_hdf5(
 
 
 
-inline static std::string get_sisap_dataset_string(DataSize size) {
+inline static std::string get_sisap_dataset_string() {
   const std::string laion2b_path = "/swann/data/laion2B-en/";
-  const std::string file_path = laion2b_path + "sisap23/laion2B-" + DATA_SIZES_LIST[size] + ".h5";
+  const std::string file_path = laion2b_path + "sisap23/laion2B-points.h5";
   return file_path;
 }
 
@@ -102,28 +102,27 @@ inline static std::string download_sisap_laion2B_dataset(DataSize size)
   // Execute download script
   std::system(command.c_str());
 
-  return get_sisap_dataset_string(size);
+  return get_sisap_dataset_string();
 }
 
 
 
-inline static H5::DataSet fetch_sisap_points_dataset(DataSize size)
+inline static H5::DataSet fetch_sisap_points_dataset()
 {
-  download_sisap_laion2B_dataset(size);
-  return fetch_local_dataset( size, get_sisap_dataset_string(size), "/", "hamming" );
+  return fetch_local_dataset( DataSize::XL, get_sisap_dataset_string(), "/", "hamming" );
 }
 
-inline static H5::DataSet fetch_sisap_query_dataset(DataSize size)
+inline static H5::DataSet fetch_sisap_query_dataset()
 {
-  return fetch_local_dataset( size, get_sisap_dataset_queries_string(), "/", "hamming" );
+  return fetch_local_dataset( DataSize::XL, get_sisap_dataset_queries_string(), "/", "hamming" );
 }
 
 template<ui32 D> 
-inline static PointsDataset<D> load_sisap(DataSize size) {
-  return parse_hdf5_points<D>(fetch_sisap_points_dataset(size));
+inline static PointsDataset<D> load_sisap() {
+  return parse_hdf5_points<D>(fetch_sisap_points_dataset());
 }
 
 template<ui32 D> 
-inline static PointsDataset<D> load_sisap_queries(DataSize size) {
-  return parse_hdf5_points<D>(fetch_sisap_query_dataset(size));
+inline static PointsDataset<D> load_sisap_queries() {
+  return parse_hdf5_points<D>(fetch_sisap_query_dataset());
 }

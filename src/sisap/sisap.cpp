@@ -17,7 +17,7 @@ int main()
 {
   // Parameters
 
-  DataSize dataset_size = DataSize::XS;
+  DataSize dataset_size = DataSize::XL;
 
   const float recall = 0.92f;
   
@@ -32,8 +32,8 @@ int main()
   srand(time(NULL));
 
   std::cout << "Loading benchmark dataset" << std::endl;
-  PointsDataset<D> dataset = load_sisap<D>(dataset_size);
-  PointsDataset<D> queries = load_sisap_queries<D>(dataset_size);
+  PointsDataset<D> dataset = load_sisap<D>();
+  PointsDataset<D> queries = load_sisap_queries<D>();
 
   std::cout << "Instantiating hash LSHMap" << std::endl;
   HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
