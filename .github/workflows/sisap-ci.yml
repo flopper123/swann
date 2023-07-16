@@ -16,7 +16,7 @@ jobs:
           submodules: 'true'
 
       - name: Installing dependencies
-        run: pip install -U cython numpy h5py scikit-learn tqdm
+        run: pip install -U cython numpy h5py scikit-learn tqdm matplotlib
       
       - name: Change permissions
         run: chmod +x ./scripts/run_sisap.sh
