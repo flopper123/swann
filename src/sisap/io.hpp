@@ -99,8 +99,6 @@ inline static std::string download_sisap_laion2B_dataset(DataSize size)
   return get_sisap_dataset_string();
 }
 
-
-
 inline static H5::DataSet fetch_sisap_points_dataset()
 {
   return fetch_local_dataset( DataSize::XL, get_sisap_dataset_string(), "/", "hamming" );
