@@ -3,6 +3,11 @@
 #include "../global.hpp"
 #include "../index/point.hpp"
 
+enum DataSize : int { XS=0, S, M, L, XL};
+static inline std::string DATA_SIZES_LIST[] = {"100K", "300K", "10M", "30M", "100M"};
+static inline ui32 DATA_SIZES_VALUE_LIST[] = {100000, 300000, 10000000, 30000000, 100000000};
+constexpr ui32 D = 1024;
+
 template<ui32 D>
 class PointsDataset : public std::vector<Point<D>> {
   using std::vector<Point<D>>::vector;

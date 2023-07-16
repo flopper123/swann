@@ -2,17 +2,15 @@
 #   'hamming', 
 #   'queries' ('points', 'answers')
 import sys
-import os
 import time
 import multiprocessing
 from typing import List
 import h5py
 import numpy as np
 import random
-from sklearn.model_selection import train_test_split, ShuffleSplit
+from sklearn.model_selection import train_test_split
 
 import tqdm
-from tqdm.contrib.concurrent import thread_map
 
 
 # Class for finding k nearest neighbours by brute force

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <functional>
+#include <sstream>
 #include "../util/ranges.hpp"
 #include "../index/point.hpp"
 

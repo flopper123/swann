@@ -1,0 +1,2 @@
+data,size,algo,buildtime,querytime,params,recall
+hammingv2,100K,swann,0.1300602,49.088917,"P1=0.86, P2=0.535, depth=19, tries=18, optimization_steps=8",0.2971

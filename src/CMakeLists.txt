@@ -84,6 +84,21 @@ target_link_libraries(
 
 gtest_discover_tests(hello_test)
 
+# SISAP Challenge
+file(GLOB SISAP_FILES 
+  "sisap/*.hpp"
+)
+add_executable(
+  sisap
+  ${SOURCE_FILES}
+  ${SISAP_FILES}
+  "sisap/sisap.cpp"
+)
+
+target_link_libraries(
+  sisap
+  ${HDF5_LIBRARIES}
+)
 
 # Benchmarking
 file(GLOB BENCHMARK_FILES

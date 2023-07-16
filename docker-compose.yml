@@ -19,6 +19,22 @@ services:
     environment:
       - DEBUG=true
 
+  sisap:
+    build: .
+    command: /swann/scripts/run_sisap.sh 
+    profiles: [ "sisap" ]
+    volumes:
+      - ./build:/swann/build
+      - ./scripts:/swann/scripts
+      - ./eval:/swann/eval
+      - ./data:/swann/data
+      - ./result:/swann/result
+    depends_on:
+      compile:
+        condition: service_completed_successfully
+    environment:
+      - DEBUG=true
+
   test:
     build: .
     command: /swann/build/hello_test

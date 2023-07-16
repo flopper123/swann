@@ -1,0 +1,42 @@
+name: SISAP Eval
+
+on:
+  push:
+    branches:    
+      - main
+      - feature/sisap
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Installing dependencies
+        run: pip install -U cython numpy h5py scikit-learn tqdm matplotlib
+      
+      - name: Change permissions
+        run: chmod +x ./scripts/run_sisap.sh
+
+      # Load queries and dataset - note naming of files for SISAP challenge
+      - name: Fetch SISAP queries dataset
+        run: |
+          curl -L https://sisap-23-challenge.s3.amazonaws.com/SISAP23-Challenge/public-queries-10k-hammingv2.h5 -o data/laion2B-en/sisap23/sisap23-queries.h5
+          curl -L https://sisap-23-challenge.s3.amazonaws.com/SISAP23-Challenge/laion2B-en-hammingv2-n=100K.h5 -o data/laion2B-en/sisap23/laion2B-points.h5
+      
+      - name: Compile and run SISAP challenge
+        run: docker compose run sisap
+
+      - name: Run evaluation
+        run: |
+          python3 eval/eval.py
+          python3 eval/plot.py res.csv
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Upload results
+          path: | 
+            res.csv
+            result_100K.png
