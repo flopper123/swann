@@ -4,7 +4,7 @@ Welcome to the SWANN repository! This project focuses on developing a highly eff
 
 ## Report
 
-The [project report](SWANN_Big-ANN-Challenge_Bachelor_Thesis.tex.pdf) provides a comprehensive study of our LSH algorithm, covering its theory, implementation, and performance analysis. It explores fundamental LSH concepts such as hash families, bucket distributions, and failure probabilities.
+The [project report](SWANN_Big-ANN-Challenge_Bachelor_Thesis.pdf) provides a comprehensive study of our LSH algorithm, covering its theory, implementation, and performance analysis. It explores fundamental LSH concepts such as hash families, bucket distributions, and failure probabilities.
 
 ## Running
 
