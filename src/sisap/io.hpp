@@ -59,13 +59,7 @@ inline static void save_results_to_hdf5(
   build_time_attr->write(H5::PredType::NATIVE_FLOAT, &build_time);
   query_time_attr->write(H5::PredType::NATIVE_FLOAT, &query_time);
   hyperparams_attr->write(strdatatype, hyperparams_description);
-
 }
-
-
-
-
-
 
 inline static std::string get_sisap_dataset_string() {
   const std::string laion2b_path = "/swann/data/laion2B-en/";
