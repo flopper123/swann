@@ -65,11 +65,10 @@ public:
     }
   };
   
-  // N / (loge(N) + 1) + 200
   inline float get_bucket_factor(const float recall) const noexcept {
     const float recall_factor = (1.0 - recall) / 0.05;
     const float val = (this->size() * (std::pow(recall,recall_factor-1))) / ((1000.0 + std::log2(this->maps.front()->bucketCount())) * this->maps.size()) + 40.0;
-    return 3 * val;
+    return std::numbers::e * val;
   }
 
   /**
@@ -172,7 +171,7 @@ private:
   {
       
     // http://madscience.ucsd.edu/2020/notes/lec13.pdf
-    const bool earlyFinish = 1500 * this->maps.size() < found;
+    const bool earlyFinish = 2000 * this->maps.size() < found;
 
     const float failure_prob = is_exit(this->maps.size(), this->depth, curDepth, found, tar, kthHammingDist);
     return earlyFinish || (failure_prob <= (1.0 - recall) && found >= tar) || (curDepth >= 8 && found >= tar);

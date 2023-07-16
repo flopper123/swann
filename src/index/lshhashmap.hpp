@@ -68,7 +68,7 @@ public:
     this->hashes = hf;
 
     this->buckets.clear();
-
+    this->max_bucket_size = 0;
     count = 0;
     
     this->number_virtual_buckets = 1ULL << this->hashes.size();
