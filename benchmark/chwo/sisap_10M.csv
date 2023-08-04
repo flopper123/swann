@@ -1,0 +1,29 @@
+2023-08-03T22:40:55+00:00
+Running /swann/build/benchmark
+Run on (20 X 3600 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 256 KiB (x10)
+  L3 Unified 20480 KiB (x1)
+Load Average: 8.85, 5.93, 2.80
+
+Repeated 3 times
+
+RUN 1:
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"P1","P2","foundPerQuery","inputRecall","kNN","optimizationSteps","recall","slowestQuery","timePerQuery","trie_count","trie_depth"
+"QueryXPointsLSHForest/0/10/90/860/535/manual_time",1,16471.8,16489.9,ms,,,,,,0.86,0.535,7016.55,0.9,10,20,0.88358,0.0126922,0.00164718,18,19
+"QueryXPointsLSHForest/1/10/90/860/535/manual_time",1,35675,35697.1,ms,,,,,,0.86,0.535,15329.9,0.9,10,20,0.90646,0.0197409,0.0035675,24,21
+"QueryXPointsLSHForest/2/10/90/860/535/manual_time",1,250604,250643,ms,,,,,,0.86,0.535,97045.9,0.9,10,20,0.90835,0.0996494,0.0250604,51,26
+
+RUN 2:
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"P1","P2","foundPerQuery","inputRecall","kNN","optimizationSteps","recall","slowestQuery","timePerQuery","trie_count","trie_depth"
+"QueryXPointsLSHForest/0/10/90/860/535/manual_time",1,18320.2,18339.3,ms,,,,,,0.86,0.535,8582.51,0.9,10,20,0.90501,0.0113844,0.00183202,18,19
+"QueryXPointsLSHForest/1/10/90/860/535/manual_time",1,34132.6,34154.4,ms,,,,,,0.86,0.535,14553.7,0.9,10,20,0.89996,0.017903,0.00341326,24,21
+"QueryXPointsLSHForest/2/10/90/860/535/manual_time",1,233122,233159,ms,,,,,,0.86,0.535,89620.3,0.9,10,20,0.9031,0.106282,0.0233122,51,26
+
+RUN 3:
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"P1","P2","foundPerQuery","inputRecall","kNN","optimizationSteps","recall","slowestQuery","timePerQuery","trie_count","trie_depth"
+"QueryXPointsLSHForest/0/10/90/860/535/manual_time",1,22842.7,22863.2,ms,,,,,,0.86,0.535,10208.3,0.9,10,20,0.91815,0.0184396,0.00228427,18,19
+"QueryXPointsLSHForest/1/10/90/860/535/manual_time",1,35370.6,35404.5,ms,,,,,,0.86,0.535,15143.5,0.9,10,20,0.9136,0.0188654,0.00353706,24,21
+"QueryXPointsLSHForest/2/10/90/860/535/manual_time",1,243141,243178,ms,,,,,,0.86,0.535,92912.1,0.9,10,20,0.91005,0.0872189,0.0243141,51,26
