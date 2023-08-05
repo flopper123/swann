@@ -17,6 +17,10 @@ public:
     return HF;
   }
 
+  static HashFamily<D> create_random_bits(ui32 size = 1024) {
+    return createRandomBits(size);
+  }
+
   // Creates 'size' different lambdas that either ORs or ANDs returned values from createRandomBits
   static HashFamily<D> createRandomBitsConcat(ui32 size) {
 
