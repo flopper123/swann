@@ -4,6 +4,8 @@ Welcome to the SWANN repository! This project focuses on developing a highly eff
 
 
 ## Basic example
+This basic example covers loading, building and querying of the LSH index.
+
 ```c++
 int main() {
   
