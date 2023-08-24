@@ -66,8 +66,12 @@ static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
   state.counters["recall"] = recalls; // Expected to be 1.0 since brute force
 }
 
+static void BM_mthread_query_x_points_LSHForest(benchmark::State &state) {
+
+}
+
 /**
- * @brief Benchmark the query performance of the LSHForest index for random bits concat hash family
+ * @brief Benchmark the query performance of the LSHForest index for random bits
  */
 static void BM_query_x_points_LSHForest(benchmark::State &state)
 {
@@ -128,15 +132,16 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   {
     for (auto &q : dataset.queries)
     {
-
+      QueryLog log;
       if (i % (dataset.queries.size() / 100) == 0)
       {
         std::cout << "LSHForest " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl << std::endl;
       }
 
       // Query
+      QueryLog log;
       auto start = std::chrono::high_resolution_clock::now();
-      auto result = index->query(q.query, nrToQuery, recall);
+      auto result = index->query(q.query, nrToQuery, recall, &log);
       auto end = std::chrono::high_resolution_clock::now();
       // Save result
       auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
@@ -148,10 +153,9 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 
       if (i % (dataset.queries.size() / 100) == 0)
       {
-        std::cout << "Stopped at dist " << index->stop_hdist << " with mask index " << index->stop_mask_index << " and a total of " << index->stop_found << " found points" << std::endl;
-        std::cout << "Time taken: " << elapsed_time << std::endl;
-        std::cout << "Recall: " << calculateRecall(result, q.nearest_neighbors) << std::endl;
-        std::cout << "Visited: " << index->buckets_visited << std::endl << std::endl;
+        std::cout << log << std::endl;
+        std::cout << "\tTime taken: " << elapsed_time << std::endl;
+        std::cout << "\tRecall: " << calculateRecall(result, q.nearest_neighbors) << std::endl;
       }
       slowest_time = std::max(slowest_time, elapsed_time);
       state.SetIterationTime(elapsed_time);

@@ -2,7 +2,7 @@
 #include "../../index/pointarithmeticresult.hpp"
 
 TEST(PointSubtraction, CanConstruct) {
-  auto p1 = random_point<4>(), p2 = random_point<4>();
+  auto p1 = Point<4>::random(), p2 = Point<4>::random();
   auto [pos,neg] = PointCalculator::subtraction<4>(p1, p2);
 }
 

@@ -20,7 +20,11 @@ class Point : public std::bitset<D> {
     inline ui32 distance(const Point<D>& p2) const noexcept {
       return (*this ^ p2).count();
     }
-   
+    
+    static inline Point<D> random(double p = 0.5) {
+      return random_point<D>(p);
+    }
+    
     static inline constexpr Point<D> Empty = Point<D>{0x0};
 };
 
