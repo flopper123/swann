@@ -66,9 +66,9 @@ static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
   state.counters["recall"] = recalls; // Expected to be 1.0 since brute force
 }
 
-static void BM_mthread_query_x_points_LSHForest(benchmark::State &state) {
+// static void BM_mthread_query_x_points_LSHForest(benchmark::State &state) {
 
-}
+// }
 
 /**
  * @brief Benchmark the query performance of the LSHForest index for random bits
@@ -132,7 +132,6 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
   {
     for (auto &q : dataset.queries)
     {
-      QueryLog log;
       if (i % (dataset.queries.size() / 100) == 0)
       {
         std::cout << "LSHForest " << ((100 * i) / dataset.queries.size()) << "\% complete" << std::endl << std::endl;
@@ -160,7 +159,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
       slowest_time = std::max(slowest_time, elapsed_time);
       state.SetIterationTime(elapsed_time);
 
-      avg_found += index->stop_found;
+      avg_found += log.found;
       total_time += elapsed_time;
       i++;
     }
@@ -334,11 +333,11 @@ std::vector<int64_t> benchies[] = {
     std::vector<int64_t>({2, 100, 90, 860, 535}),
 };
 
-// BENCHMARK(BM_query_x_points_LSHForest)
-//   ->Name("QueryXPointsLSHForest")
-//   ->Unit(benchmark::kMillisecond)
-//   ->Args({0, 10, 90, 860, 535})
-//   ->Args({1, 10, 90, 860, 535})
-//   ->Args({2, 10, 90, 860, 535})
-//   ->UseManualTime();
+BENCHMARK(BM_query_x_points_LSHForest)
+  ->Name("QueryXPointsLSHForest")
+  ->Unit(benchmark::kMillisecond)
+  ->Args({0, 10, 90, 860, 535})
+  ->Args({1, 10, 90, 860, 535})
+  // ->Args({2, 10, 90, 860, 535})
+  ->UseManualTime();
   

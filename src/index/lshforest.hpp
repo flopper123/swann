@@ -82,23 +82,23 @@ public:
     if (!thread_cnt) thread_cnt = std::thread::hardware_concurrency();
 
     std::vector<std::vector<ui32>> results(queries.size(), std::vector<ui32>()),
-                                   batches(thread_cnt, std::vector<Point<D>>()); // indices of points in queries
+                                   batches(thread_cnt, std::vector<ui32>()); // indices of points in queries
     
     // Split the queries into thread_cnt batches
     for (ui32 i = 0; i < queries.size(); ++i) {
       batches[i % thread_cnt].emplace_back(i);
     }
 
-    auto answer_batch = [this, &queries, &results, k, recall](std::vector<ui32>& batch) {
-      for (auto& pidx : batch) {
+    auto answer_batch = [this, k, recall, &queries, &results, &batches](ui32 bidx) {
+      for (auto& pidx : batches[bidx]) {
         results[pidx] = this->query(queries[pidx], k, recall);
       }
     };
     
     // Spawn threads that answer queries
-    std::vector<<std::thread> pool(thread_cnt);
+    std::vector<std::thread> pool(thread_cnt);
     for (ui32 i=0; i < thread_cnt; ++i) {
-      pool[i] = std::thread(answer_batch, batches[i]);
+      pool[i] = std::thread(answer_batch, i);
     }
       
     // wait for threads to finish

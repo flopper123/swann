@@ -13,7 +13,7 @@ struct QueryLog {
        found = 0,      // The total number of points found
        visited = 0;    // The number of buckets visited
   
-  friend ostream& operator<<(ostream& os, const QueryLog& log) {
+  friend std::ostream& operator<<(std::ostream& os, const QueryLog& log) {
     os << "QueryLog: " << std::endl
        << "\tStopped at mask_index: " << log.mask_index << std::endl
        << "\tStopped at hdist: " << log.hdist << std::endl
@@ -48,7 +48,7 @@ class Index {
      * @param recall The precision of the query
      * @param log A ptr to a query log to use for storing additional query information.
      */
-    virtual std::vector<ui32> query(const Point<D>& point, int k, float recall, QueryLog* log) = 0;
+    virtual std::vector<ui32> query(const Point<D>& point, int k, float recall, QueryLog* log = nullptr) = 0;
 
     /**
      * @param i index of the point to return
