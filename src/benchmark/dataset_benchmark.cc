@@ -66,9 +66,73 @@ static void BM_bf_query_10_points_BFIndex(benchmark::State &state)
   state.counters["recall"] = recalls; // Expected to be 1.0 since brute force
 }
 
-// static void BM_mthread_query_x_points_LSHForest(benchmark::State &state) {
+static void BM_mthread_query_x_points_LSHForest(benchmark::State &state) {
+  srand(time(NULL));
 
-// }
+  BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(static_cast<DataSize>(state.range(0)));
+  HashFamily<D> pool = HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+  pool += HashFamilyFactory<D>::createRandomBits(D);
+
+  const float P1 = state.range(3) / 1000.0;
+  const float P2 = state.range(4) / 1000.0;  
+
+  const float depth_val = std::min(
+    std::ceil(log(dataset.points.size()) / log(1 / P2)),
+    30.0
+  );
+  const ui32 depth = depth_val;
+  const ui32 count = std::ceil(std::pow(P1, -depth_val));
+
+  std::cout << "Running mthread query benchmark on LSH Forest Index" << std::endl
+            << "\tDepth: " << depth << std::endl
+            << "\tCount: " << count << std::endl
+            << "\tPoints: " << dataset.points.size() << std::endl;
+  const ui32 optimization_steps = 20;
+  
+  std::cout << "\tFinding optimal LSH Maps from dataset.. " << std::endl;
+  auto maps = LSHMapFactory<D>::mthread_create_optimized(dataset.points, pool, depth, count, optimization_steps);
+  LSHForest<D> *index = new LSHForest<D>(maps, dataset.points, SingleBitFailure<D>);
+  std::cout << "\tBuilding Index.. " << std::endl;
+  index->build();
+
+  double recalls = 0.0, recall = state.range(2) / 100.0, avg_found = 0.0, queriesLength = (double)dataset.queries.size(), total_time = 0;
+  int nrToQuery = state.range(1), i = 1;
+  
+  // TODO: Transform dataset.queries into a vector<Point<D>> containing the query points
+  std::vector<Point<D>> queries;
+  for (auto &q : dataset.queries) {
+    queries.push_back(q.query);
+  }
+  
+  for (auto _ : state)
+  {
+    std::cout << "Answering queries with multiple threads..." << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
+    std::vector<std::vector<ui32>> results = index->mthread_queries(queries, nrToQuery, recall);
+    auto end = std::chrono::high_resolution_clock::now();
+    total_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+    // TODO Rewrite to std::accumulate 
+    for (int i = 0; i < results.size(); ++i) {
+      std::transform(ALL(results[i]), results[i].begin(), [&index, &queries, &i](ui32 j)
+                     { return queries[i].distance((*index)[j]); });
+      recalls += calculateRecall(results[i], dataset.queries[i].nearest_neighbors);
+    }
+    state.SetIterationTime(total_time);
+  }
+
+  state.counters["recall"] = recalls / queriesLength;
+  state.counters["inputRecall"] = recall;
+  state.counters["optimizationSteps"] = optimization_steps;
+  state.counters["kNN"] = nrToQuery;
+  state.counters["P1"] = P1;
+  state.counters["P2"] = P2;
+  state.counters["trie_depth"] = depth;
+  state.counters["trie_count"] = count;
+  state.counters["timePerQuery"] = (double)total_time / queriesLength;
+  delete index;
+}
 
 /**
  * @brief Benchmark the query performance of the LSHForest index for random bits
@@ -118,7 +182,6 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 
   double recalls = 0.0, recall = state.range(2) / 100.0, avg_found = 0.0;
   double queriesLength = (double)dataset.queries.size();
-
   int nrToQuery = state.range(1);
 
   ui32 i = 1;
@@ -333,11 +396,20 @@ std::vector<int64_t> benchies[] = {
     std::vector<int64_t>({2, 100, 90, 860, 535}),
 };
 
-BENCHMARK(BM_query_x_points_LSHForest)
-  ->Name("QueryXPointsLSHForest")
+// BENCHMARK(BM_query_x_points_LSHForest)
+//   ->Name("QueryXPointsLSHForest")
+//   ->Unit(benchmark::kMillisecond)
+//   ->Args({0, 10, 90, 860, 535})
+//   ->Args({1, 10, 90, 860, 535})
+//   // ->Args({2, 10, 90, 860, 535})
+//   ->UseManualTime();
+
+
+BENCHMARK(BM_mthread_query_x_points_LSHForest)
+  ->Name("MThreadQueryXPointsLSHForest")
   ->Unit(benchmark::kMillisecond)
   ->Args({0, 10, 90, 860, 535})
   ->Args({1, 10, 90, 860, 535})
-  // ->Args({2, 10, 90, 860, 535})
+  ->Args({2, 10, 90, 860, 535})
   ->UseManualTime();
   
