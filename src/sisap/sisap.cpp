@@ -70,8 +70,6 @@ int main()
 
   double total_time = 0;
 
-
-
   std::cout << "Answering queries with multiple threads..." << std::endl;
   // Query
   auto start = std::chrono::high_resolution_clock::now();
@@ -81,6 +79,7 @@ int main()
   auto end = std::chrono::high_resolution_clock::now();
   total_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
   for (int i = 0; i < results.size(); ++i) {
+    std::cout << "Query " << i << " done" << std::endl;
     // Vector of pairs of { point index, distance to query point } 
     std::transform(ALL(query_result[i]), results[i].begin(), [&index, &queries, &i](ui32 j)
           { return std::pair<ui32,ui32>(j+1, queries[i].distance((*index)[j])); });
