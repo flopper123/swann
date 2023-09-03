@@ -25,7 +25,9 @@ class LSHForest : public Index<D> {
   std::vector<LSHMap<D>*>& maps;
 
 public:
-  LSHForest(std::vector<LSHMap<D>*> &maps, std::vector<Point<D>> &input, QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
+  LSHForest(std::vector<LSHMap<D>*> &maps, 
+            std::vector<Point<D>> &input, 
+            QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
     : is_exit(failure_strategy), 
       depth(maps.empty() ? 0 : maps.front()->depth()), 
       points(input), 
@@ -38,9 +40,7 @@ public:
     while(!this->maps.empty())
     {
       LSHMap<D>* m = this->maps.back();
-      
       this->maps.pop_back();
-
       delete m;
     }
   }
@@ -62,7 +62,8 @@ public:
   
   inline float get_bucket_factor(const float recall) const noexcept {
     const float recall_factor = (1.0 - recall) / 0.05;
-    const float val = (this->size() * (std::pow(recall,recall_factor-1))) / ((1000.0 + std::log2(this->maps.front()->bucketCount())) * this->maps.size()) + 40.0;
+    const float bucket_frac = ((1000.0 + std::log2(this->maps.front()->bucketCount())) * this->maps.size());
+    const float val = (this->size() * (std::pow(recall,recall_factor-1))) / bucket_frac + 40.0;
     return std::numbers::e * val;
   }
   
@@ -121,10 +122,10 @@ public:
    */
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.9, QueryLog *log = nullptr)
   {
-    // std::cout << "Querying for point: " << point << " with k = " << k << " and recall = " << recall << std::endl;
     PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points
-     
-    const ui32 M = this->maps.size(), BATCH_SIZE = k * this->get_bucket_factor(recall);
+
+    const ui32 M = this->maps.size(), 
+               BATCH_SIZE = k * this->get_bucket_factor(recall);
 
     std::vector<ui32> hash(M); // hash[m] : contains the hash of point in map[m]
     for (ui32 m = 0; m < M; ++m){

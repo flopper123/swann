@@ -19,14 +19,14 @@ int main()
 
   DataSize dataset_size = DataSize::XL;
 
-  const float recall = 0.92f;
+  const float recall = 0.91f;
   
-  const ui32 nr_to_query = 10; 
+  const ui32 nrToQuery = 10; 
 
   const float P1 = 0.860f;
   const float P2 = 0.535f;
 
-  const ui32 optimization_steps = 8;
+  const ui32 optimization_steps = 20;
 
   // Run
   srand(time(NULL));
@@ -51,7 +51,7 @@ int main()
             << "Points: " << dataset.size() << std::endl;
 
   std::cout << "Instantiating maps" << std::endl;
-  auto maps = LSHMapFactory<D>::create_optimized(dataset, pool, depth, count, optimization_steps);
+  auto maps = LSHMapFactory<D>::mthread_create_optimized(dataset, pool, depth, count, optimization_steps);
 
   std::cout << "Building index" << std::endl;
   
@@ -66,39 +66,25 @@ int main()
 
   std::cout << "Running query" << std::endl;
 
-  std::vector<std::vector<std::pair<ui32, ui32>>> results;
+  std::vector<std::vector<std::pair<ui32, ui32>>> results(queries.size());
 
   double total_time = 0;
 
-  int counter = 0;
-  for (auto &q : queries)
-  {
-    ++counter;
-    if (counter % (queries.size() / 100) == 0)
-    {
-      std::cout << "Querying " << ((100 * counter) / queries.size()) << "\% complete" << std::endl << std::endl;
-    }
 
-    // Query
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    auto query_result = index->query(q, nr_to_query, recall);
 
-    auto end = std::chrono::high_resolution_clock::now();
+  std::cout << "Answering queries with multiple threads..." << std::endl;
+  // Query
+  auto start = std::chrono::high_resolution_clock::now();
 
-    // Save result
-    auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-    
-    total_time += elapsed_time;
+  std::vector<std::vector<ui32>> query_result = index->mthread_queries(queries, nrToQuery, recall);
 
+  auto end = std::chrono::high_resolution_clock::now();
+  total_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+  for (int i = 0; i < results.size(); ++i) {
     // Vector of pairs of { point index, distance to query point } 
-    std::vector<std::pair<ui32, ui32>> result(query_result.size()); 
-    std::transform(ALL(query_result), result.begin(), [&index, &q](ui32 i)
-                    { return std::pair<ui32,ui32>(i+1, q.distance((*index)[i])); });
-
-    results.push_back(result);
+    std::transform(ALL(query_result[i]), results[i].begin(), [&index, &queries, &i](ui32 j)
+          { return std::pair<ui32,ui32>(j+1, queries[i].distance((*index)[j])); });
   }
-  
   // Save results
   std::cout << "Saving results" << std::endl;
 
