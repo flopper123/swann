@@ -23,7 +23,7 @@ class BFIndex : public Index<D> {
       this->points.push_back(p);
     }
 
-    std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8) {
+    std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.8, QueryLog *log = nullptr) {
       // Create distance vector
       std::vector<std::pair<ui32, ui32>> distance;
       

@@ -216,27 +216,27 @@ static void BM_build(benchmark::State &state) {
 }
 
 
-// Add to benchmarks
-BENCHMARK(BM_rebuild_mthread)
-  ->Name("Build LSH Forest (Multi-Threaded)")
-  ->Unit(benchmark::kMillisecond)
-  ->Args({0, 20, 860, 535}) // XS
-  ->Args({1, 20, 860, 535}) // S
-  ->Repetitions(5)
-  ->UseManualTime(); 
+// // Add to benchmarks
+// BENCHMARK(BM_rebuild_mthread)
+//   ->Name("Build LSH Forest (Multi-Threaded)")
+//   ->Unit(benchmark::kMillisecond)
+//   ->Args({0, 20, 860, 535}) // XS
+//   ->Args({1, 20, 860, 535}) // S
+//   ->Repetitions(5)
+//   ->UseManualTime(); 
 
-BENCHMARK(BM_rebuild)
-  ->Name("Build LSH Forest (Single-Threaded)")
-  ->Unit(benchmark::kMillisecond)
-  ->Args({0, 20, 860, 535}) // XS
-  ->Args({1, 20, 860, 535}) // S
-  ->Repetitions(5)
-  ->UseManualTime();
+// BENCHMARK(BM_rebuild)
+//   ->Name("Build LSH Forest (Single-Threaded)")
+//   ->Unit(benchmark::kMillisecond)
+//   ->Args({0, 20, 860, 535}) // XS
+//   ->Args({1, 20, 860, 535}) // S
+//   ->Repetitions(5)
+//   ->UseManualTime();
 
-BENCHMARK(BM_build)
-  ->Name("Build LSH Forest (Single-Threaded, No Rebuild)")
-  ->Unit(benchmark::kMillisecond)
-  ->Args({0, 860, 535}) // XS
-  ->Args({1, 860, 535}) // S
-  ->Repetitions(5)
-  ->UseManualTime();
+// BENCHMARK(BM_build)
+//   ->Name("Build LSH Forest (Single-Threaded, No Rebuild)")
+//   ->Unit(benchmark::kMillisecond)
+//   ->Args({0, 860, 535}) // XS
+//   ->Args({1, 860, 535}) // S
+//   ->Repetitions(5)
+//   ->UseManualTime();

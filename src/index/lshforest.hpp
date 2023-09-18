@@ -25,12 +25,9 @@ class LSHForest : public Index<D> {
   std::vector<LSHMap<D>*>& maps;
 
 public:
-  ui32 stop_found;
-  ui32 stop_hdist;
-  ui32 stop_mask_index;
-  ui32 buckets_visited;
-  
-  LSHForest(std::vector<LSHMap<D>*> &maps, std::vector<Point<D>> &input, QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
+  LSHForest(std::vector<LSHMap<D>*> &maps, 
+            std::vector<Point<D>> &input, 
+            QueryFailureProbability failure_strategy = DEFAULT_FAILURE) 
     : is_exit(failure_strategy), 
       depth(maps.empty() ? 0 : maps.front()->depth()), 
       points(input), 
@@ -43,9 +40,7 @@ public:
     while(!this->maps.empty())
     {
       LSHMap<D>* m = this->maps.back();
-      
       this->maps.pop_back();
-
       delete m;
     }
   }
@@ -67,8 +62,52 @@ public:
   
   inline float get_bucket_factor(const float recall) const noexcept {
     const float recall_factor = (1.0 - recall) / 0.05;
-    const float val = (this->size() * (std::pow(recall,recall_factor-1))) / ((1000.0 + std::log2(this->maps.front()->bucketCount())) * this->maps.size()) + 40.0;
+    const float bucket_frac = ((1000.0 + std::log2(this->maps.front()->bucketCount())) * this->maps.size());
+    const float val = (this->size() * (std::pow(recall,recall_factor-1))) / bucket_frac + 40.0;
     return std::numbers::e * val;
+  }
+  
+  /**
+   * @brief Returns the indices of the @k nearest neighbors to for a list of points, where
+   *        atleast a @recall fraction of the points are among the true kNN on avg. 
+   *        The queries are handled by @thread_cnt threads.
+   * @param queries Points to query for
+   * @param k Number of nearest neighbors to find for each point
+   * @param recall The precision of the query
+   * @param thread_cnt The number of threads to use, defaults to std::thread::hardware_concurrency().
+   * @return std::vector<std::vector<ui32>> For which the i'th vector contains the indices of the k-nearest-neighbours 
+   *         in ascending order by distance for @queries[i]. 
+   */
+  std::vector<std::vector<ui32>> mthread_queries(std::vector<Point<D>>& queries, int k, float recall = 0.9, ui32 thread_cnt = 0) {
+    assert(thread_cnt <= std::thread::hardware_concurrency());
+    if (!thread_cnt) thread_cnt = std::thread::hardware_concurrency();
+
+    std::vector<std::vector<ui32>> results(queries.size(), std::vector<ui32>()),
+                                   batches(thread_cnt, std::vector<ui32>()); // indices of points in queries
+    
+    // Split the queries into thread_cnt batches
+    for (ui32 i = 0; i < queries.size(); ++i) {
+      batches[i % thread_cnt].emplace_back(i);
+    }
+
+    auto answer_batch = [this, k, recall, &queries, &results, &batches](ui32 bidx) {
+      for (auto& pidx : batches[bidx]) {
+        results[pidx] = this->query(queries[pidx], k, recall);
+      }
+    };
+    
+    // Spawn threads that answer queries
+    std::vector<std::thread> pool(thread_cnt);
+    for (ui32 i=0; i < thread_cnt; ++i) {
+      pool[i] = std::thread(answer_batch, i);
+    }
+      
+    // wait for threads to finish
+    for (auto& th : pool) {
+      th.join();
+    }
+  
+    return results;
   }
 
   /**
@@ -77,15 +116,16 @@ public:
    * @param point Point to query for
    * @param k Number of nearest neighbors to find
    * @param recall The precision of the query
+   * @param log A ptr to a query log to use for storing additional query information.
    * @return std::vector<ui32> A vector of size @k containing the indices of the k-nearest-neighbours 
    *         in ascending order by distance. 
    */
-  std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.9)
+  std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.9, QueryLog *log = nullptr)
   {
-    // std::cout << "Querying for point: " << point << " with k = " << k << " and recall = " << recall << std::endl;
     PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points
-     
-    const ui32 M = this->maps.size(), BATCH_SIZE = k * this->get_bucket_factor(recall);
+
+    const ui32 M = this->maps.size(), 
+               BATCH_SIZE = k * this->get_bucket_factor(recall);
 
     std::vector<ui32> hash(M); // hash[m] : contains the hash of point in map[m]
     for (ui32 m = 0; m < M; ++m){
@@ -127,10 +167,13 @@ public:
         if (i >= M && (hi != found.get_kth_dist()) && stop_query(recall, log2(buckets), found.size(), k, found.get_kth_dist()))
         {
           hi = found.get_kth_dist();
-          this->stop_found = found.size();
-          this->stop_hdist = hdist;
-          this->stop_mask_index = mask_index;
-          this->buckets_visited = buckets;
+          if (log) {
+            log->mask_index = mask_index;
+            log->hdist = hdist;
+            log->found = found.size();
+            log->visited = buckets;
+          }
+
           return found.extract_k_nearest();
         }
       }
@@ -144,14 +187,15 @@ public:
         ++hdist;
         mask_index = 0;
       }
-
       buckets++;
     }
 
-    this->stop_found = found.size();
-    this->stop_hdist = hdist;
-    this->stop_mask_index = mask_index;
-    this->buckets_visited = buckets;
+    if (log) {
+      log->mask_index = mask_index;
+      log->hdist = hdist;
+      log->found = found.size();
+      log->visited = buckets;
+    }
 
     return found.extract_k_nearest();
   }

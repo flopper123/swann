@@ -37,7 +37,7 @@ public:
   static HashFamily<D> createRandomMasks(ui32 size, double distribution_factor = 0.5) {
     HashFamily<D> HF;
     for (ui32 i = 0; i < size; ++i) {
-      auto mask = random_point<D>(distribution_factor);
+      auto mask = Point<D>::random(distribution_factor);
       HF.push_back([mask](const Point<D> &p)
                    { return (p & mask) == mask; });
     }
@@ -51,7 +51,7 @@ public:
     HashFamily<D> HF;
     for (ui32 i = 0; i < size; ++i)
     {
-      auto point = random_point<D>(distribution_factor);
+      auto point = Point<D>::random(distribution_factor);
       HF.push_back([point, threshold](const Point<D> &p)
                    { return p.distance(point) <= threshold; });
     }
@@ -64,7 +64,7 @@ public:
     const ui32 fraction = 2;
     for (ui32 i = 0; i < size; ++i)
     {
-      auto point = random_point<D>(distribution_factor);
+      auto point = Point<D>::random(distribution_factor);
       
       ui32 L = rand() % (D / fraction);
       HF.push_back([point, L](const Point<D> &p)
