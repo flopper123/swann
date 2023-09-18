@@ -410,6 +410,6 @@ BENCHMARK(BM_mthread_query_x_points_LSHForest)
   ->Unit(benchmark::kMillisecond)
   ->Args({0, 10, 90, 860, 535})
   ->Args({1, 10, 90, 860, 535})
-  ->Args({2, 10, 90, 860, 535})
+  // ->Args({2, 10, 90, 860, 535})
   ->UseManualTime();
   

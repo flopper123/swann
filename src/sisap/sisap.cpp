@@ -16,7 +16,6 @@
 int main()
 {
   // Parameters
-
   DataSize dataset_size = DataSize::XL;
 
   const float recall = 0.91f;
@@ -66,24 +65,27 @@ int main()
 
   std::cout << "Running query" << std::endl;
 
-  std::vector<std::vector<std::pair<ui32, ui32>>> results(queries.size());
 
   double total_time = 0;
 
   std::cout << "Answering queries with multiple threads..." << std::endl;
+  
   // Query
   auto start = std::chrono::high_resolution_clock::now();
-
   std::vector<std::vector<ui32>> query_result = index->mthread_queries(queries, nrToQuery, recall);
-
   auto end = std::chrono::high_resolution_clock::now();
   total_time = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+
+  std::vector<std::vector<std::pair<ui32, ui32>>> results(queries.size(), std::vector<std::pair<ui32, ui32>>(nrToQuery));
+
   for (int i = 0; i < results.size(); ++i) {
-    std::cout << "Query " << i << " done" << std::endl;
     // Vector of pairs of { point index, distance to query point } 
     std::transform(ALL(query_result[i]), results[i].begin(), [&index, &queries, &i](ui32 j)
           { return std::pair<ui32,ui32>(j+1, queries[i].distance((*index)[j])); });
   }
+
+
+  
   // Save results
   std::cout << "Saving results" << std::endl;
 

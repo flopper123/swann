@@ -21,7 +21,7 @@ services:
 
   sisap:
     build: .
-    command: /swann/scripts/run_sisap.sh 
+    command: bash -c "chmod +x /swann/scripts/run_sisap.sh && /swann/scripts/run_sisap.sh" 
     profiles: [ "sisap" ]
     volumes:
       - ./build:/swann/build

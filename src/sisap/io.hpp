@@ -92,7 +92,6 @@ inline static std::string download_sisap_laion2B_dataset(DataSize size)
   const std::string laion2b_path = "/swann/data/";
   const std::string command = laion2b_path + "sisapchallenge.sh " + DATA_SIZES_LIST[size] + (should_debug ? "" : " > /dev/null");
 
-
   // Execute download script
   std::system(command.c_str());
 
