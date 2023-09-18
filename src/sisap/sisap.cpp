@@ -69,7 +69,7 @@ int main()
   double total_time = 0;
 
   std::cout << "Answering queries with multiple threads..." << std::endl;
-  
+
   // Query
   auto start = std::chrono::high_resolution_clock::now();
   std::vector<std::vector<ui32>> query_result = index->mthread_queries(queries, nrToQuery, recall);
@@ -84,15 +84,11 @@ int main()
           { return std::pair<ui32,ui32>(j+1, queries[i].distance((*index)[j])); });
   }
 
-
-  
   // Save results
   std::cout << "Saving results" << std::endl;
-
   std::stringstream ss;
 
   ss << "P1=" << P1 << ", P2=" << P2 << ", depth=" << depth << ", tries=" << count << ", optimization_steps=" << optimization_steps;
-
   save_results_to_hdf5("results_test.h5", results, dataset_size, total_build_time, total_time, ss.str());
 
   return 0;
