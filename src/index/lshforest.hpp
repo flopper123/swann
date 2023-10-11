@@ -137,47 +137,12 @@ public:
     while (hdist < this->depth) 
     {
       ui32 hi = found.get_kth_dist();
-      std::vector<ui32> bucket[M];
-      std::queue<std::pair<ui32,ui32>> bucket_q; // bucket_q : contains the indices of the points in bucket[m] that are not in found
       for (ui32 m = 0; m < M; ++m)
       {
         ui32 bucket_index = maps[m]->next_bucket(hash[m], hdist, mask_index);
-        bucket[m] = (*maps[m])[bucket_index];
-        bucket_q.emplace(m, 0);
+        found.insert(ALL((*maps[m])[bucket_index]));  
       }
-        
-      // To circumvent having to check the entire bucket, we start by checking the first BATCH_SIZE points in each bucket
-      for (ui32 i = 0; !bucket_q.empty(); ++i)
-      {
-        auto [m, j] = bucket_q.front();
-        bucket_q.pop();
-
-        const ui32 end_idx = std::min(j + BATCH_SIZE, (ui32) bucket[m].size());
-
-        // add points from bucket[m][j..j+BATCH_SIZE]
-        found.insert(bucket[m].begin()+j, bucket[m].begin() + end_idx);
-        
-        // add the next batch from bucket to bucket_q if there is one
-        if (end_idx < bucket[m].size()) 
-        {
-          bucket_q.emplace(m, end_idx);
-        }
-
-        // If we have a new kth distance and we have checked atleast M batches, then we check if we should stop
-        if (i >= M && (hi != found.get_kth_dist()) && stop_query(recall, log2(buckets), found.size(), k, found.get_kth_dist()))
-        {
-          hi = found.get_kth_dist();
-          if (log) {
-            log->mask_index = mask_index;
-            log->hdist = hdist;
-            log->found = found.size();
-            log->visited = buckets;
-          }
-
-          return found.extract_k_nearest();
-        }
-      }
-
+      
       // Extra stop in-case we need to stop because of hdist
       if (stop_query(recall, log2(buckets), found.size(), k, found.get_kth_dist()))
         break;
