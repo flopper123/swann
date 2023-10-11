@@ -212,7 +212,7 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
                      { return q.query.distance((*index)[i]); });
 
       recalls += calculateRecall(result, q.nearest_neighbors);
-
+    
       if (i % (dataset.queries.size() / 100) == 0)
       {
         std::cout << log << std::endl;
@@ -396,20 +396,21 @@ std::vector<int64_t> benchies[] = {
     std::vector<int64_t>({2, 100, 90, 860, 535}),
 };
 
-// BENCHMARK(BM_query_x_points_LSHForest)
-//   ->Name("QueryXPointsLSHForest")
-//   ->Unit(benchmark::kMillisecond)
-//   ->Args({0, 10, 90, 860, 535})
-//   ->Args({1, 10, 90, 860, 535})
-//   // ->Args({2, 10, 90, 860, 535})
-//   ->UseManualTime();
-
-
-BENCHMARK(BM_mthread_query_x_points_LSHForest)
-  ->Name("MThreadQueryXPointsLSHForest")
+BENCHMARK(BM_query_x_points_LSHForest)
+  ->Name("QueryXPointsLSHForest")
   ->Unit(benchmark::kMillisecond)
   ->Args({0, 10, 90, 860, 535})
   ->Args({1, 10, 90, 860, 535})
   // ->Args({2, 10, 90, 860, 535})
   ->UseManualTime();
+  
+
+
+// BENCHMARK(BM_mthread_query_x_points_LSHForest)
+//   ->Name("MThreadQueryXPointsLSHForest")
+//   ->Unit(benchmark::kMillisecond)
+//   ->Args({0, 10, 90, 860, 535})
+//   ->Args({1, 10, 90, 860, 535})
+//   // ->Args({2, 10, 90, 860, 535})
+//   ->UseManualTime();
   

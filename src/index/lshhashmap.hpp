@@ -4,7 +4,6 @@
 
 template <ui32 D>
 class LSHHashMap : public LSHMap<D> {
-
 public:
   LSHHashMap(HashFamily<D>& hf) : LSHMap<D>(hf)
   {
@@ -19,7 +18,6 @@ public:
     return this->max_bucket_size;
   }
 
-  // all possible masks by hamming distance 
   static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
 
   static void initMasks(ui32 depth = 32U, ui32 max_hdist = 4U) {

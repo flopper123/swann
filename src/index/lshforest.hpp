@@ -136,23 +136,32 @@ public:
     ui32 hdist = 0, mask_index = 0, buckets = 0;
     while (hdist < this->depth) 
     {
-      ui32 hi = found.get_kth_dist();
       for (ui32 m = 0; m < M; ++m)
       {
         ui32 bucket_index = maps[m]->next_bucket(hash[m], hdist, mask_index);
-        found.insert(ALL((*maps[m])[bucket_index]));  
+        found.insert(ALL((*maps[m])[bucket_index]));
+        ++buckets;
+        if (found.size() >= k)
+        {
+          float fail_prob = SingleBitFailure_V2<D>(M, m + 1, this->depth, hdist, found.get_kth_dist(), mask_index+1);
+          if (fail_prob <= (1.0 - recall)) {
+            if (log) {
+              log->mask_index = mask_index;
+              log->hdist = hdist;
+              log->found = found.size();
+              log->visited = buckets;
+              log->fail_prob = fail_prob;
+            }
+            return found.extract_k_nearest();
+          }
+        }
       }
       
-      // Extra stop in-case we need to stop because of hdist
-      if (stop_query(recall, log2(buckets), found.size(), k, found.get_kth_dist()))
-        break;
-
       // If one map has next bucket they all do, so we just check for an arbitrary map
       if (!this->maps[0]->has_next_bucket(hash[0], hdist, ++mask_index)) {
         ++hdist;
         mask_index = 0;
       }
-      buckets++;
     }
 
     if (log) {
@@ -161,7 +170,6 @@ public:
       log->found = found.size();
       log->visited = buckets;
     }
-
     return found.extract_k_nearest();
   }
 
