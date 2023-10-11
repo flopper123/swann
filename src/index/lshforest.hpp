@@ -151,6 +151,7 @@ public:
               log->found = found.size();
               log->visited = buckets;
               log->fail_prob = fail_prob;
+              log->kth_dist = found.get_kth_dist();
             }
             return found.extract_k_nearest();
           }

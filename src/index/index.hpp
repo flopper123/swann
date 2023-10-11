@@ -12,6 +12,7 @@ struct QueryLog {
        hdist = 0,      // The hamming distance of the mask we stopped at
        found = 0,      // The total number of points found
        visited = 0;    // The number of buckets visited
+  ui32 kth_dist = 0;   // The hamming distance of the kth point found
   float fail_prob = 1.0; // The failure probability of the query
 
   friend std::ostream &operator<<(std::ostream &os, const QueryLog &log)
@@ -21,7 +22,8 @@ struct QueryLog {
        << "\tStopped at hdist: " << log.hdist << std::endl
        << "\tTotal points found: " << log.found << std::endl
        << "\tBuckets visited: " << log.visited << std::endl
-       << "\tFailure probability: " << log.fail_prob << std::endl;
+       << "\tFailure probability: " << log.fail_prob << std::endl
+        << "\tHamming distance of kth point: " << log.kth_dist << std::endl;
     return os;
   }
 };

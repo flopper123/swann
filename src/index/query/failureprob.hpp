@@ -88,7 +88,7 @@ static float SingleBitFailure_V2(
   ui32 cur_hdist_buckets)
 {
   // Lowest probability of points being in same bucket
-  float p1 = 1.0 - (outerCandidateHDist / D); 
+  float p1 = 1.0 - (((float)outerCandidateHDist) / D); 
 
   // Total number of buckets at current @depth in a trie of @tdepth height
   const ui32 total_hdist_buckets = fact(tdepth) / (fact(depth) * fact(tdepth-depth));
@@ -102,6 +102,8 @@ static float SingleBitFailure_V2(
   float t0 = (depth > 0) ? std::pow(1.0 - std::pow(p1, 1.0+depth), l0) : 1.0,
         t1 = (l > 1) ? std::pow(1.0 - std::pow(p1, 1.0+depth+bucket_frac), l1) : 1.0;
   std::cout << "p1: " << p1 << std::endl
+            << "l0: " << l0 << std::endl
+            << "l1: " << l1 << std::endl
             << "t0: " << t0 << ", t1: " << t1 << std::endl
             << "bucket_frac:" << bucket_frac << std::endl
             << "total_hdist_buckets:" << total_hdist_buckets << std::endl;
