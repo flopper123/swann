@@ -4,6 +4,10 @@
 #include <iostream>
 
 namespace Util {
+  static ui32 fact(ui32 n) {
+    return (n == 1 || n == 0) ? 1 : fact(n - 1) * n;
+  }
+  
   /**
    * @brief Computes the mean of a range of values. 
    *        The value type pointed to by iterator must be implicitly castable to double

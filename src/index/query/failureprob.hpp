@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../index.hpp"
+#include "../lshhashmap.hpp"
 #include <numbers>
 
 using QueryFailureProbability = std::function<float(ui32, ui32, ui32, ui32, ui32, ui32)>;
@@ -68,10 +69,6 @@ static float SingleBitFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 
   return std::pow(1.0 - std::pow(p1, tDepth-actDepth), L);
 }
 
-static ui32 fact(ui32 n) {
-  return (n == 1 || n == 0) ? 1 : fact(n - 1) * n;
-}
-
 /**
  * @brief A failure-probability on single bit hash functions
  * @param L Number of maps in the forest
@@ -82,7 +79,7 @@ static ui32 fact(ui32 n) {
  * @param cur_hdist_buckets The number of buckets checked out of @total at hdist depth
  */
 template<ui32 D>
-static float SingleBitFailure_V2(
+static float SingleBitFailure_Accumulative(
   ui32 L, ui32 l, 
   ui32 tdepth,ui32 depth, ui32 outerCandidateHDist, 
   ui32 cur_hdist_buckets)
@@ -91,22 +88,25 @@ static float SingleBitFailure_V2(
   float p1 = 1.0 - (((float)outerCandidateHDist) / D); 
 
   // Total number of buckets at current @depth in a trie of @tdepth height
-  const ui32 total_hdist_buckets = fact(tdepth) / (fact(depth) * fact(tdepth-depth));
+  const ui32 total_hdist_buckets = LSHHashMap<D>::mask_count(tdepth, depth);
   
   // Fraction of buckets checked at current depth
-  float bucket_frac = (float)cur_hdist_buckets / (float)total_hdist_buckets; 
+  float bucket_frac = (float)cur_hdist_buckets / (float)total_hdist_buckets,
+        d = tdepth-depth-1; 
   
   float l0 = L-l, // Remaning number of maps to check at @depth
         l1 = l;   // Number of maps checked at hdist @depth
-
-  float t0 = (depth > 0) ? std::pow(1.0 - std::pow(p1, 1.0+depth), l0) : 1.0,
-        t1 = (l > 1) ? std::pow(1.0 - std::pow(p1, 1.0+depth+bucket_frac), l1) : 1.0;
-  std::cout << "p1: " << p1 << std::endl
-            << "l0: " << l0 << std::endl
-            << "l1: " << l1 << std::endl
-            << "t0: " << t0 << ", t1: " << t1 << std::endl
-            << "bucket_frac:" << bucket_frac << std::endl
-            << "total_hdist_buckets:" << total_hdist_buckets << std::endl;
+  
+  float t0 = (depth > 0) ? std::pow(1.0 - std::pow(p1, d), l0) : 1.0,
+        t1 = std::pow(1.0 - std::pow(p1, d+bucket_frac), l1);
+        
+  // std::cout << "p1: " << p1 << std::endl
+  //           << "l0: " << l0 << std::endl
+  //           << "l1: " << l1 << std::endl
+  //           << "d:" << tdepth-depth << std::endl
+  //           << "t0: " << t0 << ", t1: " << t1 << std::endl
+  //           << "bucket_frac:" << bucket_frac << std::endl
+  //           << "total_hdist_buckets:" << total_hdist_buckets << std::endl;
 
   return t0 * t1;
 }

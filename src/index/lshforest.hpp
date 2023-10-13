@@ -123,9 +123,7 @@ public:
   std::vector<ui32> query(const Point<D>& point, int k, float recall = 0.9, QueryLog *log = nullptr)
   {
     PointMap<D> found(this->points, point, k);  // found : contains the k nearest points found so far and look up of seen points
-
-    const ui32 M = this->maps.size(), 
-               BATCH_SIZE = k * this->get_bucket_factor(recall);
+    const ui32 M = this->maps.size();
 
     std::vector<ui32> hash(M); // hash[m] : contains the hash of point in map[m]
     for (ui32 m = 0; m < M; ++m){
@@ -143,7 +141,7 @@ public:
         ++buckets;
         if (found.size() >= k)
         {
-          float fail_prob = SingleBitFailure_V2<D>(M, m + 1, this->depth, hdist, found.get_kth_dist(), mask_index+1);
+          float fail_prob = SingleBitFailure_Accumulative<D>(M, m + 1, this->depth, hdist, found.get_kth_dist(), mask_index+1);
           if (fail_prob <= (1.0 - recall)) {
             if (log) {
               log->mask_index = mask_index;

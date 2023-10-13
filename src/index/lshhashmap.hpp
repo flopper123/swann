@@ -20,6 +20,10 @@ public:
 
   static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
 
+  static inline ui32 mask_count(ui32 tdepth, ui32 depth){
+    return Util::fact(tdepth) / (Util::fact(depth) * Util::fact(tdepth - depth));
+  }
+
   static void initMasks(ui32 depth = 32U, ui32 max_hdist = 4U) {
     ui32 constructed_masks = 0;
     if (max_hdist == 0) max_hdist = depth;
