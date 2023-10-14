@@ -11,7 +11,9 @@ struct QueryLog {
   ui32 mask_index = 0, // The index of the mask we stopped at
        hdist = 0,      // The hamming distance of the mask we stopped at
        found = 0,      // The total number of points found
-       visited = 0;    // The number of buckets visited
+       visited = 0,    // The number of buckets visited
+       trie = 0;       // The trie we stopped at
+
   ui32 kth_dist = 0;   // The hamming distance of the kth point found
   float fail_prob = 1.0; // The failure probability of the query
 
@@ -20,10 +22,11 @@ struct QueryLog {
     os << "QueryLog: " << std::endl
        << "\tStopped at mask_index: " << log.mask_index << std::endl
        << "\tStopped at hdist: " << log.hdist << std::endl
+       << "\tStopped at trie: " << log.trie << std::endl
        << "\tTotal points found: " << log.found << std::endl
        << "\tBuckets visited: " << log.visited << std::endl
        << "\tFailure probability: " << log.fail_prob << std::endl
-        << "\tHamming distance of kth point: " << log.kth_dist << std::endl;
+       << "\tHamming distance of kth point: " << log.kth_dist << std::endl;
     return os;
   }
 };

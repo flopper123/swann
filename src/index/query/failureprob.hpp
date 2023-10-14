@@ -72,6 +72,25 @@ static float SingleBitFailure(ui32 N, ui32 tDepth, ui32 depth, ui32 found, ui32 
 /**
  * @brief A failure-probability on single bit hash functions
  * @param L Number of maps in the forest
+ * @param tDepth Maximum depth of each tree in the forest
+ * @param depth Current depth of the tree being queried as a float, to allow for fractional depths
+ * @param outerCandidateHDist Hamming dist of the outer candidate point
+ */
+template<ui32 D>
+static float SingleBitFailure_V1(ui32 L, ui32 tDepth, float depth, ui32 outerCandidateHDist)
+{
+  // Lowest probability of points being in same bucket
+  float p1 = 1.0 - (((float) outerCandidateHDist) / D); 
+
+  // for bottom of trie depth is 0, so we need to subtract depth from tDepth to get actual depth
+  return std::pow(1.0 - std::pow(p1, tDepth-depth), (float) L);
+}
+
+/**
+ * @brief A failure-probability on single bit hash functions that accumulates 
+ *        the probability of each bucket being checked. This allows us to check 
+ *        a fraction of the buckets and tries at each depth
+ * @param L Number of maps in the forest
  * @param l The number of maps checked at hdist depth
  * @param tDepth Maximum depth of each tree in the forest
  * @param depth Current hdist 
@@ -84,29 +103,23 @@ static float SingleBitFailure_Accumulative(
   ui32 tdepth,ui32 depth, ui32 outerCandidateHDist, 
   ui32 cur_hdist_buckets)
 {
-  // Lowest probability of points being in same bucket
-  float p1 = 1.0 - (((float)outerCandidateHDist) / D); 
-
-  // Total number of buckets at current @depth in a trie of @tdepth height
-  const ui32 total_hdist_buckets = LSHHashMap<D>::mask_count(tdepth, depth);
-  
   // Fraction of buckets checked at current depth
-  float bucket_frac = (float)cur_hdist_buckets / (float)total_hdist_buckets,
-        d = tdepth-depth-1; 
-  
-  float l0 = L-l, // Remaning number of maps to check at @depth
-        l1 = l;   // Number of maps checked at hdist @depth
-  
-  float t0 = (depth > 0) ? std::pow(1.0 - std::pow(p1, d), l0) : 1.0,
-        t1 = std::pow(1.0 - std::pow(p1, d+bucket_frac), l1);
-        
-  // std::cout << "p1: " << p1 << std::endl
-  //           << "l0: " << l0 << std::endl
-  //           << "l1: " << l1 << std::endl
-  //           << "d:" << tdepth-depth << std::endl
-  //           << "t0: " << t0 << ", t1: " << t1 << std::endl
-  //           << "bucket_frac:" << bucket_frac << std::endl
-  //           << "total_hdist_buckets:" << total_hdist_buckets << std::endl;
+  float bucket_frac = (cur_hdist_buckets > 0) ? ((float)cur_hdist_buckets) / ((float)LSHHashMap<D>::mask_count(tdepth, depth)) : 0.0; 
+  float prv_frac = (cur_hdist_buckets > 1) ? ((float)cur_hdist_buckets-1) / ((float)LSHHashMap<D>::mask_count(tdepth, depth)) : 0.0;
 
-  return t0 * t1;
+  // Probability of points being in same bucket for tries checked up to newest bucket exclusive
+  float prv = (depth > 0 && L > l) ? SingleBitFailure_V1<D>(L-l, tdepth, depth+prv_frac, outerCandidateHDist) : 1.0;
+
+  // Tries checked cur_hdist_buckets inclusive
+  float cur = SingleBitFailure_V1<D>(l, tdepth, depth+bucket_frac, outerCandidateHDist);
+  if (cur < 0 || prv < 0 || bucket_frac < 0 || prv_frac < 0) {
+    std::cout << "cur: " << cur << "\n"
+              << "prv: " << prv << "\n"
+              << "tdepth: " << tdepth 
+              << "depth: " << depth
+              << "bucket_frac: " << bucket_frac << "\n"
+              << "prv_frac: " << prv_frac << "\n"
+              << "mask_count: " << ((float)LSHHashMap<D>::mask_count(tdepth, depth)) << "\n";
+  }
+  return prv*cur;
 }

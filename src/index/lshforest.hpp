@@ -131,18 +131,19 @@ public:
     }
     
     // Loop through all buckets within hamming distance of hdist of point
-    ui32 hdist = 0, mask_index = 0, buckets = 0;
+    ui32 hdist = 0, mask_index = 0, buckets = 0, m=0;
     while (hdist < this->depth) 
     {
-      for (ui32 m = 0; m < M; ++m)
+      for (m = 0; m < M; ++m)
       {
         ui32 bucket_index = maps[m]->next_bucket(hash[m], hdist, mask_index);
         found.insert(ALL((*maps[m])[bucket_index]));
         ++buckets;
         if (found.size() >= k)
         {
-          float fail_prob = SingleBitFailure_Accumulative<D>(M, m + 1, this->depth, hdist, found.get_kth_dist(), mask_index+1);
+          float fail_prob = SingleBitFailure_Accumulative<D>(M, m+1, this->depth, hdist, found.get_kth_dist(), mask_index+1);
           if (fail_prob <= (1.0 - recall)) {
+            if (fail_prob < 0) std::cout << "fail_prob: " << fail_prob << "<=" << (1.0 - recall) << "\n";
             if (log) {
               log->mask_index = mask_index;
               log->hdist = hdist;
@@ -150,6 +151,7 @@ public:
               log->visited = buckets;
               log->fail_prob = fail_prob;
               log->kth_dist = found.get_kth_dist();
+              log->trie = m+1;
             }
             return found.extract_k_nearest();
           }
@@ -168,6 +170,9 @@ public:
       log->hdist = hdist;
       log->found = found.size();
       log->visited = buckets;
+      log->fail_prob = 0.0;
+      log->kth_dist = found.get_kth_dist();
+      log->trie = m+1;
     }
     return found.extract_k_nearest();
   }

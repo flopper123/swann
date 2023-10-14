@@ -21,6 +21,7 @@ public:
   static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
 
   static inline ui32 mask_count(ui32 tdepth, ui32 depth){
+    // TO:DO - Implement mask_count as a lazy function that memoizes the result mask_count[tdepth][depth]
     return Util::fact(tdepth) / (Util::fact(depth) * Util::fact(tdepth - depth));
   }
 
