@@ -126,10 +126,14 @@ public:
 
     const ui32 M = this->maps.size(), 
                BATCH_SIZE = k * this->get_bucket_factor(recall);
+    
+    struct QueryData {
+      ui32 hash, hdist = 0, mask_index = 0;
+    };
 
-    std::vector<ui32> hash(M); // hash[m] : contains the hash of point in map[m]
+    std::vector<QueryData> map_data(M);
     for (ui32 m = 0; m < M; ++m){
-      hash[m] = this->maps[m]->hash(point);
+      map_data[m].hash = this->maps[m]->hash(point);
     }
     
     // Loop through all buckets within hamming distance of hdist of point
@@ -141,9 +145,20 @@ public:
       std::queue<std::pair<ui32,ui32>> bucket_q; // bucket_q : contains the indices of the points in bucket[m] that are not in found
       for (ui32 m = 0; m < M; ++m)
       {
-        ui32 bucket_index = maps[m]->next_bucket(hash[m], hdist, mask_index);
+        ui32 bucket_index = maps[m]->next_bucket(map_data[m].hash, map_data[m].hdist, map_data[m].mask_index);
         bucket[m] = (*maps[m])[bucket_index];
         bucket_q.emplace(m, 0);
+
+        // Update map data
+        if (!this->maps[m]->has_next_bucket(map_data[m].hash, map_data[m].hdist, ++map_data[m].mask_index)) {
+          ++map_data[m].hdist;
+          map_data[m].mask_index = 0;
+
+          if (hdist < map_data[m].hdist) {
+            hdist = map_data[m].hdist;
+            mask_index = 0;
+          }
+        }
       }
         
       // To circumvent having to check the entire bucket, we start by checking the first BATCH_SIZE points in each bucket
@@ -182,11 +197,7 @@ public:
       if (stop_query(recall, log2(buckets), found.size(), k, found.get_kth_dist()))
         break;
 
-      // If one map has next bucket they all do, so we just check for an arbitrary map
-      if (!this->maps[0]->has_next_bucket(hash[0], hdist, ++mask_index)) {
-        ++hdist;
-        mask_index = 0;
-      }
+      mask_index++;
       buckets++;
     }
 

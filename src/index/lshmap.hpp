@@ -83,5 +83,10 @@ public:
    * @returns Returns the bucket at index bidx
    */
   virtual bucket& operator[](hash_idx bidx) = 0;
+
+  /**
+   * @brief Optional optimization of LSH Map. Should be called after initialization of LSHMaps 
+  */
+  void optimize() {}
 };
 

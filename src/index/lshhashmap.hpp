@@ -9,14 +9,14 @@ class LSHHashMap : public LSHMap<D> {
 public:
   LSHHashMap(HashFamily<D>& hf) : LSHMap<D>(hf)
   {
-    this->build(hf);
     this->masks = BucketMask(hf.size(), 4U);
+    this->build(hf);
   }
 
   LSHHashMap(HashFamily<D>& hf, BucketMask &masks) : LSHMap<D>(hf)
   {
-    this->build(hf);
     this->masks = masks;
+    this->build(hf);
   }
   
   /**
@@ -79,6 +79,13 @@ public:
   };
 
   /**
+   * @brief Optimizes the LSHHashMap
+  */
+  void optimize() {
+
+  }
+
+  /**
    * @returns The hash (index) of the bucket the point belongs to
    */
   hash_idx hash(const Point<D>& point) const {
@@ -103,9 +110,9 @@ public:
    * @param hdist 
    * @param mask_idx
    */
-  inline bool has_next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const 
+  inline bool has_next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const
   {
-    return mask_idx < this->masks[hdist].size() && this->masks[hdist][mask_idx] < this->bucketCount();
+    return mask_idx < this->buckets[bucket].adj[hdist].size();
   }
   
   /**
@@ -118,7 +125,7 @@ public:
    */
   inline hash_idx next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const
   {
-    return bucket ^ this->masks[hdist][mask_idx];
+    return this->buckets[bucket].adj[hdist][mask_idx];
   }
   
   /**
@@ -129,11 +136,10 @@ public:
    */
   std::vector<hash_idx> query(hash_idx bidx, ui32 hdist = 0) const {
 
-    const ui32 MI = this->masks[hdist].size();
     std::vector<hash_idx> res;
     
     for (ui32 mi = 0; 
-         mi < MI && this->has_next_bucket(bidx, hdist, mi); // since bucketCount is a power of 2, we can compare integer values
+         this->has_next_bucket(bidx, hdist, mi); // since bucketCount is a power of 2, we can compare integer values
          ++mi) 
     {
       res.emplace_back(this->next_bucket(bidx, hdist, mi));
@@ -155,8 +161,13 @@ public:
   }
   
 private:
-  std::unordered_map<hash_idx, bucket> buckets;
-  bucket empty_bucket;
+  class BucketNode : public bucket {
+  public:
+    std::unordered_map<ui32, bucket> adj;
+  };
+  
+  std::unordered_map<hash_idx, BucketNode> buckets;
+  BucketNode empty_bucket;
   ui64 count;
   ui32 number_virtual_buckets;
   // all possible masks by hamming distance 
