@@ -62,7 +62,6 @@ public:
    */
   void add(const Point<D> &point) {
     const hash_idx index = this->hash(point);
-    
     buckets[index].emplace_back(count++);
   };
 
@@ -82,7 +81,8 @@ public:
    * @brief Optimizes the LSHHashMap
   */
   void optimize() {
-
+    // TODO: Implement this: 
+    //         Should find the next nonempty buckets for all buckets
   }
 
   /**
