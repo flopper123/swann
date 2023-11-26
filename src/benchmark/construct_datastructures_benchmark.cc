@@ -3,6 +3,7 @@
 #include "../dataset/load.hpp"
 #include "../index/index.hpp"
 #include "../index/lshforest.hpp"
+#include "../index/bucketmask.hpp"
 #include "../index/lshmapfactory.hpp"
 #include "../hash/hashpool.hpp"
 
@@ -184,12 +185,14 @@ static void BM_build(benchmark::State &state) {
   auto total_time_rebuild = 0.0,
        total_time_index = 0.0;
 
+  BucketMask masks(depth);
+
   // Measure
   for (auto _ : state)
   {
     // Query
     auto start_rebuild = std::chrono::high_resolution_clock::now();
-    auto maps = LSHMapFactory<D>::create(pool, depth, count); // Generate maps without rebuilding optimization
+    auto maps = LSHMapFactory<D>::create(pool, masks, depth, count); // Generate maps without rebuilding optimization
     auto end_rebuild = std::chrono::high_resolution_clock::now();
     auto time_rebuild = std::chrono::duration_cast<std::chrono::duration<double>>(end_rebuild - start_rebuild).count(); 
     total_time_rebuild += time_rebuild;

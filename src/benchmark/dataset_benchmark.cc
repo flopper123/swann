@@ -9,6 +9,7 @@
 #include "../statistics/statsgenerator.hpp"
 #include "../index/index.hpp"
 #include "../index/bfindex.hpp"
+#include "../index/bucketmask.hpp"
 #include "../index/lshforest.hpp"
 #include "../index/lshmapfactory.hpp"
 #include "../hash/hashpool.hpp"
@@ -172,7 +173,6 @@ static void BM_query_x_points_LSHForest(benchmark::State &state)
 
   const ui32 optimization_steps = 20;
   auto maps = LSHMapFactory<D>::mthread_create_optimized(dataset.points, pool, depth, count, optimization_steps);
-  // auto maps = LSHMapFactory<D>::create(pool, depth, count);
 
   std::cout << "Building index" << std::endl;
   LSHForest<D> *index = new LSHForest<D>(maps, dataset.points, SingleBitFailure<D>);
@@ -268,10 +268,12 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
   // Setup
   BenchmarkDataset<D> dataset = load_benchmark_dataset<D>(static_cast<DataSize>(state.range(0)));
 
+
   // Max 100_000 sample size to avoid infinity loop
   const ui32 N_Sample = dataset.points.size() / 10 > 100000 ? 100000 : dataset.points.size() / 10;
   ui32 depth = log(dataset.points.size()) + 2;
   ui32 count = 6;
+  BucketMask masks(depth);
 
   std::vector<Point<D>> sample_points;
   std::sample(ALL(dataset.points),
@@ -281,7 +283,7 @@ static void BM_query_x_points_LSHForest_HammingDistanceDependent(benchmark::Stat
 
   std::cout << "Instantiating hash LSHMap" << std::endl;
   HashFamily<D> HF = DependentHashFamilyFactory<D>::createHDist(ALL(sample_points), depth * count);
-  auto maps = LSHMapFactory<D>::create(HF, depth, count);
+  auto maps = LSHMapFactory<D>::create(HF, masks, depth, count);
 
   std::cout << "Building index" << std::endl;
   Index<D> *index = new LSHForest<D>(maps, dataset.points, HammingSizeFailure);

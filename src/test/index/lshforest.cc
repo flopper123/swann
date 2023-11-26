@@ -2,6 +2,7 @@
 
 #include "util.hpp"
 #include "../../index/lsharraymap.hpp"
+#include "../../index/bucketmask.hpp"
 #include "../../index/lshforest.hpp"
 
 TEST(LSHForestInit, CanInstantiate) {
@@ -44,8 +45,9 @@ TEST(LSHForestBuild, BuildInsertPointsIntoAllMaps) {
 
 // Expect excatly K results and correct distance
 TEST(LSHForestQuery, QueryReturnsCorrectResults) {
-  // Arrange : Build all maps on all combinations of points  
-  std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, 2, 2);
+  // Arrange : Build all maps on all combinations of points
+  BucketMask masks(2U);
+  std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, masks, 2, 2);
   std::vector<Point<D>> points = createCompleteInput();
   LSHForest<D> forest(maps, points);
   forest.build();
@@ -77,8 +79,9 @@ TEST(LSHForestQuery, MThread_QueryReturnsCorrectResults) {
   const float recall = 1.0;
 
   // Arrange : Generate random query points and build index on all combination of points
+  BucketMask masks(2U);
   std::vector<Point<D>> queries; // Q random query points
-  std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, 2, 2);
+  std::vector<LSHMap<D>*> maps = LSHMapFactory<D>::create(H, masks, 2, 2);
   std::vector<Point<D>> points = createCompleteInput();
   LSHForest<D> forest(maps, points);
   forest.build();

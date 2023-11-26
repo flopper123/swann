@@ -11,6 +11,7 @@
 #include "../index/lshforest.hpp"
 #include "../index/lshmapfactory.hpp"
 #include "../index/lshmap.hpp"
+#include "../index/bucketmask.hpp"
 #include "../hash/hashpool.hpp"
 #include "../hash/dependenthashfamilyfactory.hpp"
 
@@ -28,11 +29,13 @@ static void BM_bucket_distribution(benchmark::State &state) {
     30.0
   );
 
+  BucketMask masks(depth);
+
   // Measure
   for (auto _ : state)
   {
     auto maps = state.range(1) == 0
-                ? LSHMapFactory<D>::create(pool, depth, 1)
+                ? LSHMapFactory<D>::create(pool, masks, depth, 1)
                 : LSHMapFactory<D>::create_optimized(dataset, pool, depth, 1, state.range(1));
 
     maps[0]->add(dataset);

@@ -2,6 +2,7 @@
 
 #include "../hash/hashfamily.hpp"
 #include "lsharraymap.hpp"
+#include "bucketmask.hpp"
 #include "lshhashmap.hpp"
 #include "lshmapprioqueue.hpp"
 #include "../statistics/lshmapanalyzer.hpp"
@@ -14,9 +15,10 @@ private:
   LSHMapFactory() {}
 
 public:
-  static LSHMap<D>* create(HashFamily<D>& H, ui32 depth) {
+
+  static LSHMap<D>* create(HashFamily<D>& H, BucketMask &masks, ui32 depth) {
     auto hf = H.subset(depth);
-    return new LSHHashMap<D>(hf);
+    return new LSHHashMap<D>(hf, masks);
   }
 
   /** 
@@ -25,7 +27,7 @@ public:
    * @param k number LSHMaps to construct
    * @returns a vector of LSHMaps constructed from random hash functions of @H
    **/
-  static std::vector<LSHMap<D>*> create(HashFamily<D>& H, ui32 depth, ui32 k) {
+  static std::vector<LSHMap<D>*> create(HashFamily<D>& H, BucketMask &masks, ui32 depth, ui32 k) {
     // Get unique number of hash functions
     HashFamily<D> subset = H.subset(k * depth);
     
@@ -38,7 +40,7 @@ public:
       );
 
       ret.push_back(
-        new LSHHashMap<D>(hf)
+        new LSHHashMap<D>(hf, masks)
       );
     }
 
@@ -59,10 +61,12 @@ public:
     ui32 largest_bucket = 0;
     double largest_dev = 0.0;
 
+    BucketMask masks(depth);
+
     for (ui32 m = 0; m < k; ++m)
     {
-      LSHMap<D> *hi = LSHMapFactory<D>::create(H, depth),  // points are never inserted into hi
-                *map = LSHMapFactory<D>::create(H, depth); // tmp map used to find the best hash family
+      LSHMap<D> *hi = LSHMapFactory<D>::create(H, masks, depth),  // points are never inserted into hi
+                *map = LSHMapFactory<D>::create(H, masks, depth); // tmp map used to find the best hash family
 
       ui32 hi_count = UINT32_MAX;
       double hi_dev = 0.0;
@@ -121,15 +125,18 @@ public:
     ui32 steps = 1) 
   {
     
+    BucketMask masks(depth);
+
     const ui32 THREAD_CNT = std::thread::hardware_concurrency();
     const ui32 THREAD_STEPS = std::ceil(k * steps / ((double) THREAD_CNT));
-    LSHMapPriorityQueue<D> mqueue(H, k, depth);
+    LSHMapPriorityQueue<D> mqueue(H, masks, k, depth);
+
 
     // Each thread builds @THREAD_STEPS LSHMaps from @points
     // and try to insert them into the priority queue
-    auto build_map = [&mqueue, &points, &depth, &H, &THREAD_STEPS](int id)
+    auto build_map = [&mqueue, &points, &depth, &H, &masks, &THREAD_STEPS](int id)
     {
-      LSHMap<D> *map = LSHMapFactory<D>::create(H, depth); // Temporary map to find good hash families
+      LSHMap<D> *map = LSHMapFactory<D>::create(H, masks, depth); // Temporary map to find good hash families
       for (ui32 i = 0; i < THREAD_STEPS; i++)
       {
         HashFamily<D> hsubset = H.subset(depth);

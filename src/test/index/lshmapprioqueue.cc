@@ -2,12 +2,14 @@
 
 #include "util.hpp"
 #include "../../index/lshmap.hpp"
+#include "../../index/bucketmask.hpp"
 #include "../../index/lshmapfactory.hpp"
 
 TEST(LSHMapPriorityQueue, CanPush) {
-  LSHMapPriorityQueue<4> queue(H, 1, 1);
+  BucketMask masks(1);
+  LSHMapPriorityQueue<4> queue(H, masks, 1, 1);
 
-  LSHMap<4>* map = LSHMapFactory<4>::create(H, 1);
+  LSHMap<4>* map = LSHMapFactory<4>::create(H, masks, 1);
   
   queue.push(map);
   ASSERT_FALSE(queue.empty());
@@ -15,15 +17,17 @@ TEST(LSHMapPriorityQueue, CanPush) {
 
 TEST(LSHMapPriorityQueue, QueueIsInitiallyEmpty) {
   const ui32 k = 2, depth = 1;
-  LSHMapPriorityQueue<4> queue(H, k, depth);
+  BucketMask masks(depth);
+  LSHMapPriorityQueue<4> queue(H, masks, k, depth);
   ASSERT_TRUE(queue.empty());
 }
 
 TEST(LSHMapPriorityQueue, GetAllReturnsMaxSizeMaps) {
   const ui32 k = 2, depth = 1;
-  LSHMapPriorityQueue<4> queue(H, k, depth);
-  LSHMap<4>* m1 = LSHMapFactory<4>::create(H, depth),
-           * m2 = LSHMapFactory<4>::create(H, depth);
+  BucketMask masks(1);
+  LSHMapPriorityQueue<4> queue(H, masks, k, depth);
+  LSHMap<4>* m1 = LSHMapFactory<4>::create(H, masks, depth),
+           * m2 = LSHMapFactory<4>::create(H, masks, depth);
 
   queue.push(m1);
   queue.push(m2);
@@ -35,12 +39,12 @@ TEST(LSHMapPriorityQueue, GetAllReturnsMaxSizeMaps) {
 
 TEST(LSHMapPriorityQueue, PushDoesNotAddMap_IfFullAndMorePointsInLargestBucket) {
   const ui32 k = 2, depth = 3;
-
-  LSHMapPriorityQueue<4> queue(H, k, depth);
+  BucketMask masks(depth);
+  LSHMapPriorityQueue<4> queue(H, masks, k, depth);
   
-  LSHMap<4> *empty1 = LSHMapFactory<4>::create(H, depth),
-            *empty2 = LSHMapFactory<4>::create(H, depth),
-            *mp = LSHMapFactory<4>::create(H, depth);
+  LSHMap<4> *empty1 = LSHMapFactory<4>::create(H, masks, depth),
+            *empty2 = LSHMapFactory<4>::create(H, masks, depth),
+            *mp = LSHMapFactory<4>::create(H, masks, depth);
 
   std::vector<Point<D>> points = {
       Point<D>(0b0000),
@@ -58,10 +62,11 @@ TEST(LSHMapPriorityQueue, PushDoesNotAddMap_IfFullAndMorePointsInLargestBucket) 
 }
 
 TEST(LSHMapPriorityQueue, OrdersMapsByTheNumberOfPointsInLargestBucket) {
-  LSHMapPriorityQueue<4> queue(H, 2, 3);
+  BucketMask masks(3);
+  LSHMapPriorityQueue<4> queue(H, masks, 2, 3);
   
-  LSHMap<4> *map1 = LSHMapFactory<4>::create(H, 3),
-            *map2 = LSHMapFactory<4>::create(H, 3);
+  LSHMap<4> *map1 = LSHMapFactory<4>::create(H, masks, 3),
+            *map2 = LSHMapFactory<4>::create(H, masks, 3);
 
   std::vector<Point<D>> points = {
       Point<D>(0b0000),
