@@ -34,8 +34,9 @@ class Index {
     /**
      * @brief prepares the index for querying by building the index 
      *        on the currently inserted points
+     * @param max_hdist The maximum hamming distance to initialize adj buckets for
      */
-    virtual void build() = 0;
+    virtual void build(ui32 max_hdist = 0) = 0;
 
     /**
      * @param point Point to insert into the index

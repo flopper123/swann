@@ -52,11 +52,13 @@ public:
   // If we care about build performance, this needs to be emplace_back, and then we should implement a copy constructor for points
   void insert(Point<D>& point) { points.push_back(point); }; 
   
-  void build() {
+  void build(ui32 max_hdist = 0) {
+    if (!max_hdist) max_hdist = this->depth;
     for (auto &map : this->maps) {
       if (map->size() < this->size()) {
         map->add(this->points);
       }
+      map->optimize(max_hdist);
     }
   };
   

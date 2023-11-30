@@ -79,12 +79,26 @@ public:
 
   /**
    * @brief Optimizes the LSHHashMap
+   * @param max_hdist The maximum hamming distance to initialize adj buckets for
   */
-  void optimize() {
-    // TODO: Implement this: 
-    //         Should find the next nonempty buckets for all buckets
-  }
+  void optimize(ui32 max_hdist = 0) {
+    if (!max_hdist) max_hdist = this->depth();
+    max_hdist = std::min(max_hdist, (ui32) this->masks.size());
 
+    // Should find the next nonempty buckets for all buckets
+    for (ui32 hdist = 0; hdist < max_hdist; ++hdist) { 
+      for (const auto& [ bidx, b ] : this->buckets) {
+
+        for (ui32 mask_idx = 0; mask_idx < this->masks[hdist].size(); ++mask_idx) {
+          
+          const ui32 i = bidx ^ this->masks[hdist][mask_idx]; 
+          if (this->buckets.contains(i) && this->buckets.at(i).size() > 0) {
+            this->buckets[bidx].adj[hdist].emplace_back(i);
+          }
+        }
+      }
+    }
+  }
   /**
    * @returns The hash (index) of the bucket the point belongs to
    */
@@ -112,7 +126,7 @@ public:
    */
   inline bool has_next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const
   {
-    return mask_idx < this->buckets[bucket].adj[hdist].size();
+    return mask_idx < this->buckets.at(bucket).adj.at(hdist).size();
   }
   
   /**
@@ -125,7 +139,7 @@ public:
    */
   inline hash_idx next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const
   {
-    return this->buckets[bucket].adj[hdist][mask_idx];
+    return this->buckets.at(bucket).adj.at(hdist)[mask_idx];
   }
   
   /**

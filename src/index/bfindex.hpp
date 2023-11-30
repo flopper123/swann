@@ -17,7 +17,7 @@ class BFIndex : public Index<D> {
       return this->points.size(); 
     }
     
-    void build() {}
+    void build(ui32 max_hdist = 0) {}
 
     void insert(Point<D>& p) {
       this->points.push_back(p);

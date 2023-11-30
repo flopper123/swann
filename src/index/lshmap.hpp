@@ -86,7 +86,8 @@ public:
 
   /**
    * @brief Optional optimization of LSH Map. Should be called after initialization of LSHMaps 
-  */
-  void optimize() {}
+   * @param max_hdist The maximum hamming distance to initialize adj buckets for
+   */
+  void optimize(ui32 max_hdist = 0) {}
 };
 
