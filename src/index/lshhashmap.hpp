@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lshmap.hpp"
+#include "bucketmask.hpp"
 
 template <ui32 D>
 class LSHHashMap : public LSHMap<D> {
@@ -9,6 +10,13 @@ public:
   LSHHashMap(HashFamily<D>& hf) : LSHMap<D>(hf)
   {
     this->build(hf);
+    this->masks = BucketMask(hf.size(), 4U);
+  }
+
+  LSHHashMap(HashFamily<D>& hf, BucketMask &masks) : LSHMap<D>(hf)
+  {
+    this->build(hf);
+    this->masks = masks;
   }
   
   /**
@@ -19,46 +27,6 @@ public:
     return this->max_bucket_size;
   }
 
-  // all possible masks by hamming distance 
-  static inline std::vector<std::vector<ui32>> masks = std::vector<std::vector<ui32>>();
-
-  static void initMasks(ui32 depth = 32U, ui32 max_hdist = 4U) {
-    ui32 constructed_masks = 0;
-    if (max_hdist == 0) max_hdist = depth;
-    for (ui32 hdist = 0; hdist <= max_hdist; ++hdist) {
-      // The case might be that we have already initialized this hdist, 
-      // so we recompute since each time the depth increases new options emerge.
-      if (LSHHashMap<D>::masks.size() > hdist) 
-      {
-        LSHHashMap<D>::masks[hdist] = std::vector<ui32>(); 
-      } else {
-        LSHHashMap<D>::masks.emplace_back(std::vector<ui32>());
-      } 
-
-      // Initalize a bitset of size depth with hdist bits set
-      std::vector<bool> vmask(depth, false);
-      
-      // Set n first bits to true
-      std::fill(vmask.begin(), vmask.begin() + hdist, true);
-      std::sort(ALL(vmask));
-      
-      // create ui32 masks
-      do {
-        // Transform vmask to ui32
-        ui32 m = accumulate(vmask.rbegin(), vmask.rend(), 0, [](ui32 x, ui32 y) { return (x << 1UL) + y; });
-        LSHHashMap<D>::masks[hdist].emplace_back(m);
-        // Ensure we don't go out of bound
-      } while (std::next_permutation(ALL(vmask)));
-      
-      std::sort(ALL(LSHHashMap<D>::masks[hdist])); // sort ascending to ensure query stays within bound for multiple depths
-
-      constructed_masks += LSHHashMap<D>::masks[hdist].size();
-    }
-
-    std::cout << "Masks size: " << LSHHashMap<D>::masks.size() << std::endl
-              << "Total masks: " << constructed_masks << std::endl;
-  }
-  
   /**
    * @brief Initialize this map with the given hashes. After this call, the map will be empty
    * @warning This will reset the map, and all points inserted will be lost
@@ -72,11 +40,6 @@ public:
     count = 0;
     
     this->number_virtual_buckets = 1ULL << this->hashes.size();
-
-    if (LSHHashMap<D>::masks.empty())
-    {
-      LSHHashMap<D>::initMasks(32U, 4U);
-    }
   }
 
   /**
@@ -142,7 +105,7 @@ public:
    */
   inline bool has_next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const 
   {
-    return mask_idx < LSHHashMap<D>::masks[hdist].size() && LSHHashMap<D>::masks[hdist][mask_idx] < this->bucketCount();
+    return mask_idx < this->masks[hdist].size() && this->masks[hdist][mask_idx] < this->bucketCount();
   }
   
   /**
@@ -155,7 +118,7 @@ public:
    */
   inline hash_idx next_bucket(hash_idx bucket, ui32 hdist, ui32 mask_idx) const
   {
-    return bucket ^ LSHHashMap<D>::masks[hdist][mask_idx];
+    return bucket ^ this->masks[hdist][mask_idx];
   }
   
   /**
@@ -166,7 +129,7 @@ public:
    */
   std::vector<hash_idx> query(hash_idx bidx, ui32 hdist = 0) const {
 
-    const ui32 MI = LSHHashMap<D>::masks[hdist].size();
+    const ui32 MI = this->masks[hdist].size();
     std::vector<hash_idx> res;
     
     for (ui32 mi = 0; 
@@ -196,4 +159,6 @@ private:
   bucket empty_bucket;
   ui64 count;
   ui32 number_virtual_buckets;
+  // all possible masks by hamming distance 
+  BucketMask masks;
 };

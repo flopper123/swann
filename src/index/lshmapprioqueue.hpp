@@ -3,6 +3,7 @@
 #include "../hash/hashfamily.hpp"
 #include "lsharraymap.hpp"
 #include "lshhashmap.hpp"
+#include "bucketmask.hpp"
 #include "../statistics/lshmapanalyzer.hpp"
 #include "../util/ranges.hpp"
 
@@ -36,7 +37,7 @@ class LSHMapPriorityQueue {
   ui32 max_size, sz;
 
 public:
-  LSHMapPriorityQueue(HashFamily<D>& hf, ui32 max_size = 10, ui32 depth = 5) : max_size(max_size), sz(0) {
+  LSHMapPriorityQueue(HashFamily<D>& hf, BucketMask &masks, ui32 max_size = 10, ui32 depth = 5) : max_size(max_size), sz(0) {
     // Initialize queue with max_size maps
     for (ui32 i = 0; i < max_size; ++i) {
       HashFamily<D> hashes = hf.subset(depth); 
